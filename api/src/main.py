@@ -1,12 +1,6 @@
-from domain.users.user import User
+from domain.common.response import Response
 
-user = User(1, "test")
-
-
-def test(user):
-    user.messages.append({"1": "rere"})
-
-
-test(user)
-
-print(user)
+test = Response(
+    value="test! (test_) ```test```, *test* test! test_ ```test```, *test* test! test_ ```test```, *test*  test! test_ ```test```,\n *test* test! test_ ```test```, *test* test! test_ ```test```, *test*"
+)
+print(test.value)
