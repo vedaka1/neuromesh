@@ -1104,6 +1104,17 @@ files = [
 ]
 
 [[package]]
+name = "punq"
+version = "0.7.0"
+description = "An IOC Container for Python 3.8+"
+optional = false
+python-versions = ">=3.8.1,<4.0"
+files = [
+    {file = "punq-0.7.0-py3-none-any.whl", hash = "sha256:7e0aca446c36a73674ec3fc078ec5e90e7a172ee349537d075ff20d73c3b1810"},
+    {file = "punq-0.7.0.tar.gz", hash = "sha256:bb7a6cc75a2e7d51b861b0e11f4830a12617b3ee33dbced9ce2be6a98ba39d63"},
+]
+
+[[package]]
 name = "pyasn1"
 version = "0.6.0"
 description = "Pure-Python implementation of ASN.1 types and DER/BER/CER codecs (X.208)"
@@ -1610,4 +1621,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "745e66119fe25961d074e8678a183bb104a0d2b624bd6c6acdaa222f716b1db7"
+content-hash = "dac4c966c752bd505d9681e5353d4d85f47f348b5904df374217a41c32dfda4d"
