@@ -14,6 +14,7 @@ class UserRepository(BaseUserRepository):
 
     async def create(self, user: UserDB) -> None:
         async with self.connection as conn:
+            conn: Connection
             await conn.execute(
                 """
                     INSERT INTO users (telegram_id, username, is_premium)
@@ -43,7 +44,7 @@ class UserRepository(BaseUserRepository):
             )
             return result
 
-    async def get_all(self, limit: int = 10, offset: int = 0) -> list[User]:
+    async def get_all(self, limit: int = 10, offset: int = 0) -> list[UserDB]:
         async with self.connection as conn:
             result = await conn.fetch(
                 """SELECT * FROM users LIMIT $1 OFFSET $2;""", limit, offset

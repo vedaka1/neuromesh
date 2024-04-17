@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from domain.common.value import ValueObject
 
@@ -6,13 +6,10 @@ from domain.common.value import ValueObject
 @dataclass
 class Response(ValueObject):
     value: str
-    symbols_to_ignore: str = r"_*[]()~`>#+-=|{}.!"
+    symbols_to_ignore: str = field(default=r"_*[]()~`>#+-=|{}.!", init=False)
 
     def __post_init__(self):
         for symbol in self.symbols_to_ignore:
             self.value = self.value.replace(symbol, f"\{symbol}")
         self.value = self.value.replace(r"\`\`\`", "```")
         self.value = self.value.replace(r"\*\*", "**")
-
-    def as_generic_type(self):
-        return str(self.value)

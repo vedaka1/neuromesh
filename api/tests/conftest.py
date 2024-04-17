@@ -7,14 +7,8 @@ from punq import Container, Scope
 
 from src.domain.users.repository import BaseUserRepository
 from src.infrastructure.config import settings
-from src.infrastructure.persistence.database import DatabaseResource
+from src.infrastructure.persistence.database import ConnectionPoolManager
 from src.infrastructure.persistence.repositories.user import UserRepository
-
-# @pytest.fixture(scope="session")
-# async def create_connection() -> AsyncGenerator[Any, asyncpg.Connection]:
-#     connection: asyncpg.Connection = await asyncpg.connect(settings.DB_URL)
-#     yield connection
-#     await connection.close()
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -25,12 +19,6 @@ def event_loop():
         loop = asyncio.new_event_loop()
     yield loop
     loop.close()
-
-
-# @pytest.fixture(scope="session", autouse=True)
-# async def init_connection_pool():
-#     pool: asyncpg.Pool = await asyncpg.create_pool(settings.DB_URL)
-#     yield pool
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -59,13 +47,13 @@ def client():
 async def container() -> Container:
     container = Container()
     container.register(
-        DatabaseResource,
-        instance=DatabaseResource(settings.DB_URL),
+        ConnectionPoolManager,
+        instance=ConnectionPoolManager(settings.DB_URL),
         scope=Scope.singleton,
     )
 
     async def init_user_repository() -> UserRepository:
-        db: DatabaseResource = container.resolve(DatabaseResource)
+        db: ConnectionPoolManager = container.resolve(ConnectionPoolManager)
         user_repository = UserRepository(connection=await db.get_connection())
         return user_repository
 

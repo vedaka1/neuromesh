@@ -4,7 +4,7 @@ from punq import Container, Scope
 
 from domain.users.repository import BaseUserRepository
 from infrastructure.config import settings
-from infrastructure.persistence.database import DatabaseResource
+from infrastructure.persistence.database import ConnectionPoolManager
 from infrastructure.persistence.repositories.user import UserRepository
 
 
@@ -18,13 +18,13 @@ def init_container() -> Container:
     container = Container()
 
     container.register(
-        DatabaseResource,
-        instance=DatabaseResource(settings.DB_URL),
+        ConnectionPoolManager,
+        instance=ConnectionPoolManager(settings.DB_URL),
         scope=Scope.singleton,
     )
 
     async def init_user_repository() -> UserRepository:
-        db: DatabaseResource = container.resolve(DatabaseResource)
+        db: ConnectionPoolManager = container.resolve(ConnectionPoolManager)
         user_repository = UserRepository(connection=await db.get_connection())
         return user_repository
 
