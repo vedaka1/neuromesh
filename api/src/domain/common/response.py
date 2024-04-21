@@ -4,7 +4,7 @@ from domain.common.value import ValueObject
 
 
 @dataclass
-class Response(ValueObject):
+class Response(ValueObject[str]):
     value: str
     symbols_to_ignore: str = field(default=r"_*[]()~`>#+-=|{}.!", init=False)
 

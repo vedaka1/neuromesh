@@ -1,14 +1,41 @@
 import asyncio
 
-import asyncpg
 import pytest
 from httpx import AsyncClient
 from punq import Container, Scope
+from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker
 
 from src.domain.users.repository import BaseUserRepository
-from src.infrastructure.config import settings
-from src.infrastructure.persistence.database import ConnectionPoolManager
+from src.infrastructure.persistence.main import create_engine, create_session_factory
+from src.infrastructure.persistence.models import Base
 from src.infrastructure.persistence.repositories.user import UserRepository
+
+
+@pytest.fixture(scope="session", autouse=True)
+async def setup_db():
+    engine = create_engine()
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(Base.metadata.create_all)
+    yield
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+
+
+@pytest.fixture(scope="session")
+def container():
+    container = Container()
+    engine = create_engine()
+    container.register(AsyncEngine, instance=engine)
+    session_factory = create_session_factory(engine)
+    container.register(async_sessionmaker, instance=session_factory)
+
+    container.register(
+        BaseUserRepository,
+        UserRepository,
+        scope=Scope.transient,
+    )
+    yield container
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -21,43 +48,7 @@ def event_loop():
     loop.close()
 
 
-@pytest.fixture(scope="session", autouse=True)
-async def init_db():
-    connection: asyncpg.Connection = await asyncpg.connect(settings.DB_URL)
-    await connection.execute(
-        """
-        CREATE TABLE IF NOT EXISTS users (
-            telegram_id INTEGER PRIMARY KEY,
-            username VARCHAR(255) NOT NULL,
-            is_premium BOOLEAN DEFAULT FALSE
-        );
-        """
-    )
-    yield
-    await connection.execute("DROP TABLE users;")
-
-
 @pytest.fixture(scope="session")
 def client():
     client = AsyncClient()
     yield client
-
-
-@pytest.fixture(scope="session")
-async def container() -> Container:
-    container = Container()
-    container.register(
-        ConnectionPoolManager,
-        instance=ConnectionPoolManager(settings.DB_URL),
-        scope=Scope.singleton,
-    )
-
-    async def init_user_repository() -> UserRepository:
-        db: ConnectionPoolManager = container.resolve(ConnectionPoolManager)
-        user_repository = UserRepository(connection=await db.get_connection())
-        return user_repository
-
-    container.register(
-        BaseUserRepository, factory=init_user_repository, scope=Scope.transient
-    )
-    return container

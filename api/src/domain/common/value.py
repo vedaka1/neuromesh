@@ -8,3 +8,5 @@ VT = TypeVar("VT", bound=Any)
 @dataclass
 class ValueObject(ABC, Generic[VT]):
     value: VT
+
+    def as_generic_type(self) -> None: ...

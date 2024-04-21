@@ -5,7 +5,7 @@ from domain.exeptions.message import EmptyMessageExeption, MessageTooLongExeptio
 
 
 @dataclass
-class Message(ValueObject):
+class Message(ValueObject[str]):
     value: str
 
     def __post_init__(self):

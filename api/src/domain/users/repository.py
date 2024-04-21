@@ -1,8 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
-from domain.users.user import UserDB
-
 
 @dataclass
 class BaseUserRepository(ABC):
