@@ -22,7 +22,9 @@ def init_container() -> Container:
     container = Container()
     engine = create_engine()
     session_factory = create_session_factory(engine)
-    container.register(async_sessionmaker, instance=session_factory)
+    container.register(
+        async_sessionmaker, instance=session_factory, scope=Scope.singleton
+    )
 
     container.register(
         BaseUserRepository,

@@ -11,6 +11,8 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str
     POSTGRES_DB: str
 
+    BOT_TOKEN: str
+
     # SECRET_KEY: str
     # ALGORITHM: str
 
