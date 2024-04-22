@@ -4,7 +4,10 @@ import pytest
 
 from src.domain.neural_networks.model import Model
 from src.domain.subscriptions.subscription import Subscription
-from src.infrastructure.persistence.repositories import NeuralNetworkRepository
+from src.infrastructure.persistence.repositories import (
+    NeuralNetworkRepository,
+    SubscriptionRepository,
+)
 
 
 @pytest.mark.asyncio
@@ -12,8 +15,10 @@ class TestNeuralNetworkRepository:
     async def test_create_neural_network(
         self,
         neural_network_repository: NeuralNetworkRepository,
-        mock_subscription: Subscription,
+        subscription_repository: SubscriptionRepository,
     ):
+        mock_subscription = Subscription.create("mock_sub", 200)
+        await subscription_repository.create(mock_subscription)
         # Create model
         model = Model.create(mock_subscription.id, "test_neuro", 200)
         await neural_network_repository.create(model)
@@ -24,12 +29,15 @@ class TestNeuralNetworkRepository:
         assert result.requests_amount == model.requests_amount
         # Delete model
         await neural_network_repository.delete(model.id)
+        await subscription_repository.delete(mock_subscription.id)
 
     async def test_delete_neural_network(
         self,
         neural_network_repository: NeuralNetworkRepository,
-        mock_subscription: Subscription,
+        subscription_repository: SubscriptionRepository,
     ):
+        mock_subscription = Subscription.create("mock_sub", 200)
+        await subscription_repository.create(mock_subscription)
         # Create model
         model = Model.create(mock_subscription.id, "test_neuro", 200)
         await neural_network_repository.create(model)
@@ -38,12 +46,15 @@ class TestNeuralNetworkRepository:
         # Check it
         result = await neural_network_repository.get_by_id(model.id)
         assert result is None
+        await subscription_repository.delete(mock_subscription.id)
 
     async def test_get_neural_network_by_id(
         self,
         neural_network_repository: NeuralNetworkRepository,
-        mock_subscription: Subscription,
+        subscription_repository: SubscriptionRepository,
     ):
+        mock_subscription = Subscription.create("mock_sub", 200)
+        await subscription_repository.create(mock_subscription)
         # Create model
         model = Model.create(mock_subscription.id, "test_neuro", 200)
         await neural_network_repository.create(model)
@@ -52,12 +63,15 @@ class TestNeuralNetworkRepository:
         assert str(result.id) == str(model.id)
         # Delete model
         await neural_network_repository.delete(model.id)
+        await subscription_repository.delete(mock_subscription.id)
 
     async def test_get_all_neural_networks(
         self,
         neural_network_repository: NeuralNetworkRepository,
-        mock_subscription: Subscription,
+        subscription_repository: SubscriptionRepository,
     ):
+        mock_subscription = Subscription.create("mock_sub", 200)
+        await subscription_repository.create(mock_subscription)
         # Create neural_networks
         count = 2
         for i in range(count):
@@ -72,12 +86,15 @@ class TestNeuralNetworkRepository:
 
         result = await neural_network_repository.get_all()
         assert len(result) == 0
+        await subscription_repository.delete(mock_subscription.id)
 
     async def test_update_neural_network_requests_amount(
         self,
         neural_network_repository: NeuralNetworkRepository,
-        mock_subscription: Subscription,
+        subscription_repository: SubscriptionRepository,
     ):
+        mock_subscription = Subscription.create("mock_sub", 200)
+        await subscription_repository.create(mock_subscription)
         # Create model
         model = Model.create(mock_subscription.id, "test_neuro", 200)
         await neural_network_repository.create(model)
@@ -90,3 +107,4 @@ class TestNeuralNetworkRepository:
         # Check requests_amount
         assert result.requests_amount == 400
         await neural_network_repository.delete(model.id)  # Delete model
+        await subscription_repository.delete(mock_subscription.id)

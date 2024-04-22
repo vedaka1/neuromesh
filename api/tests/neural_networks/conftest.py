@@ -11,10 +11,7 @@ def neural_network_repository(container):
     yield neural_network_repository
 
 
-@pytest.fixture(scope="session")
-async def mock_subscription(container):
-    mock_subscription_repository = container.resolve(BaseSubscriptionRepository)
-    subscription = Subscription.create("mock_sub", 200)
-    await mock_subscription_repository.create(subscription)
-    yield subscription
-    await mock_subscription_repository.delete(subscription.id)
+@pytest.fixture(scope="function")
+async def subscription_repository(container):
+    subscription_repository = container.resolve(BaseSubscriptionRepository)
+    yield subscription_repository
