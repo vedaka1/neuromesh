@@ -70,6 +70,19 @@ class UserSubscriptionRepository(BaseUserSubscriptionRepository):
             result = result.mappings().all()
             return [UserSubscription(**data) for data in result]
 
+    async def get_all_by_user_id(
+        self, user_id: uuid.UUID, limit: int = 10, offset: int = 0
+    ) -> list[UserSubscription]:
+        async with self.session_factory() as session:
+            query = text(
+                """SELECT * FROM users_subscriptions WHERE user_id = :user_id LIMIT :limit OFFSET :offset;"""
+            )
+            result = await session.execute(
+                query, {"user_id": user_id, "limit": limit, "offset": offset}
+            )
+            result = result.mappings().all()
+            return [UserSubscription(**data) for data in result]
+
     async def update(self, id: uuid.UUID, expires_in: int):
         async with self.session_factory() as session:
             query = text(

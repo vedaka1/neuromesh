@@ -34,7 +34,7 @@ class NeuralNetworkRepository(BaseNeuralNetworkRepository):
             await session.commit()
             return None
 
-    async def delete(self, id: int) -> None:
+    async def delete(self, id: uuid.UUID) -> None:
         async with self.session_factory() as session:
             query = text(
                 """
@@ -67,6 +67,20 @@ class NeuralNetworkRepository(BaseNeuralNetworkRepository):
                 """SELECT * FROM neural_networks LIMIT :limit OFFSET :offset;"""
             )
             result = await session.execute(query, {"limit": limit, "offset": offset})
+            result = result.mappings().all()
+            return [Model(**data) for data in result]
+
+    async def get_all_by_subscription_id(
+        self, subscription_id: uuid.UUID, limit: int = 10, offset: int = 0
+    ) -> list[Model]:
+        async with self.session_factory() as session:
+            query = text(
+                """SELECT * FROM subscriptions WHERE subscription_id = :subscription_id LIMIT :limit OFFSET :offset;"""
+            )
+            result = await session.execute(
+                query,
+                {"subscription_id": subscription_id, "limit": limit, "offset": offset},
+            )
             result = result.mappings().all()
             return [Model(**data) for data in result]
 

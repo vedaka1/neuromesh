@@ -3,6 +3,7 @@ from functools import lru_cache
 from punq import Container, Scope
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
+from application.usecases.user import UserService
 from domain.neural_networks.repository import BaseNeuralNetworkRepository
 from domain.subscriptions.repository import BaseSubscriptionRepository
 from domain.users.repository import (
@@ -53,4 +54,5 @@ def init_container() -> Container:
         UserSubscriptionRepository,
         scope=Scope.transient,
     )
+    container.register(UserService, scope=Scope.transient)
     return container

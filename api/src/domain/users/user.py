@@ -51,16 +51,16 @@ class UserSubscription:
 class UserRequest:
     id: uuid.UUID
     user_id: uuid.UUID
-    amount: int
     neural_network_id: uuid.UUID
+    amount: int
 
     @staticmethod
     def create(
-        user_id: uuid.UUID, amount: int, neural_network_id: uuid.UUID
+        user_id: uuid.UUID, neural_network_id: uuid.UUID, amount: int
     ) -> "UserRequest":
         return UserRequest(
             id=uuid.uuid4(),
             user_id=user_id,
-            amount=amount,
             neural_network_id=neural_network_id,
+            amount=amount,
         )

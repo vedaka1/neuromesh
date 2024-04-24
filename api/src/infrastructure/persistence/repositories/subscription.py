@@ -60,6 +60,17 @@ class SubscriptionRepository(BaseSubscriptionRepository):
 
             return Subscription(**result)
 
+    async def get_by_name(self, name: str) -> Subscription:
+        async with self.session_factory() as session:
+            query = text("""SELECT * FROM subscriptions WHERE name = :name;""")
+            result = await session.execute(query, {"name": name})
+            result = result.mappings().one_or_none()
+
+            if result is None:
+                return None
+
+            return Subscription(**result)
+
     async def get_all(self, limit: int = 10, offset: int = 0) -> list[Subscription]:
         async with self.session_factory() as session:
             query = text("""SELECT * FROM subscriptions LIMIT :limit OFFSET :offset;""")

@@ -7,4 +7,4 @@ class GetUserResponse:
     id: uuid.UUID
     telegram_id: int
     username: str
-    subscription_id: uuid.UUID
+    is_subscribed: uuid.UUID

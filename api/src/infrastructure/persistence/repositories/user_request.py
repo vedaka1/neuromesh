@@ -53,7 +53,7 @@ class UserRequestRepository(BaseUserRequestRepository):
 
     async def get_by_id(self, id: uuid.UUID) -> UserRequest:
         async with self.session_factory() as session:
-            query = text("""SELECT * FROM users_requests WHERE user_id = :value;""")
+            query = text("""SELECT * FROM users_requests WHERE id = :value;""")
             result = await session.execute(query, {"value": id})
             result = result.mappings().one_or_none()
             if result is None:
