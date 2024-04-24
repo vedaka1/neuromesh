@@ -12,6 +12,6 @@ def neural_network_repository(container):
 
 
 @pytest.fixture(scope="function")
-async def subscription_repository(container):
+def subscription_repository(container):
     subscription_repository = container.resolve(BaseSubscriptionRepository)
     yield subscription_repository

@@ -3,13 +3,15 @@ from functools import lru_cache
 from punq import Container, Scope
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
-from domain.users.repository import BaseUserRepository
-from infrastructure.persistence.main import (
-    create_engine,
-    create_session,
-    create_session_factory,
+from domain.neural_networks.repository import BaseNeuralNetworkRepository
+from domain.subscriptions.repository import BaseSubscriptionRepository
+from domain.users.repository import (
+    BaseUserRepository,
+    BaseUserRequestRepository,
+    BaseUserSubscriptionRepository,
 )
-from infrastructure.persistence.repositories.user import UserRepository
+from infrastructure.persistence.main import create_engine, create_session_factory
+from infrastructure.persistence.repositories import *
 
 
 @lru_cache(1)
@@ -29,6 +31,26 @@ def init_container() -> Container:
     container.register(
         BaseUserRepository,
         UserRepository,
+        scope=Scope.transient,
+    )
+    container.register(
+        BaseSubscriptionRepository,
+        SubscriptionRepository,
+        scope=Scope.transient,
+    )
+    container.register(
+        BaseNeuralNetworkRepository,
+        NeuralNetworkRepository,
+        scope=Scope.transient,
+    )
+    container.register(
+        BaseUserRequestRepository,
+        UserRequestRepository,
+        scope=Scope.transient,
+    )
+    container.register(
+        BaseUserSubscriptionRepository,
+        UserSubscriptionRepository,
         scope=Scope.transient,
     )
     return container

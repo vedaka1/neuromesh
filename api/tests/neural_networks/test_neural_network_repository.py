@@ -12,6 +12,7 @@ from src.infrastructure.persistence.repositories import (
 
 @pytest.mark.asyncio
 class TestNeuralNetworkRepository:
+
     async def test_create_neural_network(
         self,
         neural_network_repository: NeuralNetworkRepository,

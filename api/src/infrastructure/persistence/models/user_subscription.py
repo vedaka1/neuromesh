@@ -17,5 +17,7 @@ class UserSubscriptionModelDB(Base):
     subscription_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("subscriptions.id", ondelete="CASCADE")
     )
-    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    created_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP(timezone=True), server_default=func.now()
+    )
     expires_in: Mapped[int]

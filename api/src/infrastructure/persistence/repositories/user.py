@@ -18,8 +18,8 @@ class UserRepository(BaseUserRepository):
         async with self.session_factory() as session:
             query = text(
                 """
-                INSERT INTO users (id, telegram_id, username, subscription)
-                VALUES (:id, :telegram_id, :username, :subscription);
+                INSERT INTO users (id, telegram_id, username, is_subscribed)
+                VALUES (:id, :telegram_id, :username, :is_subscribed);
                 """
             )
             await session.execute(
@@ -28,7 +28,7 @@ class UserRepository(BaseUserRepository):
                     "id": user.id,
                     "telegram_id": user.telegram_id,
                     "username": user.username,
-                    "subscription": user.subscription,
+                    "is_subscribed": user.is_subscribed,
                 },
             )
             await session.commit()
@@ -68,19 +68,19 @@ class UserRepository(BaseUserRepository):
             result = result.mappings().all()
             return [User(**data) for data in result]
 
-    async def update_subscription(self, telegram_id: int, subscription: uuid.UUID):
+    async def update_subscription(self, telegram_id: int, is_subscribed: bool):
         async with self.session_factory() as session:
             query = text(
                 """
                 UPDATE users
-                SET subscription = :val
+                SET is_subscribed = :val
                 WHERE telegram_id = :id;
                 """
             )
             await session.execute(
                 query,
                 {
-                    "val": subscription,
+                    "val": is_subscribed,
                     "id": telegram_id,
                 },
             )

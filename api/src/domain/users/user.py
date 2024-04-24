@@ -1,3 +1,4 @@
+import datetime
 import uuid
 from dataclasses import dataclass, field
 
@@ -9,7 +10,7 @@ class UserDB:
     id: uuid.UUID
     telegram_id: int
     username: str
-    subscription: uuid.UUID | None = field(default=None)
+    is_subscribed: bool = False
 
     @staticmethod
     def create(telegram_id: int, username: str) -> "UserDB":
@@ -24,3 +25,42 @@ class UserDB:
 class User(UserDB):
     messages: list[dict] = field(default_factory=list, init=False)
     model: BaseTextModel = field(default=None, init=False)
+
+
+@dataclass
+class UserSubscription:
+    id: uuid.UUID
+    user_id: uuid.UUID
+    subscription_id: uuid.UUID
+    created_at: datetime
+    expires_in: int
+
+    @staticmethod
+    def create(
+        user_id: uuid.UUID, subscription_id: uuid.UUID, expires_in: int = 30
+    ) -> "UserSubscription":
+        return UserSubscription(
+            id=uuid.uuid4(),
+            user_id=user_id,
+            subscription_id=subscription_id,
+            expires_in=expires_in,
+        )
+
+
+@dataclass
+class UserRequest:
+    id: uuid.UUID
+    user_id: uuid.UUID
+    amount: int
+    neural_network_id: uuid.UUID
+
+    @staticmethod
+    def create(
+        user_id: uuid.UUID, amount: int, neural_network_id: uuid.UUID
+    ) -> "UserRequest":
+        return UserRequest(
+            id=uuid.uuid4(),
+            user_id=user_id,
+            amount=amount,
+            neural_network_id=neural_network_id,
+        )

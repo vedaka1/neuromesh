@@ -18,7 +18,7 @@ class TestUserRepository:
         user = await user_repository.get_by_telegram_id(1)
         assert user.telegram_id == 1
         assert user.username == "test1"
-        assert user.subscription is None
+        assert user.is_subscribed == False
         # Delete user
         await user_repository.delete(1)
 
@@ -62,11 +62,11 @@ class TestUserRepository:
         user = UserDB.create(1, f"test1")  # Create user
         await user_repository.create(user)
         user = await user_repository.get_by_telegram_id(1)  # Check it and get it
-        assert user.subscription is None
+        assert user.is_subscribed == False
 
         id = uuid.uuid4()
-        await user_repository.update_subscription(1, id)  # Update subscription
+        await user_repository.update_subscription(1, True)  # Update subscription
         user = await user_repository.get_by_telegram_id(1)  # Check subscription
-        assert str(user.subscription) == str(id)
+        assert user.is_subscribed == True
 
         await user_repository.delete(1)  # Delete user
