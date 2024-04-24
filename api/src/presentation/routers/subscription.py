@@ -1,9 +1,10 @@
+from fastapi import APIRouter, Depends
+from punq import Container
+
 from application.contracts.users.get_user_response import GetUserResponse
 from application.contracts.users.register_request import RegisterRequest
 from application.usecases.user import UserService
-from fastapi import APIRouter, Depends
 from infrastructure.di.container import get_container
-from punq import Container
 
 user_router = APIRouter(
     tags=["Users"],
