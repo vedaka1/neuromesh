@@ -51,10 +51,29 @@ class UserRequestRepository(BaseUserRequestRepository):
             await session.commit()
             return None
 
-    async def get_by_id(self, id: uuid.UUID) -> UserRequest:
+    async def get_by_id(
+        self, id: uuid.UUID, limit: int = 10, offset: int = 0
+    ) -> list[UserRequest]:
         async with self.session_factory() as session:
-            query = text("""SELECT * FROM users_requests WHERE id = :value;""")
-            result = await session.execute(query, {"value": id})
+            query = text(
+                """SELECT * FROM users_requests WHERE id = :val LIMIT :limit OFFSET :offset;"""
+            )
+            result = await session.execute(
+                query, {"val": id, "limit": limit, "offset": offset}
+            )
+            result = result.mappings().all()
+            return [UserRequest(**data) for data in result]
+
+    async def get_by_user_and_model_id(
+        self, model_id: uuid.UUID, user_id: uuid.UUID
+    ) -> UserRequest:
+        async with self.session_factory() as session:
+            query = text(
+                """SELECT * FROM users_requests WHERE user_id = :user_id AND neural_network_id = :model_id;"""
+            )
+            result = await session.execute(
+                query, {"user_id": user_id, "model_id": model_id}
+            )
             result = result.mappings().one_or_none()
             if result is None:
                 return None
@@ -74,20 +93,20 @@ class UserRequestRepository(BaseUserRequestRepository):
             result = result.mappings().all()
             return [UserRequest(**data) for data in result]
 
-    async def update(self, id: uuid.UUID, amount: int):
+    async def update(self, model_id: uuid.UUID, amount: int):
         async with self.session_factory() as session:
             query = text(
                 """
                 UPDATE users_requests
                 SET amount = :val
-                WHERE id = :id;
+                WHERE neural_network_id = :id;
                 """
             )
             await session.execute(
                 query,
                 {
                     "val": amount,
-                    "id": id,
+                    "id": model_id,
                 },
             )
             await session.commit()

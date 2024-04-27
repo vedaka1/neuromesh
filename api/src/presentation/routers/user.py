@@ -38,7 +38,7 @@ async def get_user(
 
 @user_router.delete("", description="Удаляет пользователя по id")
 async def delete_user(
-    user_id: uuid.UUID,
+    user_id: int,
     container: Container = Depends(get_container),
 ):
     user_service: UserService = container.resolve(UserService)

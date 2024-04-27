@@ -1,3 +1,4 @@
+import logging
 from functools import lru_cache
 
 from punq import Container, Scope
@@ -6,6 +7,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker
 from application.usecases.neural_network import NeuralNetworkService
 from application.usecases.subscription import SubscriptionService
 from application.usecases.user import UserService
+from domain.neural_networks.manager import BaseModelManager
 from domain.neural_networks.repository import BaseNeuralNetworkRepository
 from domain.subscriptions.repository import BaseSubscriptionRepository
 from domain.users.repository import (
@@ -13,6 +15,7 @@ from domain.users.repository import (
     BaseUserRequestRepository,
     BaseUserSubscriptionRepository,
 )
+from infrastructure.neural_networks.main import ModelManager
 from infrastructure.persistence.main import create_engine, create_session_factory
 from infrastructure.persistence.repositories import (
     NeuralNetworkRepository,
@@ -27,6 +30,16 @@ from infrastructure.persistence.repositories import (
 def get_container() -> Container:
     container = init_container()
     return container
+
+
+@lru_cache(1)
+def init_logger() -> logging.Logger:
+    logging.basicConfig(
+        # filename="log.log",
+        level=logging.INFO,
+        encoding="UTF-8",
+        format="%(asctime)s %(levelname)s: %(message)s",
+    )
 
 
 def init_container() -> Container:
@@ -65,4 +78,5 @@ def init_container() -> Container:
     container.register(UserService, scope=Scope.transient)
     container.register(SubscriptionService, scope=Scope.transient)
     container.register(NeuralNetworkService, scope=Scope.transient)
+    container.register(BaseModelManager, ModelManager, scope=Scope.singleton)
     return container

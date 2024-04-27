@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from infrastructure.di.container import get_container
+from infrastructure.di.container import get_container, init_logger
 from presentation.routers import model_router, subscription_router, user_router
 
 
@@ -20,5 +20,6 @@ def create_app() -> FastAPI:
 
     container = get_container()
     init_routers(app)
+    init_logger()
 
     return app
