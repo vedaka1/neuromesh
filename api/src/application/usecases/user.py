@@ -17,43 +17,48 @@ class UserService:
     subscriptions_repository: BaseSubscriptionRepository
     neural_network_repository: BaseNeuralNetworkRepository
 
-    @classmethod
-    async def create_user(cls, request: RegisterRequest) -> GetUserResponse:
-        user_exists = await cls.user_repository.get_by_telegram_id(request.telegram_id)
+    async def create(self, request: RegisterRequest) -> UserDB:
+        user_exists = await self.user_repository.get_by_telegram_id(request.telegram_id)
 
         if user_exists:
             raise HTTPException(status_code=400, detail="User already exists")
 
         user = UserDB.create(telegram_id=request.telegram_id, username=request.username)
-        await cls.user_repository.create(user)
+        await self.user_repository.create(user)
 
-        subscription = await cls.subscriptions_repository.get_by_name("free")
+        subscription = await self.subscriptions_repository.get_by_name("free")
         neural_networks = (
-            await cls.neural_network_repository.get_all_by_subscription_id(
+            await self.neural_network_repository.get_all_by_subscription_id(
                 subscription.id
             )
         )
 
-        for neural_network in neural_networks:
-            user_request = UserRequest.create(
-                user_id=user.id,
-                neural_network_id=neural_network.id,
-                amount=neural_network.requests_amount,
-            )
-            await cls.user_requests_repository.create(user_request)
+        if neural_networks:
+            for neural_network in neural_networks:
+                user_request = UserRequest.create(
+                    user_id=user.id,
+                    neural_network_id=neural_network.id,
+                    amount=neural_network.requests_amount,
+                )
+                await self.user_requests_repository.create(user_request)
 
-        return GetUserResponse(
-            id=user.id,
-            telegram_id=user.telegram_id,
-            username=user.username,
-        )
+        return user
 
-    @classmethod
-    async def get_user_by_id(cls, user_id: int) -> GetUserResponse:
-        user = await cls.user_repository.get_by_telegram_id(user_id)
+    async def get_user_by_telegram_id(self, user_id: int) -> UserDB:
+        user = await self.user_repository.get_by_telegram_id(user_id)
 
-        return GetUserResponse(
-            id=user.id,
-            telegram_id=user.telegram_id,
-            username=user.username,
-        )
+        if user is None:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        return user
+
+    async def get_all(self) -> list[UserDB]:
+        return await self.user_repository.get_all()
+
+    async def delete_by_id(self, user_id: int) -> None:
+        await self.user_repository.delete(user_id)
+
+    async def get_user_requests(self, user_id: int) -> list[UserRequest]:
+        requests = await self.user_requests_repository.get_all_by_user_id(user_id)
+
+        return requests

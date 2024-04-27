@@ -1,11 +1,13 @@
 from fastapi import FastAPI
 
 from infrastructure.di.container import get_container
-from presentation.routers import user_router
+from presentation.routers import model_router, subscription_router, user_router
 
 
 def init_routers(app: FastAPI):
     app.include_router(user_router)
+    app.include_router(subscription_router)
+    app.include_router(model_router)
 
 
 def create_app() -> FastAPI:

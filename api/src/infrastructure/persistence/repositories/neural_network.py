@@ -61,6 +61,16 @@ class NeuralNetworkRepository(BaseNeuralNetworkRepository):
 
             return Model(**result)
 
+    async def get_by_name(self, name: str) -> Model:
+        async with self.session_factory() as session:
+            query = text("""SELECT * FROM neural_networks WHERE name = :name;""")
+            result = await session.execute(query, {"name": name})
+            result = result.mappings().one_or_none()
+            if result is None:
+                return None
+
+            return Model(**result)
+
     async def get_all(self, limit: int = 10, offset: int = 0) -> list[Model]:
         async with self.session_factory() as session:
             query = text(
@@ -75,7 +85,7 @@ class NeuralNetworkRepository(BaseNeuralNetworkRepository):
     ) -> list[Model]:
         async with self.session_factory() as session:
             query = text(
-                """SELECT * FROM subscriptions WHERE subscription_id = :subscription_id LIMIT :limit OFFSET :offset;"""
+                """SELECT * FROM neural_networks WHERE subscription_id = :subscription_id LIMIT :limit OFFSET :offset;"""
             )
             result = await session.execute(
                 query,

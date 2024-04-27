@@ -17,6 +17,9 @@ class BaseNeuralNetworkRepository(ABC):
     async def get_by_id(self, id: uuid.UUID) -> Model | None: ...
 
     @abstractmethod
+    async def get_by_name(self, name: str) -> Model | None: ...
+
+    @abstractmethod
     async def get_all(self, limit: int = 10, offset: int = 0) -> list[Model] | None: ...
 
     @abstractmethod

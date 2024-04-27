@@ -21,7 +21,7 @@ class BaseTextModel(ABC):
 @dataclass
 class Model:
     id: uuid.UUID
-    subscription_id: int
+    subscription_id: uuid.UUID
     name: str
     requests_amount: int
 

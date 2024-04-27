@@ -1,5 +1,10 @@
 from functools import lru_cache
 
+from punq import Container, Scope
+from sqlalchemy.ext.asyncio import async_sessionmaker
+
+from application.usecases.neural_network import NeuralNetworkService
+from application.usecases.subscription import SubscriptionService
 from application.usecases.user import UserService
 from domain.neural_networks.repository import BaseNeuralNetworkRepository
 from domain.subscriptions.repository import BaseSubscriptionRepository
@@ -9,9 +14,13 @@ from domain.users.repository import (
     BaseUserSubscriptionRepository,
 )
 from infrastructure.persistence.main import create_engine, create_session_factory
-from infrastructure.persistence.repositories import *
-from punq import Container, Scope
-from sqlalchemy.ext.asyncio import async_sessionmaker
+from infrastructure.persistence.repositories import (
+    NeuralNetworkRepository,
+    SubscriptionRepository,
+    UserRepository,
+    UserRequestRepository,
+    UserSubscriptionRepository,
+)
 
 
 @lru_cache(1)
@@ -54,4 +63,6 @@ def init_container() -> Container:
         scope=Scope.transient,
     )
     container.register(UserService, scope=Scope.transient)
+    container.register(SubscriptionService, scope=Scope.transient)
+    container.register(NeuralNetworkService, scope=Scope.transient)
     return container
