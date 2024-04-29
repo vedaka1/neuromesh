@@ -34,18 +34,18 @@ class UserRequestRepository(BaseUserRequestRepository):
             await session.commit()
             return None
 
-    async def delete(self, id: uuid.UUID) -> None:
+    async def delete_user_requests(self, user_id: uuid.UUID) -> None:
         async with self.session_factory() as session:
             query = text(
                 """
                 DELETE FROM users_requests
-                WHERE id = :value;
+                WHERE user_id = :value;
                 """
             )
             await session.execute(
                 query,
                 {
-                    "value": id,
+                    "value": user_id,
                 },
             )
             await session.commit()
@@ -93,20 +93,23 @@ class UserRequestRepository(BaseUserRequestRepository):
             result = result.mappings().all()
             return [UserRequest(**data) for data in result]
 
-    async def update(self, model_id: uuid.UUID, amount: int):
+    async def update_user_requests(
+        self, user_id: uuid.UUID, model_id: uuid.UUID, amount: int
+    ):
         async with self.session_factory() as session:
             query = text(
                 """
                 UPDATE users_requests
                 SET amount = :val
-                WHERE neural_network_id = :id;
+                WHERE user_id = :id AND neural_network_id = :model_id;
                 """
             )
             await session.execute(
                 query,
                 {
                     "val": amount,
-                    "id": model_id,
+                    "id": user_id,
+                    "model_id": model_id,
                 },
             )
             await session.commit()

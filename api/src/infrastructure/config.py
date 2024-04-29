@@ -13,6 +13,13 @@ class Settings(BaseSettings):
 
     BOT_TOKEN: str
 
+    API_KEY_KADINSKY: str
+    API_SECRET_KEY_KADINSKY: str
+
+    AUTH_DATA_SBER: str
+    CLIENT_ID_SBER: str
+    CLIENT_SECRET_SBER: str
+
     # SECRET_KEY: str
     # ALGORITHM: str
 

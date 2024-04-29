@@ -1,0 +1,65 @@
+@startuml
+class Bot <<обработчик>>  {
++ default_properties
++ main()
++ handle_message()
++ process_message(message)
++ send_message(message)
+}
+
+class Router {
+}
+
+class FreeChatGPT <<модель>> {
+- _run_provider(provider, user_messages)
+- _test_access()
+}
+
+class Kadinsky <<модель>> {
+# __AUTH_HEADERS: dict
++ model_id
++ client
+# __get_model()
++ check_generation(request_id, attempts=10)
+}
+
+class Suno <<модель>> {
++ client
+}
+
+class User <<сущность>> {
++ id: int
++ messages: list
++ model: BaseTextModel
++ add_message(text)
++ clear_messages()
++ set_model(model)
++ generate_response()
+}
+
+abstract BaseTextModel <<абстракция>> {
+{static} logger
+{abstract} create_message()
+{abstract} generate_response()
+}
+
+abstract BaseImageModel <<абстракция>> {
+{static} logger
+{abstract} generate_image()
+{abstract} generate_response()
+}
+
+abstract BaseMusicModel <<абстракция>> {
+{static} logger
+{abstract} generate_response()
+}
+
+Router *-- FreeChatGPT
+Router *-- Kadinsky
+Router *-- Suno
+FreeChatGPT --|> BaseTextModel 
+Kadinsky --|> BaseImageModel 
+Suno --|> BaseMusicModel 
+Bot *-- Router
+User *-- BaseTextModel
+@enduml

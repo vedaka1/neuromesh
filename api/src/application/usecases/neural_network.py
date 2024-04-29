@@ -34,11 +34,7 @@ class NeuralNetworkService:
                 status_code=400, detail="Neural network model already exist"
             )
 
-        model = Model.create(
-            name=request.name,
-            subscription_id=request.subscription_id,
-            requests_amount=request.requests_amount,
-        )
+        model = Model.create(name=request.name)
         await self.neural_network_repository.create(model)
 
         return model
@@ -51,25 +47,35 @@ class NeuralNetworkService:
 
         return model
 
+    async def get_all(self) -> list[Model]:
+        return await self.neural_network_repository.get_all()
+
     async def generate_response(
         self, request: GenerateResponseRequest
     ) -> ModelResponse:
-        # model = await self.neural_network_repository.get_by_id(model)
+        model = await self.neural_network_repository.get_by_name(request.model)
 
-        # if model is None:
-        #     raise HTTPException(status_code=404, detail="Model not found")
+        if model is None:
+            raise HTTPException(status_code=404, detail="Model not found")
 
-        # user_requests = await self.user_requests_repository.get_by_user_and_model_id(
-        #     model_id=model_id, user_id=request.user_id
-        # )
-        # amount = user_requests.amount
-        # if amount == 0:
-        #     return ModelResponse(value="Limit of free requests exceeded")
+        user_requests = await self.user_requests_repository.get_by_user_and_model_id(
+            model_id=model.id, user_id=request.user_id
+        )
+
+        if user_requests is None:
+            raise HTTPException(
+                status_code=403, detail="You don't have access to this model"
+            )
+
+        if user_requests.amount == 0:
+            return ModelResponse(value="Limit of free requests exceeded")
 
         response = await self.model_manager.generate_response(
             model_name=request.model, user_id=request.user_id, message=request.message
         )
 
-        # await self.user_requests_repository.update(model_id=model_id, amount=0)
+        await self.user_requests_repository.update_user_requests(
+            user_id=request.user_id, model_id=model.id, amount=user_requests.amount - 1
+        )
 
         return ModelResponse(value=response)

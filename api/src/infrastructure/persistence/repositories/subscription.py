@@ -18,8 +18,8 @@ class SubscriptionRepository(BaseSubscriptionRepository):
         async with self.session_factory() as session:
             query = text(
                 """
-                INSERT INTO subscriptions (id, name, validity_period)
-                VALUES (:id, :name, :validity_period);
+                INSERT INTO subscriptions (id, name)
+                VALUES (:id, :name);
                 """
             )
             await session.execute(
@@ -27,7 +27,6 @@ class SubscriptionRepository(BaseSubscriptionRepository):
                 {
                     "id": subscription.id,
                     "name": subscription.name,
-                    "validity_period": subscription.validity_period,
                 },
             )
             await session.commit()
@@ -78,19 +77,19 @@ class SubscriptionRepository(BaseSubscriptionRepository):
             result = result.mappings().all()
             return [Subscription(**data) for data in result]
 
-    async def update(self, id: uuid.UUID, validity_period: int):
+    async def update(self, id: uuid.UUID, name: str):
         async with self.session_factory() as session:
             query = text(
                 """
                 UPDATE subscriptions
-                SET validity_period = :val
+                SET name = :val
                 WHERE id = :id;
                 """
             )
             await session.execute(
                 query,
                 {
-                    "val": validity_period,
+                    "val": name,
                     "id": id,
                 },
             )

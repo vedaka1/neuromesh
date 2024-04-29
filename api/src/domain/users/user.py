@@ -10,7 +10,7 @@ class UserDB:
     id: uuid.UUID
     telegram_id: int
     username: str
-    is_subscribed: bool = False
+    current_subscription_id: uuid.UUID | None = None
 
     @staticmethod
     def create(telegram_id: int, username: str) -> "UserDB":
@@ -37,12 +37,15 @@ class UserSubscription:
 
     @staticmethod
     def create(
-        user_id: uuid.UUID, subscription_id: uuid.UUID, expires_in: int = 30
+        user_id: uuid.UUID,
+        subscription_id: uuid.UUID,
+        expires_in: int = 30,
     ) -> "UserSubscription":
         return UserSubscription(
             id=uuid.uuid4(),
             user_id=user_id,
             subscription_id=subscription_id,
+            created_at=datetime.datetime.now(datetime.timezone.utc),
             expires_in=expires_in,
         )
 

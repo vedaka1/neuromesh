@@ -14,13 +14,12 @@ class TestSubscriptionRepository:
         self, subscription_repository: SubscriptionRepository
     ):
         # Create subscription
-        subscription = Subscription.create("test_sub", 200)
+        subscription = Subscription.create("test_sub")
         await subscription_repository.create(subscription)
         # Check it
         result = await subscription_repository.get_by_id(subscription.id)
         assert result.id == subscription.id
         assert result.name == subscription.name
-        assert result.validity_period == subscription.validity_period
         # Delete subscription
         await subscription_repository.delete(subscription.id)
 
@@ -28,7 +27,7 @@ class TestSubscriptionRepository:
         self, subscription_repository: SubscriptionRepository
     ):
         # Create subscription
-        subscription = Subscription.create("test_sub", 200)
+        subscription = Subscription.create("test_sub")
         await subscription_repository.create(subscription)
         # Delete subscription
         await subscription_repository.delete(subscription.id)
@@ -40,7 +39,7 @@ class TestSubscriptionRepository:
         self, subscription_repository: SubscriptionRepository
     ):
         # Create subscription
-        subscription = Subscription.create("test_sub", 200)
+        subscription = Subscription.create("test_sub")
         await subscription_repository.create(subscription)
         # Check it and get it
         result = await subscription_repository.get_by_id(subscription.id)
@@ -54,7 +53,7 @@ class TestSubscriptionRepository:
         # Create subscriptions
         count = 2
         for i in range(count):
-            subscription = Subscription.create(f"test_sub{i}", 200)
+            subscription = Subscription.create(f"test_sub{i}")
             await subscription_repository.create(subscription)
         # Check subscriptions
         result = await subscription_repository.get_all()
@@ -70,14 +69,14 @@ class TestSubscriptionRepository:
         self, subscription_repository: SubscriptionRepository
     ):
         # Create subscription
-        subscription = Subscription.create("test_sub", 200)
+        subscription = Subscription.create("test_sub")
         await subscription_repository.create(subscription)
         result = await subscription_repository.get_by_id(subscription.id)
         # Check it and get it
-        assert result.validity_period == 200
-        await subscription_repository.update(subscription.id, 400)
+        assert result.name == "test_sub"
+        await subscription_repository.update(subscription.id, "gpt")
         # Update validity_period
         result = await subscription_repository.get_by_id(subscription.id)
         # Check validity_period
-        assert result.validity_period == 400
+        assert result.name == "gpt"
         await subscription_repository.delete(subscription.id)  # Delete subscription

@@ -8,7 +8,10 @@ from application.usecases.neural_network import NeuralNetworkService
 from application.usecases.subscription import SubscriptionService
 from application.usecases.user import UserService
 from domain.neural_networks.manager import BaseModelManager
-from domain.neural_networks.repository import BaseNeuralNetworkRepository
+from domain.neural_networks.repository import (
+    BaseNeuralNetworkRepository,
+    BaseNeuralNetworkSubscriptionRepository,
+)
 from domain.subscriptions.repository import BaseSubscriptionRepository
 from domain.users.repository import (
     BaseUserRepository,
@@ -19,6 +22,7 @@ from infrastructure.neural_networks.main import ModelManager
 from infrastructure.persistence.main import create_engine, create_session_factory
 from infrastructure.persistence.repositories import (
     NeuralNetworkRepository,
+    NeuralNetworkSubscriptionRepository,
     SubscriptionRepository,
     UserRepository,
     UserRequestRepository,
@@ -73,6 +77,11 @@ def init_container() -> Container:
     container.register(
         BaseUserSubscriptionRepository,
         UserSubscriptionRepository,
+        scope=Scope.transient,
+    )
+    container.register(
+        BaseNeuralNetworkSubscriptionRepository,
+        NeuralNetworkSubscriptionRepository,
         scope=Scope.transient,
     )
     container.register(UserService, scope=Scope.transient)

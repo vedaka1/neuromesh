@@ -607,13 +607,13 @@ files = [
 
 [[package]]
 name = "g4f"
-version = "0.2.9.8"
+version = "0.2.9.11"
 description = "The official gpt4free repository | various collection of powerful language models"
 optional = false
 python-versions = "*"
 files = [
-    {file = "g4f-0.2.9.8-py3-none-any.whl", hash = "sha256:40975febd22feeb72c58aa3c4d2f46c4b846bf7aa8d9046f8a2aa830b5509e88"},
-    {file = "g4f-0.2.9.8.tar.gz", hash = "sha256:252f4892b1f38b542c2ccba8f709a30387403de36173187f4b3634ac2d49b8b2"},
+    {file = "g4f-0.2.9.11-py3-none-any.whl", hash = "sha256:ec9018a7455ee5a5172597ec96cff103c689872402617042ded57a3b381e7332"},
+    {file = "g4f-0.2.9.11.tar.gz", hash = "sha256:49a035462da29fda90555af18ee5fb60989a2169d2ef839579d7b07bac3998cc"},
 ]
 
 [package.dependencies]

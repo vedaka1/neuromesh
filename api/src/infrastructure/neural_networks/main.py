@@ -3,12 +3,12 @@ from dataclasses import dataclass, field
 from domain.common.response import Response
 from domain.neural_networks.manager import BaseModelManager
 from domain.neural_networks.model import BaseTextModel
-from infrastructure.neural_networks.text_models import FreeChatGPT
+from infrastructure.neural_networks.text_models import FreeChatGPT, Gigachat
 
 
 class ModelManager(BaseModelManager):
     def __init__(self) -> None:
-        self.models = {"chatgpt": FreeChatGPT()}
+        self.models = {"chatgpt": FreeChatGPT(), "gigachat": Gigachat()}
 
     async def generate_response(self, user_id, model_name, message) -> str:
         model: BaseTextModel = self.models.get(model_name, None)

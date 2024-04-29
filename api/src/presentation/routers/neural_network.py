@@ -31,6 +31,16 @@ async def create_model(
     return await neural_network_service.create(create_model_request)
 
 
+@model_router.get("", response_model=list[Model])
+async def get_all_models(
+    container: Container = Depends(get_container),
+):
+    neural_network_service: NeuralNetworkService = container.resolve(
+        NeuralNetworkService
+    )
+    return await neural_network_service.get_all()
+
+
 @model_router.get("/{model_name}", response_model=Model)
 async def get_model(
     model_name: str,

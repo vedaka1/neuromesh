@@ -13,31 +13,30 @@ from infrastructure.config import settings
 
 g4f.debug.logging = False
 _providers = [
-    # g4f.Provider.Aura,
-    g4f.Provider.GeminiProChat,
-    g4f.Provider.Koala,
-    # g4f.Provider.Aichat,
-    # g4f.Provider.ChatBase,
-    # g4f.Provider.Bing,
-    # g4f.Provider.GptGo,
-    g4f.Provider.You,
-    # g4f.Provider.Yqcloud,
-    # g4f.Provider.GPTalk,
-    g4f.Provider.Hashnode,
-    g4f.Provider.FreeGpt,
-    g4f.Provider.ChatgptAi,
-    g4f.Provider.Liaobots,
-    g4f.Provider.Chatgpt4Online,
-    g4f.Provider.ChatgptNext,
-    g4f.Provider.ChatgptX,
-    g4f.Provider.GptForLove,
-    g4f.Provider.FlowGpt,
-    g4f.Provider.GptTalkRu,
-    g4f.Provider.Vercel,
-    g4f.Provider.Aichatos,
-    g4f.Provider.Cnote,
-    g4f.Provider.DuckDuckGo,
-    g4f.Provider.Feedough,
+    # {"provider": g4f.Provider.GeminiProChat, "available": True},
+    # {"provider": g4f.Provider.Koala, "available": True},
+    # {"provider": g4f.Provider.Aichat, "available": True},
+    # {"provider": g4f.Provider.ChatBase, "available": True},
+    # {"provider": g4f.Provider.Bing, "available": True},
+    # {"provider": g4f.Provider.GptGo, "available": True},
+    # {"provider": g4f.Provider.You, "available": True},
+    # {"provider": g4f.Provider.Yqcloud, "available": True},
+    # {"provider": g4f.Provider.GPTalk, "available": True},
+    # {"provider": g4f.Provider.Hashnode, "available": True},
+    {"provider": g4f.Provider.FreeGpt, "available": True},
+    {"provider": g4f.Provider.ChatgptAi, "available": True},
+    {"provider": g4f.Provider.Liaobots, "available": True},
+    {"provider": g4f.Provider.Chatgpt4Online, "available": True},
+    {"provider": g4f.Provider.ChatgptNext, "available": True},
+    {"provider": g4f.Provider.ChatgptX, "available": True},
+    {"provider": g4f.Provider.GptForLove, "available": True},
+    {"provider": g4f.Provider.FlowGpt, "available": True},
+    {"provider": g4f.Provider.GptTalkRu, "available": True},
+    {"provider": g4f.Provider.Vercel, "available": True},
+    {"provider": g4f.Provider.Aichatos, "available": True},
+    {"provider": g4f.Provider.Cnote, "available": True},
+    {"provider": g4f.Provider.DuckDuckGo, "available": True},
+    {"provider": g4f.Provider.Feedough, "available": True},
 ]
 
 
@@ -66,8 +65,17 @@ class FreeChatGPT(BaseTextModel):
 
     async def generate_response(self, user_id: uuid.UUID, message: str) -> str:
         """Generates responses from different providers"""
-        calls = [self._run_provider(provider, message) for provider in _providers]
+        print(_providers)
+        calls = [
+            self._run_provider(provider["provider"], message)
+            for provider in _providers
+            if provider["available"]
+        ]
         responses = await asyncio.gather(*calls)
+        for key, value in enumerate(responses):
+            if value is None:
+                _providers[key]["available"] = False
+
         result = [
             response
             for response in responses
@@ -75,9 +83,9 @@ class FreeChatGPT(BaseTextModel):
         ]
         if result:
             # user.messages.append({"role": "assistant", "content": result[0]})
-            response = Response(result[0])
-            self.logger.info('User: %s, chat_response: "%s"', user_id, response.value)
-            return response.value
+            response = result[0]
+            self.logger.info('User: %s, chat_response: "%s"', user_id, response)
+            return response
         self.logger.error("User: %s, info: %s", user_id, responses)
         return False
 

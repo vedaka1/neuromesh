@@ -10,4 +10,3 @@ class SubscriptionModelDB(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, index=True)
     name: Mapped[str]
-    validity_period: Mapped[int]

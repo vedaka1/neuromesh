@@ -18,7 +18,7 @@ class UserSubscriptionRepository(BaseUserSubscriptionRepository):
         async with self.session_factory() as session:
             query = text(
                 """
-                INSERT INTO users_subscriptions (id, user_id, subscription_id expires_in)
+                INSERT INTO users_subscriptions (id, user_id, subscription_id, expires_in)
                 VALUES (:id, :user_id, :subscription_id, :expires_in);
                 """
             )
@@ -70,7 +70,7 @@ class UserSubscriptionRepository(BaseUserSubscriptionRepository):
             result = result.mappings().all()
             return [UserSubscription(**data) for data in result]
 
-    async def get_all_by_user_id(
+    async def get_by_user_id(
         self, user_id: uuid.UUID, limit: int = 10, offset: int = 0
     ) -> list[UserSubscription]:
         async with self.session_factory() as session:

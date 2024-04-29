@@ -21,15 +21,30 @@ class BaseTextModel(ABC):
 @dataclass
 class Model:
     id: uuid.UUID
-    subscription_id: uuid.UUID
     name: str
-    requests_amount: int
 
     @staticmethod
-    def create(subscription_id: uuid.UUID, name: str, requests_amount: int) -> "Model":
+    def create(name: str) -> "Model":
         return Model(
             id=uuid.uuid4(),
-            subscription_id=subscription_id,
             name=name,
-            requests_amount=requests_amount,
+        )
+
+
+@dataclass
+class ModelSubscription:
+    id: uuid.UUID
+    neural_network_id: uuid.UUID
+    subscription_id: uuid.UUID
+    requests: int
+
+    @staticmethod
+    def create(
+        model_id: uuid.UUID, subscription_id: uuid.UUID, requests: int
+    ) -> "ModelSubscription":
+        return ModelSubscription(
+            id=uuid.uuid4(),
+            neural_network_id=model_id,
+            subscription_id=subscription_id,
+            requests=requests,
         )
