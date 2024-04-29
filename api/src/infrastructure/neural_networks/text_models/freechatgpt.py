@@ -65,7 +65,6 @@ class FreeChatGPT(BaseTextModel):
 
     async def generate_response(self, user_id: uuid.UUID, message: str) -> str:
         """Generates responses from different providers"""
-        print(_providers)
         calls = [
             self._run_provider(provider["provider"], message)
             for provider in _providers

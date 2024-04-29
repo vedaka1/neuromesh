@@ -11,6 +11,7 @@ from domain.neural_networks.repository import (
     BaseNeuralNetworkSubscriptionRepository,
 )
 from domain.subscriptions.repository import BaseSubscriptionRepository
+from domain.subscriptions.subscription import Subscription
 from domain.users.repository import (
     BaseUserRepository,
     BaseUserRequestRepository,
@@ -48,15 +49,31 @@ class UserService:
                 await self.user_requests_repository.create(user_request)
         return user
 
-    async def get_user_by_telegram_id(self, user_id: int) -> UserDB:
+    async def get_user_by_telegram_id(self, user_id: int) -> GetUserResponse:
         user = await self.user_repository.get_by_telegram_id(user_id)
         if user is None:
             raise HTTPException(status_code=404, detail="User not found")
+
         if user.current_subscription_id:
-            subscription = await self.user_subscriptions_repository.get_by_id(
+            user_subscription = await self.user_subscriptions_repository.get_by_id(
                 user.current_subscription_id
             )
-        return user
+            subscription = await self.subscriptions_repository.get_by_id(
+                user_subscription.subscription_id
+            )
+            return GetUserResponse(
+                id=user.id,
+                telegram_id=user.telegram_id,
+                username=user.username,
+                subscription=subscription,
+            )
+        subscription = Subscription.create(name="free")
+        return GetUserResponse(
+            id=user.id,
+            telegram_id=user.telegram_id,
+            username=user.username,
+            subscription=subscription,
+        )
 
     async def get_all(self) -> list[UserDB]:
         return await self.user_repository.get_all()
@@ -80,6 +97,9 @@ class UserService:
     async def change_subscription(
         self, user_id: uuid.UUID, subscription_name: uuid.UUID
     ) -> None:
+        if subscription_name == "free":
+            await self.user_repository.update_subscription(user_id, None)
+            return None
         user = await self.user_repository.get_by_id(user_id)
         if user is None:
             raise HTTPException(status_code=404, detail="User not found")
@@ -108,7 +128,7 @@ class UserService:
                 user_request = UserRequest.create(
                     user_id=user.id,
                     neural_network_id=neural_network.neural_network_id,
-                    amount=30,
+                    amount=neural_network.requests,
                 )
                 await self.user_requests_repository.create(user_request)
 

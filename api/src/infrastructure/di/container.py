@@ -42,7 +42,7 @@ def init_logger() -> logging.Logger:
         # filename="log.log",
         level=logging.INFO,
         encoding="UTF-8",
-        format="%(asctime)s %(levelname)s: %(message)s",
+        format="%(levelname)s: %(message)s",
     )
 
 
@@ -53,7 +53,7 @@ def init_container() -> Container:
     container.register(
         async_sessionmaker, instance=session_factory, scope=Scope.singleton
     )
-
+    container.register(BaseModelManager, ModelManager, scope=Scope.singleton)
     container.register(
         BaseUserRepository,
         UserRepository,
@@ -87,5 +87,5 @@ def init_container() -> Container:
     container.register(UserService, scope=Scope.transient)
     container.register(SubscriptionService, scope=Scope.transient)
     container.register(NeuralNetworkService, scope=Scope.transient)
-    container.register(BaseModelManager, ModelManager, scope=Scope.singleton)
+
     return container

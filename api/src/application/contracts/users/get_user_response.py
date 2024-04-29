@@ -1,10 +1,12 @@
 import uuid
 from dataclasses import dataclass
 
+from domain.subscriptions.subscription import Subscription
+
 
 @dataclass
 class GetUserResponse:
     id: uuid.UUID
     telegram_id: int
     username: str
-    is_subscribed: bool
+    subscription: Subscription

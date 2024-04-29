@@ -3,6 +3,7 @@ import uuid
 from fastapi import APIRouter, Depends
 from punq import Container
 
+from application.contracts.users.get_user_response import GetUserResponse
 from application.contracts.users.register_request import RegisterRequest
 from application.usecases.user import UserService
 from domain.users.user import UserDB
@@ -43,7 +44,7 @@ async def get_users(
 @user_router.get(
     "/{user_id}",
     description="Получает пользователя по telegram_id",
-    response_model=UserDB,
+    response_model=GetUserResponse,
 )
 async def get_user(
     user_id: int,
