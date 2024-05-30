@@ -18,8 +18,8 @@ class UserRequestRepository(BaseUserRequestRepository):
         async with self.session_factory() as session:
             query = text(
                 """
-                INSERT INTO users_requests (id, user_id, neural_network_id, amount)
-                VALUES (:id, :user_id, :neural_network_id, :amount);
+                INSERT INTO users_requests (id, user_id, neural_network_name, amount)
+                VALUES (:id, :user_id, :neural_network_name, :amount);
                 """
             )
             await session.execute(
@@ -27,7 +27,7 @@ class UserRequestRepository(BaseUserRequestRepository):
                 {
                     "id": user_request.id,
                     "user_id": user_request.user_id,
-                    "neural_network_id": user_request.neural_network_id,
+                    "neural_network_name": user_request.neural_network_name,
                     "amount": user_request.amount,
                 },
             )
@@ -64,15 +64,15 @@ class UserRequestRepository(BaseUserRequestRepository):
             result = result.mappings().all()
             return [UserRequest(**data) for data in result]
 
-    async def get_by_user_and_model_id(
-        self, model_id: uuid.UUID, user_id: uuid.UUID
+    async def get_by_user_and_model_name(
+        self, model_name: uuid.UUID, user_id: uuid.UUID
     ) -> UserRequest:
         async with self.session_factory() as session:
             query = text(
-                """SELECT * FROM users_requests WHERE user_id = :user_id AND neural_network_id = :model_id;"""
+                """SELECT * FROM users_requests WHERE user_id = :user_id AND neural_network_name = :model_name;"""
             )
             result = await session.execute(
-                query, {"user_id": user_id, "model_id": model_id}
+                query, {"user_id": user_id, "model_name": model_name}
             )
             result = result.mappings().one_or_none()
             if result is None:
@@ -94,14 +94,14 @@ class UserRequestRepository(BaseUserRequestRepository):
             return [UserRequest(**data) for data in result]
 
     async def update_user_requests(
-        self, user_id: uuid.UUID, model_id: uuid.UUID, amount: int
+        self, user_id: uuid.UUID, model_name: str, amount: int
     ):
         async with self.session_factory() as session:
             query = text(
                 """
                 UPDATE users_requests
                 SET amount = :val
-                WHERE user_id = :id AND neural_network_id = :model_id;
+                WHERE user_id = :id AND neural_network_name = :model_name;
                 """
             )
             await session.execute(
@@ -109,7 +109,7 @@ class UserRequestRepository(BaseUserRequestRepository):
                 {
                     "val": amount,
                     "id": user_id,
-                    "model_id": model_id,
+                    "model_name": model_name,
                 },
             )
             await session.commit()

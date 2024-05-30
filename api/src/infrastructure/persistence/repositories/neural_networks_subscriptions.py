@@ -18,16 +18,16 @@ class NeuralNetworkSubscriptionRepository(BaseNeuralNetworkSubscriptionRepositor
         async with self.session_factory() as session:
             query = text(
                 """
-                INSERT INTO neural_networks_subscriptions (id, subscription_id, neural_network_id, requests)
-                VALUES (:id, :subscription_id, :model_id, :requests);
+                INSERT INTO neural_networks_subscriptions (id, subscription_name, neural_network_name, requests)
+                VALUES (:id, :subscription_name, :model_name, :requests);
                 """
             )
             await session.execute(
                 query,
                 {
                     "id": model_subscription.id,
-                    "model_id": model_subscription.neural_network_id,
-                    "subscription_id": model_subscription.subscription_id,
+                    "model_name": model_subscription.neural_network_name,
+                    "subscription_name": model_subscription.subscription_name,
                     "requests": model_subscription.requests,
                 },
             )
@@ -63,14 +63,14 @@ class NeuralNetworkSubscriptionRepository(BaseNeuralNetworkSubscriptionRepositor
 
             return ModelSubscription(**result)
 
-    async def get_all_by_subscription_id(
-        self, subscription_id: uuid.UUID
+    async def get_all_by_subscription_name(
+        self, subscription_name: uuid.UUID
     ) -> list[ModelSubscription]:
         async with self.session_factory() as session:
             query = text(
-                """SELECT * FROM neural_networks_subscriptions WHERE subscription_id = :id;"""
+                """SELECT * FROM neural_networks_subscriptions WHERE subscription_name = :name;"""
             )
-            result = await session.execute(query, {"id": subscription_id})
+            result = await session.execute(query, {"name": subscription_name})
             result = result.mappings().all()
             if result is None:
                 return None

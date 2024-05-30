@@ -18,7 +18,7 @@ class TestUserRepository:
         user = await user_repository.get_by_telegram_id(1)
         assert user.telegram_id == 1
         assert user.username == "test1"
-        assert user.current_subscription_id == None
+        assert user.current_subscription == None
         # Delete user
         await user_repository.delete(1)
 

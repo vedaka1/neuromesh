@@ -23,6 +23,30 @@ async def cmd_start(message: types.Message, client: AsyncClient):
     )
 
 
+@user_router.message(filters.Command("account"))
+async def cmd_start(message: types.Message, client: AsyncClient):
+    user_id = message.from_user.id
+    username = message.from_user.username
+    try:
+        data = await client.get(
+            f"/users/{user_id}",
+        )
+        data.raise_for_status()
+    except HTTPStatusError as e:
+        print(f"HTTP {e.response.status_code} Exception {e.response.text}")
+        await message.answer("Не удалось получить ответ")
+        return
+    user_data = data.json()
+    text = (
+        "Подписка: <b>"
+        + user_data['subscription']['name']
+        + "</b>\nКоличество запросов:\n"
+    )
+    for request in user_data['requests']:
+        text += request['neural_network_name'] + ": <b>" + str(request['amount']) + "</b>\n" 
+    await message.answer(text=text)
+
+
 @user_router.message(filters.Command("select_model"))
 async def cmd_select_model(message: types.Message, client: AsyncClient):
     user_id = message.from_user.id

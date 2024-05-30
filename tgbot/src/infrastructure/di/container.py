@@ -7,7 +7,7 @@ users = {}
 
 
 @lru_cache(1)
-def init_logger() -> logging.Logger:
+def init_logger() -> None:
     logging.basicConfig(
         # filename="log.log",
         level=logging.INFO,
@@ -17,7 +17,7 @@ def init_logger() -> logging.Logger:
 
 
 @lru_cache(1)
-def init_client():
+def init_client() -> AsyncClient:
     return AsyncClient(
-        base_url="http://localhost:8000",
+        base_url="http://api:8000",
     )

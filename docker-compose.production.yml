@@ -33,9 +33,7 @@ services:
       - internal
     ports:
       - 8000:8000
-    volumes:
-      - ./api/src:/app
-    command: uvicorn presentation.main:create_app --host 0.0.0.0 --port 8000 --reload
+    command: uvicorn presentation.main:create_app --host 0.0.0.0 --port 8000
 
   rabbitmq:
     container_name: rabbitmq-service
@@ -45,14 +43,6 @@ services:
       - .env
     networks:
       - internal
-    expose:
-      # AMQP protocol port
-      - 5672
-      # HTTP management UI
-      - 15672
-    ports:
-      - 5672:5672
-      - 15672:15672
     volumes:
       - user_service.rabbitmq.data:/var/lib/rabbitmq/:rw
     environment:

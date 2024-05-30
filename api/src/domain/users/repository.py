@@ -24,7 +24,7 @@ class BaseUserRepository(ABC):
 
     @abstractmethod
     async def update_subscription(
-        self, user_id: uuid.UUID, subscription_id: bool
+        self, user_id: uuid.UUID, subscription_name: str
     ) -> UserDB: ...
 
 
@@ -72,9 +72,11 @@ class BaseUserRequestRepository(ABC):
     ) -> list[UserRequest] | None: ...
 
     @abstractmethod
-    async def get_by_user_and_model_id(
-        self, model_id: uuid.UUID, user_id: uuid.UUID
+    async def get_by_user_and_model_name(
+        self, model_name: str, user_id: uuid.UUID
     ) -> UserRequest | None: ...
 
     @abstractmethod
-    async def update_user_requests(self, user_id: uuid.UUID, amount: int) -> None: ...
+    async def update_user_requests(
+        self, user_id: uuid.UUID, model_name: str, amount: int
+    ) -> None: ...

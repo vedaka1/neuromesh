@@ -20,13 +20,11 @@ class BaseTextModel(ABC):
 
 @dataclass
 class Model:
-    id: uuid.UUID
     name: str
 
     @staticmethod
     def create(name: str) -> "Model":
         return Model(
-            id=uuid.uuid4(),
             name=name,
         )
 
@@ -34,17 +32,17 @@ class Model:
 @dataclass
 class ModelSubscription:
     id: uuid.UUID
-    neural_network_id: uuid.UUID
-    subscription_id: uuid.UUID
+    neural_network_name: str
+    subscription_name: uuid.UUID
     requests: int
 
     @staticmethod
     def create(
-        model_id: uuid.UUID, subscription_id: uuid.UUID, requests: int
+        model_name: uuid.UUID, subscription_name: uuid.UUID, requests: int
     ) -> "ModelSubscription":
         return ModelSubscription(
             id=uuid.uuid4(),
-            neural_network_id=model_id,
-            subscription_id=subscription_id,
+            neural_network_name=model_name,
+            subscription_name=subscription_name,
             requests=requests,
         )

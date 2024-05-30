@@ -42,18 +42,17 @@ class SubscriptionService:
         if subscription is None:
             raise HTTPException(status_code=404, detail="Subscription not found")
 
-        neural_networks = await self.neural_network_subscriptoin_repository.get_all_by_subscription_id(
-            subscription.id
+        neural_networks = await self.neural_network_subscriptoin_repository.get_all_by_subscription_name(
+            subscription.name
         )
         models = []
         for neural_network in neural_networks:
-            neural_network = await self.neural_network_repository.get_by_id(
-                neural_network.neural_network_id
+            neural_network = await self.neural_network_repository.get_by_name(
+                neural_network.neural_network_name
             )
             models.append(neural_network)
 
         return GetSubscriptionResponse(
-            id=subscription.id,
             name=subscription.name,
             models=models,
         )
@@ -76,18 +75,20 @@ class SubscriptionService:
         if model is None:
             raise HTTPException(status_code=404, detail="Model not found")
 
-        subscription_models = await self.neural_network_subscriptoin_repository.get_all_by_subscription_id(
-            subscription.id
+        subscription_models = await self.neural_network_subscriptoin_repository.get_all_by_subscription_name(
+            subscription.name
         )
 
         for subscription_model in subscription_models:
-            if subscription_model.neural_network_id == model.id:
+            if subscription_model.neural_network_name == model.name:
                 raise HTTPException(
                     status_code=400, detail="Model already added to subscription"
                 )
 
         model_subscription = ModelSubscription.create(
-            model_id=model.id, subscription_id=subscription.id, requests=requests
+            model_name=model.name,
+            subscription_name=subscription.name,
+            requests=requests,
         )
 
         await self.neural_network_subscriptoin_repository.create(model_subscription)

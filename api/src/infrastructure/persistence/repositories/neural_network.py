@@ -18,51 +18,40 @@ class NeuralNetworkRepository(BaseNeuralNetworkRepository):
         async with self.session_factory() as session:
             query = text(
                 """
-                INSERT INTO neural_networks (id, name)
-                VALUES (:id, :name);
+                INSERT INTO neural_networks (name)
+                VALUES (:name);
                 """
             )
             await session.execute(
                 query,
                 {
-                    "id": model.id,
                     "name": model.name,
                 },
             )
             await session.commit()
             return None
 
-    async def delete(self, id: uuid.UUID) -> None:
+    async def delete(self, name: str) -> None:
         async with self.session_factory() as session:
             query = text(
                 """
                 DELETE FROM neural_networks
-                WHERE id = :value;
+                WHERE name = :value;
                 """
             )
             await session.execute(
                 query,
                 {
-                    "value": id,
+                    "value": name,
                 },
             )
             await session.commit()
             return None
 
-    async def get_by_id(self, id: uuid.UUID) -> Model:
-        async with self.session_factory() as session:
-            query = text("""SELECT * FROM neural_networks WHERE id = :value;""")
-            result = await session.execute(query, {"value": id})
-            result = result.mappings().one_or_none()
-            if result is None:
-                return None
-
-            return Model(**result)
-
     async def get_by_name(self, name: str) -> Model:
         async with self.session_factory() as session:
-            query = text("""SELECT * FROM neural_networks WHERE name = :name;""")
-            result = await session.execute(query, {"name": name})
+            query = text("""SELECT * FROM neural_networks WHERE name = :value;""")
+            result = await session.execute(query, {"value": name})
             result = result.mappings().one_or_none()
             if result is None:
                 return None

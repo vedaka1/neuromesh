@@ -1,25 +1,25 @@
 from aiogram import Bot, F, Router, filters, types
-from httpx import AsyncClient, HTTPStatusError, TimeoutException
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
+from httpx import AsyncClient, HTTPStatusError
 
 chat_router = Router()
 
 
-@chat_router.message(filters.Command("startsss"))
-async def cmd_start(message: types.Message, bot: Bot, client: AsyncClient):
-    user_id = message.from_user.id
-    data = await client.get("/subscriptions")
-    print(data.json())
-    username = message.from_user.username
-    await bot.send_message(
-        chat_id=426826549, text=f"New user _{username}_\\!", parse_mode="MarkDownV2"
-    )
-    await message.answer(
-        "Привет!\n" + "Доступные команды:\n" + " /select_model выбирает модель"
-    )
+class Generate(StatesGroup):
+    text = State()
+
+
+@chat_router.message(Generate.text)
+async def generate_error(message: types.Message) -> None:
+    await message.reply("Подождите, ваше сообщение уже генерируется...")
 
 
 @chat_router.message(F.text)
-async def echo(message: types.Message, users: dict, client: AsyncClient):
+async def generate_response(
+    message: types.Message, users: dict, state: FSMContext, client: AsyncClient
+) -> None:
+    await state.set_state(Generate.text)
     user_id = message.from_user.id
     if user_id not in users:
         return
@@ -35,8 +35,12 @@ async def echo(message: types.Message, users: dict, client: AsyncClient):
             timeout=10,
         )
         data.raise_for_status()
-    except (HTTPStatusError, TimeoutException) as e:
-        print(f"HTTP {e.response.status_code} Exception {e.response.text}")
+
+    except Exception as e:
+        print(f"{e}")
         await message.answer("Не удалось получить ответ")
+        await state.clear()
         return
+
     await msg.edit_text(data.json()["value"])
+    await state.clear()

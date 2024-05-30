@@ -14,6 +14,6 @@ class UserRequestModelDB(Base):
         ForeignKey("users.id", ondelete="CASCADE")
     )
     amount: Mapped[int]
-    neural_network_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("neural_networks.id", ondelete="CASCADE")
+    neural_network_name: Mapped[str] = mapped_column(
+        ForeignKey("neural_networks.name", ondelete="CASCADE")
     )

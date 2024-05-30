@@ -1,9 +1,6 @@
 import logging
 from functools import lru_cache
 
-from punq import Container, Scope
-from sqlalchemy.ext.asyncio import async_sessionmaker
-
 from application.usecases.neural_network import NeuralNetworkService
 from application.usecases.subscription import SubscriptionService
 from application.usecases.user import UserService
@@ -28,6 +25,8 @@ from infrastructure.persistence.repositories import (
     UserRequestRepository,
     UserSubscriptionRepository,
 )
+from punq import Container, Scope
+from sqlalchemy.ext.asyncio import async_sessionmaker
 
 
 @lru_cache(1)
@@ -42,7 +41,7 @@ def init_logger() -> logging.Logger:
         # filename="log.log",
         level=logging.INFO,
         encoding="UTF-8",
-        format="%(levelname)s: %(message)s",
+        format="%(asctime)s %(levelname)s: %(message)s",
     )
 
 
@@ -50,6 +49,7 @@ def init_container() -> Container:
     container = Container()
     engine = create_engine()
     session_factory = create_session_factory(engine)
+    container.register("lifespan_engine", instance=engine)
     container.register(
         async_sessionmaker, instance=session_factory, scope=Scope.singleton
     )

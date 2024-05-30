@@ -18,8 +18,8 @@ class UserSubscriptionRepository(BaseUserSubscriptionRepository):
         async with self.session_factory() as session:
             query = text(
                 """
-                INSERT INTO users_subscriptions (id, user_id, subscription_id, expires_in)
-                VALUES (:id, :user_id, :subscription_id, :expires_in);
+                INSERT INTO users_subscriptions (id, user_id, subscription_name, expires_in)
+                VALUES (:id, :user_id, :subscription_name, :expires_in);
                 """
             )
             await session.execute(
@@ -27,7 +27,7 @@ class UserSubscriptionRepository(BaseUserSubscriptionRepository):
                 {
                     "id": user_subscription.id,
                     "user_id": user_subscription.user_id,
-                    "subscription_id": user_subscription.subscription_id,
+                    "subscription_name": user_subscription.subscription_name,
                     "expires_in": user_subscription.expires_in,
                 },
             )

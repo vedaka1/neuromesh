@@ -58,8 +58,8 @@ class NeuralNetworkService:
         if model is None:
             raise HTTPException(status_code=404, detail="Model not found")
 
-        user_requests = await self.user_requests_repository.get_by_user_and_model_id(
-            model_id=model.id, user_id=request.user_id
+        user_requests = await self.user_requests_repository.get_by_user_and_model_name(
+            model_name=model.name, user_id=request.user_id
         )
 
         if user_requests is None:
@@ -75,7 +75,9 @@ class NeuralNetworkService:
         )
 
         await self.user_requests_repository.update_user_requests(
-            user_id=request.user_id, model_id=model.id, amount=user_requests.amount - 1
+            user_id=request.user_id,
+            model_name=model.name,
+            amount=user_requests.amount - 1,
         )
 
         return ModelResponse(value=response)

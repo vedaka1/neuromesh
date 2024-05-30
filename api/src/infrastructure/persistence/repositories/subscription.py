@@ -18,53 +18,41 @@ class SubscriptionRepository(BaseSubscriptionRepository):
         async with self.session_factory() as session:
             query = text(
                 """
-                INSERT INTO subscriptions (id, name)
-                VALUES (:id, :name);
+                INSERT INTO subscriptions (name)
+                VALUES (:name);
                 """
             )
             await session.execute(
                 query,
                 {
-                    "id": subscription.id,
                     "name": subscription.name,
                 },
             )
             await session.commit()
             return None
 
-    async def delete(self, id: uuid.UUID) -> None:
+    async def delete(self, name: str) -> None:
         async with self.session_factory() as session:
             query = text(
                 """
                 DELETE FROM subscriptions
-                WHERE id = :value;
+                WHERE name = :name;
                 """
             )
             await session.execute(
                 query,
                 {
-                    "value": id,
+                    "name": name,
                 },
             )
             await session.commit()
             return None
-
-    async def get_by_id(self, id: uuid.UUID) -> Subscription:
-        async with self.session_factory() as session:
-            query = text("""SELECT * FROM subscriptions WHERE id = :value;""")
-            result = await session.execute(query, {"value": id})
-            result = result.mappings().one_or_none()
-            if result is None:
-                return None
-
-            return Subscription(**result)
 
     async def get_by_name(self, name: str) -> Subscription:
         async with self.session_factory() as session:
             query = text("""SELECT * FROM subscriptions WHERE name = :name;""")
             result = await session.execute(query, {"name": name})
             result = result.mappings().one_or_none()
-
             if result is None:
                 return None
 
@@ -77,7 +65,7 @@ class SubscriptionRepository(BaseSubscriptionRepository):
             result = result.mappings().all()
             return [Subscription(**data) for data in result]
 
-    async def update(self, id: uuid.UUID, name: str):
+    async def update(self, name: str):
         async with self.session_factory() as session:
             query = text(
                 """
@@ -90,7 +78,7 @@ class SubscriptionRepository(BaseSubscriptionRepository):
                 query,
                 {
                     "val": name,
-                    "id": id,
+                    "id": name,
                 },
             )
             await session.commit()

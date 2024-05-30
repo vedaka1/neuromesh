@@ -1,7 +1,10 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from infrastructure.di.container import get_container, init_logger
+from infrastructure.persistence.models import Base
 from presentation.routers import model_router, subscription_router, user_router
 
 
@@ -11,12 +14,23 @@ def init_routers(app: FastAPI):
     app.include_router(model_router)
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    container = get_container()
+    engine = container.resolve("lifespan_engine")
+    async with engine.begin() as conn:
+        # await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(Base.metadata.create_all)
+    yield
+
+
 def create_app() -> FastAPI:
     app = FastAPI(
         title="NeuroMesh",
         docs_url="/api/docs",
         description="NeuroMesh REST API",
         debug=True,
+        lifespan=lifespan,
     )
     app.add_middleware(
         CORSMiddleware,
@@ -32,7 +46,6 @@ def create_app() -> FastAPI:
             "Access-Control-Allow-Origin",
         ],
     )
-    container = get_container()
     init_routers(app)
     init_logger()
 

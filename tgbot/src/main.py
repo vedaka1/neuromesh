@@ -13,9 +13,9 @@ from presentation.routers.user import user_router
 
 
 def init_routers(dp: Dispatcher):
-    dp.include_routers(subscription_router)
-    dp.include_routers(user_router)
-    dp.include_routers(chat_router)
+    dp.include_router(subscription_router)
+    dp.include_router(user_router)
+    dp.include_router(chat_router)
 
 
 async def main():

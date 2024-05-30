@@ -15,6 +15,4 @@ RUN poetry install --no-root --no-interaction --no-ansi
 COPY src/ .
 COPY .env .
 
-EXPOSE 8000
-
-CMD [ "uvicorn", "presentation.main:create_app", "--host", "0.0.0.0", "--port", "8000" ]
+CMD [ "python", "main.py" ]

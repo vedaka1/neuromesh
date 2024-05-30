@@ -35,18 +35,20 @@ class UserService:
             raise HTTPException(status_code=400, detail="User already exists")
         user = UserDB.create(telegram_id=request.telegram_id, username=request.username)
         await self.user_repository.create(user)
-        subscription = await self.subscriptions_repository.get_by_name("free")
-        neural_networks = await self.neural_network_subscriptions_repository.get_all_by_subscription_id(
-            subscription.id
+
+        subscription = await self.subscriptions_repository.get_by_name("Free")
+        neural_networks = await self.neural_network_subscriptions_repository.get_all_by_subscription_name(
+            subscription.name
         )
         if neural_networks:
             for neural_network in neural_networks:
                 user_request = UserRequest.create(
                     user_id=user.id,
-                    neural_network_id=neural_network.neural_network_id,
+                    neural_network_name=neural_network.neural_network_name,
                     amount=30,
                 )
                 await self.user_requests_repository.create(user_request)
+
         return user
 
     async def get_user_by_telegram_id(self, user_id: int) -> GetUserResponse:
@@ -54,25 +56,17 @@ class UserService:
         if user is None:
             raise HTTPException(status_code=404, detail="User not found")
 
-        if user.current_subscription_id:
-            user_subscription = await self.user_subscriptions_repository.get_by_id(
-                user.current_subscription_id
-            )
-            subscription = await self.subscriptions_repository.get_by_id(
-                user_subscription.subscription_id
-            )
-            return GetUserResponse(
-                id=user.id,
-                telegram_id=user.telegram_id,
-                username=user.username,
-                subscription=subscription,
-            )
-        subscription = Subscription.create(name="free")
+        subscription = await self.subscriptions_repository.get_by_name(
+            user.current_subscription
+        )
+        requests = await self.user_requests_repository.get_all_by_user_id(user.id)
+
         return GetUserResponse(
             id=user.id,
             telegram_id=user.telegram_id,
             username=user.username,
             subscription=subscription,
+            requests=requests,
         )
 
     async def get_all(self) -> list[UserDB]:
@@ -108,26 +102,26 @@ class UserService:
         )
         if subscription is None:
             raise HTTPException(status_code=404, detail="Subscription not found")
-        neural_networks = await self.neural_network_subscriptions_repository.get_all_by_subscription_id(
-            subscription.id
+        neural_networks = await self.neural_network_subscriptions_repository.get_all_by_subscription_name(
+            subscription.name
         )
-        if user.current_subscription_id:
+        if user.current_subscription:
             raise HTTPException(status_code=400, detail="User already subscribed")
 
         user_subscription = UserSubscription.create(
             user_id=user.id,
-            subscription_id=subscription.id,
+            subscription_name=subscription.name,
             expires_in=timedelta(days=30).total_seconds(),
         )
         await self.user_subscriptions_repository.create(user_subscription)
-        await self.user_repository.update_subscription(user.id, user_subscription.id)
+        await self.user_repository.update_subscription(user.id, subscription_name)
 
         await self.user_requests_repository.delete_user_requests(user.id)
         if neural_networks:
             for neural_network in neural_networks:
                 user_request = UserRequest.create(
                     user_id=user.id,
-                    neural_network_id=neural_network.neural_network_id,
+                    neural_network_name=neural_network.neural_network_name,
                     amount=neural_network.requests,
                 )
                 await self.user_requests_repository.create(user_request)
