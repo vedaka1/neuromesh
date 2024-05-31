@@ -1,13 +1,12 @@
 import uuid
 
-from fastapi import APIRouter, Depends
-from punq import Container
-
 from application.contracts.users.get_user_response import GetUserResponse
 from application.contracts.users.register_request import RegisterRequest
 from application.usecases.user import UserService
 from domain.users.user import UserDB
+from fastapi import APIRouter, Depends
 from infrastructure.di.container import get_container
+from punq import Container
 
 user_router = APIRouter(
     tags=["Users"],
@@ -24,7 +23,7 @@ async def create_user(
     return await user_service.create(create_user_request)
 
 
-@user_router.delete("", description="Удаляет пользователя по id")
+@user_router.delete("/{user_id}", description="Удаляет пользователя по id")
 async def delete_user(
     user_id: int,
     container: Container = Depends(get_container),
@@ -80,7 +79,7 @@ async def get_user_subscriptions(
     return await user_service.get_user_subscriptions(user_id)
 
 
-@user_router.post("/{user_id}/subscription", description="Сменить подписку")
+@user_router.put("/{user_id}/subscription", description="Сменить подписку")
 async def update_user_subscription(
     user_id: uuid.UUID,
     subscription_name: str,

@@ -42,8 +42,8 @@ API + TG Bot to access to AI models
 
 2. Run `make app` or `docker compose up -d` in the project directory
 
-## Technologies
-* FastAPI
-* Aiogram
-* SQLAlchemy
-* RabbitMQ
+## API Routes
+* Users ![image](./docs/images/users.png)
+* Subscriptions ![image](./docs/images/subscriptions.png)
+* Neurak Networks ![image](./docs/images/neural_networks.png)
+
