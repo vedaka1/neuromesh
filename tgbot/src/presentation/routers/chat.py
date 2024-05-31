@@ -23,7 +23,7 @@ async def generate_response(
     user_id = message.from_user.id
     if user_id not in users:
         return
-    msg = await message.answer(text="<i>Waiting</i> \U0001F551")
+    msg = await message.answer(text="_Waiting_ \U0001F551", parse_mode="MarkDownV2")
     try:
         data = await client.post(
             "/models/response",
@@ -42,5 +42,5 @@ async def generate_response(
         await state.clear()
         return
 
-    await msg.edit_text(data.json()["value"])
+    await msg.edit_text(data.json()["value"], parse_mode="MarkDownV2")
     await state.clear()

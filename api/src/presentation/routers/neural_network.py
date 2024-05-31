@@ -1,8 +1,3 @@
-import uuid
-
-from fastapi import APIRouter, Depends
-from punq import Container
-
 from application.contracts.neural_networks.create_neural_network_request import (
     CreateNeuralNetworkRequest,
 )
@@ -12,7 +7,9 @@ from application.contracts.neural_networks.generate_response_request import (
 from application.usecases.neural_network import NeuralNetworkService
 from domain.common.response import ModelResponse
 from domain.neural_networks.model import Model
+from fastapi import APIRouter, Depends
 from infrastructure.di.container import get_container
+from punq import Container
 
 model_router = APIRouter(
     tags=["Neural Networks"],

@@ -1,8 +1,6 @@
 import uuid
 from dataclasses import dataclass
 
-from fastapi.exceptions import HTTPException
-
 from application.contracts.neural_networks.create_neural_network_request import (
     CreateNeuralNetworkRequest,
 )
@@ -10,12 +8,14 @@ from application.contracts.neural_networks.generate_response_request import (
     GenerateResponseRequest,
 )
 from domain.common.response import ModelResponse
+from domain.messages.message import Message
 from domain.neural_networks.manager import BaseModelManager
 from domain.neural_networks.model import Model
 from domain.neural_networks.repository import BaseNeuralNetworkRepository
 from domain.subscriptions.repository import BaseSubscriptionRepository
 from domain.subscriptions.subscription import Subscription
 from domain.users.repository import BaseUserRepository, BaseUserRequestRepository
+from fastapi.exceptions import HTTPException
 
 
 @dataclass
@@ -55,6 +55,8 @@ class NeuralNetworkService:
     ) -> ModelResponse:
         model = await self.neural_network_repository.get_by_name(request.model)
 
+        message = Message(request.message)
+
         if model is None:
             raise HTTPException(status_code=404, detail="Model not found")
 
@@ -71,7 +73,7 @@ class NeuralNetworkService:
             return ModelResponse(value="Limit of free requests exceeded")
 
         response = await self.model_manager.generate_response(
-            model_name=request.model, user_id=request.user_id, message=request.message
+            model_name=request.model, user_id=request.user_id, message=message.value
         )
 
         await self.user_requests_repository.update_user_requests(
