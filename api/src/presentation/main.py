@@ -34,11 +34,9 @@ def create_app() -> FastAPI:
     )
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[
-            "http://localhost",
-        ],
+        allow_origins=["http://localhost"],
         allow_credentials=True,
-        allow_methods=["GET", "POST", "HEAD", "OPTIONS", "DELETE"],
+        allow_methods=["GET", "POST", "HEAD", "OPTIONS", "DELETE", "PUT", "PATCH"],
         allow_headers=[
             "Access-Control-Allow-Headers",
             "Content-Type",

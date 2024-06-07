@@ -89,11 +89,12 @@ class UserService:
         await self.user_requests_repository.update_user_requests(user_id, amount)
 
     async def change_subscription(
-        self, user_id: uuid.UUID, subscription_name: uuid.UUID
+        self, user_id: uuid.UUID, subscription_name: str
     ) -> None:
-        if subscription_name == "free":
+        if subscription_name == "Free":
             await self.user_repository.update_subscription(user_id, None)
             return None
+
         user = await self.user_repository.get_by_id(user_id)
         if user is None:
             raise HTTPException(status_code=404, detail="User not found")
@@ -105,8 +106,8 @@ class UserService:
         neural_networks = await self.neural_network_subscriptions_repository.get_all_by_subscription_name(
             subscription.name
         )
-        if user.current_subscription:
-            raise HTTPException(status_code=400, detail="User already subscribed")
+        # if user.current_subscription:
+        #     raise HTTPException(status_code=400, detail="User already subscribed")
 
         user_subscription = UserSubscription.create(
             user_id=user.id,

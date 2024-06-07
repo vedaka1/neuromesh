@@ -45,8 +45,8 @@ class UserSubscription:
             id=uuid.uuid4(),
             user_id=user_id,
             subscription_name=subscription_name,
-            created_at=datetime.datetime.now(datetime.timezone.utc),
-            expires_in=expires_in,
+            created_at=datetime.datetime.now(),
+            expires_in=datetime.datetime.now() + datetime.timedelta(days=expires_in),
         )
 
 
