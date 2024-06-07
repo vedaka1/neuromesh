@@ -6,8 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from application.common.transaction import BaseTransactionManager
 from application.usecases.neural_network import NeuralNetworkService
-from application.usecases.subscription import SubscriptionService
-from application.usecases.user import UserService
+from application.usecases.subscriptions import *
 from application.usecases.users import *
 from application.usecases.users.get_all_users import GetAllUsers
 from domain.neural_networks.manager import BaseModelManager
@@ -111,7 +110,12 @@ def init_container() -> Container:
     container.register(GetUserSubscriptions, scope=Scope.transient)
     container.register(UpdateUserRequests, scope=Scope.transient)
 
-    container.register(SubscriptionService, scope=Scope.transient)
+    # Subscriptions usecases
+    container.register(CreateSubscription, scope=Scope.transient)
+    container.register(AddModelToSubscription, scope=Scope.transient)
+    container.register(GetAllSubscriptions, scope=Scope.transient)
+    container.register(GetSubscriptionByName, scope=Scope.transient)
+
     container.register(NeuralNetworkService, scope=Scope.transient)
 
     return container
