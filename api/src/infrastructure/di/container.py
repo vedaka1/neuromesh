@@ -1,9 +1,15 @@
 import logging
 from functools import lru_cache
 
+from punq import Container, Scope
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+
+from application.common.transaction import BaseTransactionManager
 from application.usecases.neural_network import NeuralNetworkService
 from application.usecases.subscription import SubscriptionService
 from application.usecases.user import UserService
+from application.usecases.users import *
+from application.usecases.users.get_all_users import GetAllUsers
 from domain.neural_networks.manager import BaseModelManager
 from domain.neural_networks.repository import (
     BaseNeuralNetworkRepository,
@@ -25,8 +31,7 @@ from infrastructure.persistence.repositories import (
     UserRequestRepository,
     UserSubscriptionRepository,
 )
-from punq import Container, Scope
-from sqlalchemy.ext.asyncio import async_sessionmaker
+from infrastructure.persistence.transaction import TransactionManager
 
 
 @lru_cache(1)
@@ -49,9 +54,20 @@ def init_container() -> Container:
     container = Container()
     engine = create_engine()
     session_factory = create_session_factory(engine)
+
     container.register("lifespan_engine", instance=engine)
+
+    def get_session() -> AsyncSession:
+        session = session_factory()
+        return session
+
     container.register(
         async_sessionmaker, instance=session_factory, scope=Scope.singleton
+    )
+
+    container.register(AsyncSession, factory=get_session, scope=Scope.transient)
+    container.register(
+        BaseTransactionManager, TransactionManager, scope=Scope.transient
     )
     container.register(BaseModelManager, ModelManager, scope=Scope.singleton)
     container.register(
@@ -84,7 +100,17 @@ def init_container() -> Container:
         NeuralNetworkSubscriptionRepository,
         scope=Scope.transient,
     )
-    container.register(UserService, scope=Scope.transient)
+    # Users usecases
+    container.register(GetAllUsers, scope=Scope.transient)
+    container.register(ChangeUserSubscription, scope=Scope.transient)
+    container.register(CreateUser, scope=Scope.transient)
+    container.register(DeleteUser, scope=Scope.transient)
+    container.register(GetAllUsers, scope=Scope.transient)
+    container.register(GetUserByTelegramId, scope=Scope.transient)
+    container.register(GetUserRequests, scope=Scope.transient)
+    container.register(GetUserSubscriptions, scope=Scope.transient)
+    container.register(UpdateUserRequests, scope=Scope.transient)
+
     container.register(SubscriptionService, scope=Scope.transient)
     container.register(NeuralNetworkService, scope=Scope.transient)
 

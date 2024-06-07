@@ -501,6 +501,17 @@ files = [
 ]
 
 [[package]]
+name = "dishka"
+version = "1.2.0"
+description = "Minimal DI framework"
+optional = false
+python-versions = ">=3.10"
+files = [
+    {file = "dishka-1.2.0-py3-none-any.whl", hash = "sha256:d543497b611a448d14a4a138976435937b3b58e5657549f73e7df8c3fc04ccad"},
+    {file = "dishka-1.2.0.tar.gz", hash = "sha256:aae988a49f9f5e591cb103c45287a709378b2f3924a95192fceede168f8605dd"},
+]
+
+[[package]]
 name = "distro"
 version = "1.9.0"
 description = "Distro - an OS platform information API"
@@ -1920,4 +1931,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "993c1412352b95dce256b8344d67406d80920a02e081acb1ccca1d790a19ebc6"
+content-hash = "8c42801491adb04a42588b75da6d6d8b1d5ee98fe8c6c3e8b116b9220b7458d5"
