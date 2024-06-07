@@ -5,7 +5,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from domain.users.repository import BaseUserRepository
-from domain.users.user import User, UserDB
+from domain.users.user import UserDB
 
 
 @dataclass

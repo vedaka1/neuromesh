@@ -1,8 +1,17 @@
+import asyncio
 import logging
 from functools import lru_cache
+from typing import AsyncGenerator
 
-from punq import Container, Scope
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+from dishka import (
+    AsyncContainer,
+    Provider,
+    Scope,
+    from_context,
+    make_async_container,
+    provide,
+)
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 from application.common.transaction import BaseTransactionManager
 from application.usecases.neural_networks import *
@@ -34,12 +43,6 @@ from infrastructure.persistence.transaction import TransactionManager
 
 
 @lru_cache(1)
-def get_container() -> Container:
-    container = init_container()
-    return container
-
-
-@lru_cache(1)
 def init_logger() -> logging.Logger:
     logging.basicConfig(
         # filename="log.log",
@@ -49,77 +52,78 @@ def init_logger() -> logging.Logger:
     )
 
 
-def init_container() -> Container:
-    container = Container()
-    engine = create_engine()
-    session_factory = create_session_factory(engine)
+class SettingsProvider(Provider):
+    @provide(scope=Scope.APP)
+    def engine(self) -> AsyncEngine:
+        return create_engine()
 
-    container.register("lifespan_engine", instance=engine)
+    @provide(scope=Scope.APP)
+    def session_factory(self, engine: AsyncEngine) -> async_sessionmaker:
+        return create_session_factory(engine)
 
-    def get_session() -> AsyncSession:
+
+class DatabaseConfigurationProvider(Provider):
+    @provide(scope=Scope.REQUEST, provides=AsyncSession)
+    async def provide_db_connection(
+        self, session_factory: async_sessionmaker
+    ) -> AsyncGenerator[AsyncSession, None]:
         session = session_factory()
-        return session
+        yield session
+        await session.close()
 
-    container.register(
-        async_sessionmaker, instance=session_factory, scope=Scope.singleton
-    )
 
-    container.register(AsyncSession, factory=get_session, scope=Scope.transient)
-    container.register(
-        BaseTransactionManager, TransactionManager, scope=Scope.transient
+class DatabaseAdaptersProvider(Provider):
+    scope = Scope.REQUEST
+
+    unit_of_work = provide(TransactionManager, provides=BaseTransactionManager)
+    model_manager = provide(ModelManager, provides=BaseModelManager)
+    user_repository = provide(UserRepository, provides=BaseUserRepository)
+    user_request_repository = provide(
+        UserRequestRepository, provides=BaseUserRequestRepository
     )
-    container.register(BaseModelManager, ModelManager, scope=Scope.singleton)
-    container.register(
-        BaseUserRepository,
-        UserRepository,
-        scope=Scope.transient,
+    user_subscription_repository = provide(
+        UserSubscriptionRepository, provides=BaseUserSubscriptionRepository
     )
-    container.register(
-        BaseSubscriptionRepository,
-        SubscriptionRepository,
-        scope=Scope.transient,
-    )
-    container.register(
-        BaseNeuralNetworkRepository,
-        NeuralNetworkRepository,
-        scope=Scope.transient,
-    )
-    container.register(
-        BaseUserRequestRepository,
-        UserRequestRepository,
-        scope=Scope.transient,
-    )
-    container.register(
-        BaseUserSubscriptionRepository,
-        UserSubscriptionRepository,
-        scope=Scope.transient,
-    )
-    container.register(
-        BaseNeuralNetworkSubscriptionRepository,
+    neural_network_subscription_repository = provide(
         NeuralNetworkSubscriptionRepository,
-        scope=Scope.transient,
+        provides=BaseNeuralNetworkSubscriptionRepository,
     )
-    # Users usecases
-    container.register(GetAllUsers, scope=Scope.transient)
-    container.register(ChangeUserSubscription, scope=Scope.transient)
-    container.register(CreateUser, scope=Scope.transient)
-    container.register(DeleteUser, scope=Scope.transient)
-    container.register(GetAllUsers, scope=Scope.transient)
-    container.register(GetUserByTelegramId, scope=Scope.transient)
-    container.register(GetUserRequests, scope=Scope.transient)
-    container.register(GetUserSubscriptions, scope=Scope.transient)
-    container.register(UpdateUserRequests, scope=Scope.transient)
+    neural_network_repository = provide(
+        NeuralNetworkRepository, provides=BaseNeuralNetworkRepository
+    )
+    subscription_repository = provide(
+        SubscriptionRepository, provides=BaseSubscriptionRepository
+    )
 
-    # Subscriptions usecases
-    container.register(CreateSubscription, scope=Scope.transient)
-    container.register(AddModelToSubscription, scope=Scope.transient)
-    container.register(GetAllSubscriptions, scope=Scope.transient)
-    container.register(GetSubscriptionByName, scope=Scope.transient)
 
-    # Neural networks usecases
-    container.register(CreateNeuralNetwork, scope=Scope.transient)
-    container.register(GenerateResponse, scope=Scope.transient)
-    container.register(GetAllNeuralNetworks, scope=Scope.transient)
-    container.register(GetNeuralNetworkByName, scope=Scope.transient)
+class UseCasesProvider(Provider):
+    scope = Scope.REQUEST
 
-    return container
+    change_user_subscription = provide(ChangeUserSubscription)
+    create_user = provide(CreateUser)
+    delete_user = provide(DeleteUser)
+    get_all_users = provide(GetAllUsers)
+    get_user_by_tg_id = provide(GetUserByTelegramId)
+    get_user_requests = provide(GetUserRequests)
+    get_user_subscriptions = provide(GetUserSubscriptions)
+    update_user_requests = provide(UpdateUserRequests)
+
+    create_subscription = provide(CreateSubscription)
+    add_model_to_subscription = provide(AddModelToSubscription)
+    get_all_subscriptions = provide(GetAllSubscriptions)
+    get_subscription_by_name = provide(GetSubscriptionByName)
+
+    create_neural_network = provide(CreateNeuralNetwork)
+    generate_response = provide(GenerateResponse)
+    get_all_neural_networks = provide(GetAllNeuralNetworks)
+    get_neural_network_by_name = provide(GetNeuralNetworkByName)
+
+
+@lru_cache(1)
+def get_container() -> AsyncContainer:
+    return make_async_container(
+        SettingsProvider(),
+        DatabaseConfigurationProvider(),
+        DatabaseAdaptersProvider(),
+        UseCasesProvider(),
+    )

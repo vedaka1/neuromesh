@@ -1,8 +1,7 @@
-import uuid
 from dataclasses import dataclass
 
 from sqlalchemy import text
-from sqlalchemy.ext.asyncio import async_sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from domain.subscriptions.repository import BaseSubscriptionRepository
 from domain.subscriptions.subscription import Subscription
@@ -12,74 +11,66 @@ from domain.subscriptions.subscription import Subscription
 class SubscriptionRepository(BaseSubscriptionRepository):
 
     __slots__ = ("session",)
-    session_factory: async_sessionmaker
+    session: AsyncSession
 
     async def create(self, subscription: Subscription) -> None:
-        async with self.session_factory() as session:
-            query = text(
-                """
+        query = text(
+            """
                 INSERT INTO subscriptions (name)
                 VALUES (:name);
                 """
-            )
-            await session.execute(
-                query,
-                {
-                    "name": subscription.name,
-                },
-            )
-            await session.commit()
-            return None
+        )
+        await self.session.execute(
+            query,
+            {
+                "name": subscription.name,
+            },
+        )
+        return None
 
     async def delete(self, name: str) -> None:
-        async with self.session_factory() as session:
-            query = text(
-                """
+        query = text(
+            """
                 DELETE FROM subscriptions
                 WHERE name = :name;
                 """
-            )
-            await session.execute(
-                query,
-                {
-                    "name": name,
-                },
-            )
-            await session.commit()
-            return None
+        )
+        await self.session.execute(
+            query,
+            {
+                "name": name,
+            },
+        )
+        return None
 
     async def get_by_name(self, name: str) -> Subscription:
-        async with self.session_factory() as session:
-            query = text("""SELECT * FROM subscriptions WHERE name = :name;""")
-            result = await session.execute(query, {"name": name})
-            result = result.mappings().one_or_none()
-            if result is None:
-                return None
+        query = text("""SELECT * FROM subscriptions WHERE name = :name;""")
+        result = await self.session.execute(query, {"name": name})
+        result = result.mappings().one_or_none()
+        if result is None:
+            return None
 
-            return Subscription(**result)
+        return Subscription(**result)
 
     async def get_all(self, limit: int = 10, offset: int = 0) -> list[Subscription]:
-        async with self.session_factory() as session:
-            query = text("""SELECT * FROM subscriptions LIMIT :limit OFFSET :offset;""")
-            result = await session.execute(query, {"limit": limit, "offset": offset})
-            result = result.mappings().all()
-            return [Subscription(**data) for data in result]
+        query = text("""SELECT * FROM subscriptions LIMIT :limit OFFSET :offset;""")
+        result = await self.session.execute(query, {"limit": limit, "offset": offset})
+        result = result.mappings().all()
+        return [Subscription(**data) for data in result]
 
     async def update(self, name: str):
-        async with self.session_factory() as session:
-            query = text(
-                """
+        query = text(
+            """
                 UPDATE subscriptions
                 SET name = :val
                 WHERE id = :id;
                 """
-            )
-            await session.execute(
-                query,
-                {
-                    "val": name,
-                    "id": name,
-                },
-            )
-            await session.commit()
-            return None
+        )
+        await self.session.execute(
+            query,
+            {
+                "val": name,
+                "id": name,
+            },
+        )
+        return None
