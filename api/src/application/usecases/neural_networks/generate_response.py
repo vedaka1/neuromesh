@@ -1,7 +1,5 @@
 from dataclasses import dataclass
 
-from fastapi.exceptions import HTTPException
-
 from application.common.transaction import BaseTransactionManager
 from application.contracts.neural_networks.generate_response_request import (
     GenerateResponseRequest,
@@ -11,6 +9,7 @@ from domain.messages.message import Message
 from domain.neural_networks.manager import BaseModelManager
 from domain.neural_networks.repository import BaseNeuralNetworkRepository
 from domain.users.repository import BaseUserRequestRepository
+from fastapi.exceptions import HTTPException
 
 
 @dataclass
@@ -52,6 +51,5 @@ class GenerateResponse:
         )
 
         await self.transaction_manager.commit()
-        await self.transaction_manager.close()
 
         return ModelResponse(value=response)

@@ -1,13 +1,12 @@
 from dataclasses import dataclass
 
-from fastapi.exceptions import HTTPException
-
 from application.common.transaction import BaseTransactionManager
 from application.contracts.subscriptions.create_subscription_request import (
     CreateSubscriptionRequest,
 )
 from domain.subscriptions.repository import BaseSubscriptionRepository
 from domain.subscriptions.subscription import Subscription
+from fastapi.exceptions import HTTPException
 
 
 @dataclass
@@ -28,6 +27,5 @@ class CreateSubscription:
         await self.subscription_repository.create(subscription)
 
         await self.transaction_manager.commit()
-        await self.transaction_manager.close()
 
         return subscription

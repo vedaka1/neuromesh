@@ -2,8 +2,6 @@ import uuid
 from dataclasses import dataclass
 from datetime import timedelta
 
-from fastapi import HTTPException
-
 from application.common.transaction import BaseTransactionManager
 from domain.neural_networks.repository import BaseNeuralNetworkSubscriptionRepository
 from domain.subscriptions.repository import BaseSubscriptionRepository
@@ -13,6 +11,7 @@ from domain.users.repository import (
     BaseUserSubscriptionRepository,
 )
 from domain.users.user import UserRequest, UserSubscription
+from fastapi import HTTPException
 
 
 @dataclass
@@ -63,4 +62,3 @@ class ChangeUserSubscription:
                 await self.user_requests_repository.create(user_request)
 
         await self.transaction_manager.commit()
-        await self.transaction_manager.close()

@@ -1,8 +1,5 @@
 from dataclasses import dataclass
 
-from fastapi.exceptions import HTTPException
-
-from application.common.transaction import BaseTransactionManager
 from application.contracts.subscriptions.get_subscription_response import (
     GetSubscriptionResponse,
 )
@@ -11,6 +8,7 @@ from domain.neural_networks.repository import (
     BaseNeuralNetworkSubscriptionRepository,
 )
 from domain.subscriptions.repository import BaseSubscriptionRepository
+from fastapi.exceptions import HTTPException
 
 
 @dataclass
@@ -18,8 +16,6 @@ class GetSubscriptionByName:
     subscription_repository: BaseSubscriptionRepository
     neural_network_repository: BaseNeuralNetworkRepository
     neural_network_subscriptoin_repository: BaseNeuralNetworkSubscriptionRepository
-
-    transaction_manager: BaseTransactionManager
 
     async def __call__(self, name: str) -> GetSubscriptionResponse:
         subscription = await self.subscription_repository.get_by_name(name)
@@ -36,8 +32,6 @@ class GetSubscriptionByName:
                 neural_network.neural_network_name
             )
             models.append(neural_network)
-
-        await self.transaction_manager.close()
 
         return GetSubscriptionResponse(
             name=subscription.name,

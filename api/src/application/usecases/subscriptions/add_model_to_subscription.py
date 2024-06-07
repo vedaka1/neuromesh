@@ -1,20 +1,15 @@
 from dataclasses import dataclass
 
-from fastapi.exceptions import HTTPException
-
 from application.common.transaction import BaseTransactionManager
-from application.contracts.subscriptions.create_subscription_request import (
-    CreateSubscriptionRequest,
-)
-from application.contracts.subscriptions.get_subscription_response import (
-    GetSubscriptionResponse,
-)
+from domain.neural_networks.model import ModelSubscription
 from domain.neural_networks.repository import (
     BaseNeuralNetworkRepository,
     BaseNeuralNetworkSubscriptionRepository,
 )
 from domain.subscriptions.repository import BaseSubscriptionRepository
-from domain.subscriptions.subscription import Subscription
+from domain.users.repository import BaseUserRepository, BaseUserRequestRepository
+from domain.users.user import UserRequest
+from fastapi.exceptions import HTTPException
 
 
 @dataclass
@@ -22,42 +17,51 @@ class AddModelToSubscription:
     subscription_repository: BaseSubscriptionRepository
     neural_network_repository: BaseNeuralNetworkRepository
     neural_network_subscriptoin_repository: BaseNeuralNetworkSubscriptionRepository
+    users_repository: BaseUserRepository
+    user_requests_repository: BaseUserRequestRepository
 
     transaction_manager: BaseTransactionManager
 
-    async def __call__(self, request: CreateSubscriptionRequest) -> Subscription:
-        subscription_exist = await self.subscription_repository.get_by_name(
-            request.name
-        )
-
-        if subscription_exist:
-            raise HTTPException(status_code=400, detail="Subscription already exist")
-
-        subscription = Subscription.create(name=request.name)
-        await self.subscription_repository.create(subscription)
-
-        return subscription
-
-    async def get_by_name(self, name: str) -> GetSubscriptionResponse:
-        subscription = await self.subscription_repository.get_by_name(name)
+    async def __call__(
+        self, subscription_name: str, model_name: str, requests: int
+    ) -> ModelSubscription:
+        subscription = await self.subscription_repository.get_by_name(subscription_name)
 
         if subscription is None:
             raise HTTPException(status_code=404, detail="Subscription not found")
 
-        neural_networks = await self.neural_network_subscriptoin_repository.get_all_by_subscription_name(
+        model = await self.neural_network_repository.get_by_name(model_name)
+
+        if model is None:
+            raise HTTPException(status_code=404, detail="Model not found")
+
+        subscription_models = await self.neural_network_subscriptoin_repository.get_all_by_subscription_name(
             subscription.name
         )
-        models = []
-        for neural_network in neural_networks:
-            neural_network = await self.neural_network_repository.get_by_name(
-                neural_network.neural_network_name
-            )
-            models.append(neural_network)
+
+        for subscription_model in subscription_models:
+            if subscription_model.neural_network_name == model.name:
+                raise HTTPException(
+                    status_code=400, detail="Model already added to subscription"
+                )
+
+        model_subscription = ModelSubscription.create(
+            model_name=model.name,
+            subscription_name=subscription.name,
+            requests=requests,
+        )
+        await self.neural_network_subscriptoin_repository.create(model_subscription)
+
+        users = await self.users_repository.get_all()
+        for user in users:
+            if user.current_subscription == subscription.name:
+                user_request = UserRequest.create(
+                    user_id=user.id,
+                    neural_network_name=model.name,
+                    amount=model_subscription.requests,
+                )
+                await self.user_requests_repository.create(user_request)
 
         await self.transaction_manager.commit()
-        await self.transaction_manager.close()
 
-        return GetSubscriptionResponse(
-            name=subscription.name,
-            models=models,
-        )
+        return model_subscription

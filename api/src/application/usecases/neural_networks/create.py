@@ -1,13 +1,12 @@
 from dataclasses import dataclass
 
-from fastapi.exceptions import HTTPException
-
 from application.common.transaction import BaseTransactionManager
 from application.contracts.neural_networks.create_neural_network_request import (
     CreateNeuralNetworkRequest,
 )
 from domain.neural_networks.model import Model
 from domain.neural_networks.repository import BaseNeuralNetworkRepository
+from fastapi.exceptions import HTTPException
 
 
 @dataclass
@@ -28,6 +27,5 @@ class CreateNeuralNetwork:
         await self.neural_network_repository.create(model)
 
         await self.transaction_manager.commit()
-        await self.transaction_manager.close()
 
         return model

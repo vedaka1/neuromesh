@@ -1,10 +1,9 @@
 import uuid
 from dataclasses import dataclass
 
-from fastapi import HTTPException
-
 from application.common.transaction import BaseTransactionManager
 from domain.users.repository import BaseUserRepository, BaseUserRequestRepository
+from fastapi import HTTPException
 
 
 @dataclass
@@ -22,4 +21,3 @@ class UpdateUserRequests:
         await self.user_requests_repository.update_user_requests(user_id, amount)
 
         await self.transaction_manager.commit()
-        await self.transaction_manager.close()

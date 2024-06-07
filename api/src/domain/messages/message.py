@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from domain.common.value import ValueObject
-from domain.exeptions.message import EmptyMessageExeption, MessageTooLongExeption
+from domain.exeptions.message import EmptyMessageException, MessageTooLongException
 
 
 @dataclass
@@ -10,6 +10,6 @@ class Message(ValueObject[str]):
 
     def __post_init__(self):
         if len(self.value) > 1000:
-            raise MessageTooLongExeption()
+            raise MessageTooLongException()
         if not self.value:
-            raise EmptyMessageExeption()
+            raise EmptyMessageException()

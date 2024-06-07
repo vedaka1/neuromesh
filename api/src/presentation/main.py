@@ -4,11 +4,10 @@ from contextlib import asynccontextmanager
 from dishka.integrations.fastapi import setup_dishka
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.ext.asyncio import AsyncEngine
-
 from infrastructure.di.container import get_container, init_logger
 from infrastructure.persistence.models import Base
 from presentation.routers import model_router, subscription_router, user_router
+from sqlalchemy.ext.asyncio import AsyncEngine
 
 
 def init_di(app: FastAPI) -> None:

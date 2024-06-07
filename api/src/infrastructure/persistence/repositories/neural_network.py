@@ -1,10 +1,9 @@
 from dataclasses import dataclass
 
-from sqlalchemy import text
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from domain.neural_networks.model import Model
 from domain.neural_networks.repository import BaseNeuralNetworkRepository
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 @dataclass

@@ -14,4 +14,3 @@ class DeleteUser:
         await self.user_repository.delete(user_id)
 
         await self.transaction_manager.commit()
-        await self.transaction_manager.close()
