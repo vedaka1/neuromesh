@@ -5,7 +5,7 @@ from punq import Container, Scope
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from application.common.transaction import BaseTransactionManager
-from application.usecases.neural_network import NeuralNetworkService
+from application.usecases.neural_networks import *
 from application.usecases.subscriptions import *
 from application.usecases.users import *
 from application.usecases.users.get_all_users import GetAllUsers
@@ -116,6 +116,10 @@ def init_container() -> Container:
     container.register(GetAllSubscriptions, scope=Scope.transient)
     container.register(GetSubscriptionByName, scope=Scope.transient)
 
-    container.register(NeuralNetworkService, scope=Scope.transient)
+    # Neural networks usecases
+    container.register(CreateNeuralNetwork, scope=Scope.transient)
+    container.register(GenerateResponse, scope=Scope.transient)
+    container.register(GetAllNeuralNetworks, scope=Scope.transient)
+    container.register(GetNeuralNetworkByName, scope=Scope.transient)
 
     return container
