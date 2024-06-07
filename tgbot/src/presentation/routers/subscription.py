@@ -30,7 +30,7 @@ async def select_subscription_callback(callback: types.CallbackQuery, client: As
     user_id = callback.from_user.id
     user = await get_user(user_id, client)
     try:
-        result = await client.post(f"/users/{user["id"]}/subscription", params={"subscription_name": user_choice})
+        result = await client.put(f"/users/{user["id"]}/subscription", params={"subscription_name": user_choice})
         result.raise_for_status()
         await callback.message.edit_text("Выбрана подписка: " + user_choice)
     except HTTPStatusError:

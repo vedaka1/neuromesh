@@ -45,5 +45,5 @@ API + TG Bot to access to AI models
 ## API Routes
 * Users ![image](./docs/images/users.png)
 * Subscriptions ![image](./docs/images/subscriptions.png)
-* Neurak Networks ![image](./docs/images/neural_networks.png)
+* Neural Networks ![image](./docs/images/neural_networks.png)
 
