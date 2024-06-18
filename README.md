@@ -4,7 +4,7 @@ API + TG Bot to access to AI models
 ## Project features
 * User subscriptions
 * Clean Architecture
-* RabbitMQ as a message brocker for microservices
+* RabbitMQ as a message broker for microservices
 * Text generation
 * Image generation
 
