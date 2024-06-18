@@ -36,11 +36,13 @@ async def generate_response(
         )
         data.raise_for_status()
 
+    except HTTPStatusError as e:
+        if e.response.status_code == 403:
+            await msg.edit_text("У вас нет доступа к данной модели")
     except Exception as e:
-        print(f"{e}")
-        await message.answer("Не удалось получить ответ")
+        await msg.edit_text("Не удалось получить ответ")
+    finally:
         await state.clear()
-        return
 
     await msg.edit_text(data.json()["value"], parse_mode="MarkDownV2")
     await state.clear()

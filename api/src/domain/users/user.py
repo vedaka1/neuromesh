@@ -34,6 +34,7 @@ class UserSubscription:
     subscription_name: str
     created_at: datetime
     expires_in: int
+    is_expired: bool
 
     @staticmethod
     def create(
@@ -47,6 +48,7 @@ class UserSubscription:
             subscription_name=subscription_name,
             created_at=datetime.datetime.now(),
             expires_in=datetime.datetime.now() + datetime.timedelta(days=expires_in),
+            is_expired=False,
         )
 
 

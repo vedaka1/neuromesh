@@ -7,6 +7,7 @@ API + TG Bot to access to AI models
 * RabbitMQ as a message broker for microservices
 * Text generation
 * Image generation
+* Periodic verification of expired subscriptions using pg_cron
 
 ## How to run
 1. Set RabbitMQ environment variables `./.env`

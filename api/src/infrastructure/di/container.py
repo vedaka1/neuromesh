@@ -115,6 +115,7 @@ class UseCasesProvider(Provider):
     generate_response = provide(GenerateResponse)
     get_all_neural_networks = provide(GetAllNeuralNetworks)
     get_neural_network_by_name = provide(GetNeuralNetworkByName)
+    check_user_subscription = provide(CheckUserSubscription)
 
 
 @lru_cache(1)

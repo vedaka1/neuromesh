@@ -9,7 +9,10 @@ subscription_router = Router()
 
 @subscription_router.message(filters.Command("subscriptions"))
 async def get_all_subscriptions(message: types.Message, client: AsyncClient):
-    data = await client.get("/subscriptions")
+    try:
+        data = await client.get("/subscriptions")
+    except:
+        await message.answer(text="Не удалось получить ответ")
     buttons = [
         [
             types.InlineKeyboardButton(
@@ -33,7 +36,7 @@ async def select_subscription_callback(callback: types.CallbackQuery, client: As
         result = await client.put(f"/users/{user["id"]}/subscription", params={"subscription_name": user_choice})
         result.raise_for_status()
         await callback.message.edit_text("Выбрана подписка: " + user_choice)
-    except HTTPStatusError:
-        await callback.message.answer("Ошибка при выборе подписки")
+    except:
+        await callback.message.edit_text("Возникла ошибка")
                 
 

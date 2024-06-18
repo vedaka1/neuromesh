@@ -42,17 +42,22 @@ class BaseUserSubscriptionRepository(ABC):
     async def get_by_id(self, id: uuid.UUID) -> UserSubscription | None: ...
 
     @abstractmethod
+    async def get_active_by_user_id(
+        self, user_id: uuid.UUID
+    ) -> UserSubscription | None: ...
+
+    @abstractmethod
     async def get_all(
         self, limit: int = 10, offset: int = 0
     ) -> list[UserSubscription] | None: ...
 
     @abstractmethod
     async def get_by_user_id(
-        self, user_id: uuid.UUID, limit: int = 10, offset: int = 0
+        self, user_id: uuid.UUID, limit: int = 10, offset: int = 0, active: bool = False
     ) -> list[UserSubscription] | None: ...
 
     @abstractmethod
-    async def update(self, id: uuid.UUID, expires_in: int) -> None: ...
+    async def update(self, id: uuid.UUID) -> None: ...
 
 
 @dataclass

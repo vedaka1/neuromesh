@@ -7,6 +7,7 @@ from application.contracts.neural_networks.generate_response_request import (
     GenerateResponseRequest,
 )
 from application.usecases.neural_networks import *
+from application.usecases.users.update_user import CheckUserSubscription
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from domain.common.response import ModelResponse
 from domain.neural_networks.model import Model
@@ -46,5 +47,7 @@ async def get_model(
 async def generate_response(
     generate_response_request: GenerateResponseRequest,
     generate_response_interactor: FromDishka[GenerateResponse],
+    check_user_subscription_interactor: FromDishka[CheckUserSubscription],
 ):
+    await check_user_subscription_interactor(generate_response_request.user_id)
     return await generate_response_interactor(generate_response_request)

@@ -17,8 +17,8 @@ class UserSubscriptionRepository(BaseUserSubscriptionRepository):
     async def create(self, user_subscription: UserSubscription) -> None:
         query = text(
             """
-                INSERT INTO users_subscriptions (id, user_id, subscription_name, expires_in)
-                VALUES (:id, :user_id, :subscription_name, :expires_in);
+                INSERT INTO users_subscriptions (id, user_id, subscription_name, expires_in, is_expired)
+                VALUES (:id, :user_id, :subscription_name, :expires_in, :is_expired);
                 """
         )
         await self.session.execute(
@@ -28,6 +28,7 @@ class UserSubscriptionRepository(BaseUserSubscriptionRepository):
                 "user_id": user_subscription.user_id,
                 "subscription_name": user_subscription.subscription_name,
                 "expires_in": user_subscription.expires_in,
+                "is_expired": user_subscription.is_expired,
             },
         )
         return None
@@ -76,18 +77,28 @@ class UserSubscriptionRepository(BaseUserSubscriptionRepository):
         result = result.mappings().all()
         return [UserSubscription(**data) for data in result]
 
-    async def update(self, id: uuid.UUID, expires_in: int):
+    async def get_active_by_user_id(self, user_id: uuid.UUID):
+        query = text(
+            """SELECT * FROM users_subscriptions WHERE user_id = :user_id AND is_expired = false;"""
+        )
+        result = await self.session.execute(query, {"user_id": user_id})
+        result = result.mappings().one_or_none()
+        if result is None:
+            return None
+
+        return UserSubscription(**result)
+
+    async def update(self, id: uuid.uuid4):
         query = text(
             """
                 UPDATE users_subscriptions
-                SET expires_in = :val
+                SET is_expired = true
                 WHERE id = :id;
                 """
         )
         await self.session.execute(
             query,
             {
-                "val": expires_in,
                 "id": id,
             },
         )

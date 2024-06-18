@@ -6,7 +6,11 @@ from .get_user import (
     GetUserRequests,
     GetUserSubscriptions,
 )
-from .update_user import UpdateUserRequests, UpdateUserSubscription
+from .update_user import (
+    CheckUserSubscription,
+    UpdateUserRequests,
+    UpdateUserSubscription,
+)
 
 __all__ = [
     "UpdateUserSubscription",
@@ -17,4 +21,5 @@ __all__ = [
     "GetUserRequests",
     "GetUserSubscriptions",
     "UpdateUserRequests",
+    "CheckUserSubscription",
 ]

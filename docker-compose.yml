@@ -57,33 +57,33 @@ services:
       retries: 5
       start_period: 10s
 
-  # rabbitmq:
-  #   container_name: rabbitmq
-  #   image: rabbitmq:3-management
-  #   hostname: rabbitmq
-  #   env_file:
-  #     - .env
-  #   networks:
-  #     - internal
-  #   expose:
-  #     # AMQP protocol port
-  #     - 5672
-  #     # HTTP management UI
-  #     - 15672
-  #   ports:
-  #     - 5672:5672
-  #     - 15672:15672
-  #   volumes:
-  #     - user_service.rabbitmq.data:/var/lib/rabbitmq/:rw
-  #   environment:
-  #     - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER:-admin}
-  #     - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD:-admin}
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "rabbitmq-diagnostics check_running -q"]
-  #     interval: 10s
-  #     timeout: 60s
-  #     retries: 5
-  #     start_period: 10s
+  rabbitmq:
+    container_name: rabbitmq-broker
+    image: rabbitmq:3-management
+    hostname: rabbitmq
+    env_file:
+      - .env
+    networks:
+      - internal
+    expose:
+      # AMQP protocol port
+      - 5672
+      # HTTP management UI
+      - 15672
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - user_service.rabbitmq.data:/var/lib/rabbitmq/:rw
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER:-admin}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD:-admin}
+    healthcheck:
+      test: ["CMD-SHELL", "rabbitmq-diagnostics check_running -q"]
+      interval: 10s
+      timeout: 60s
+      retries: 5
+      start_period: 10s
   
   # text2image-service:
   #   container_name: text2image-service
