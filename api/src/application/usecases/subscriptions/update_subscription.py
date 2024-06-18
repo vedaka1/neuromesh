@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from fastapi.exceptions import HTTPException
+
 from application.common.transaction import BaseTransactionManager
 from domain.neural_networks.model import ModelSubscription
 from domain.neural_networks.repository import (
@@ -9,7 +11,6 @@ from domain.neural_networks.repository import (
 from domain.subscriptions.repository import BaseSubscriptionRepository
 from domain.users.repository import BaseUserRepository, BaseUserRequestRepository
 from domain.users.user import UserRequest
-from fastapi.exceptions import HTTPException
 
 
 @dataclass

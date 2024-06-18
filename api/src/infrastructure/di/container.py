@@ -99,7 +99,7 @@ class DatabaseAdaptersProvider(Provider):
 class UseCasesProvider(Provider):
     scope = Scope.REQUEST
 
-    change_user_subscription = provide(ChangeUserSubscription)
+    change_user_subscription = provide(UpdateUserSubscription)
     create_user = provide(CreateUser)
     delete_user = provide(DeleteUser)
     get_all_users = provide(GetAllUsers)

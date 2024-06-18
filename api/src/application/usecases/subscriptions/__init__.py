@@ -1,7 +1,6 @@
-from .add_model_to_subscription import AddModelToSubscription
-from .create import CreateSubscription
-from .get_all import GetAllSubscriptions
-from .get_by_name import GetSubscriptionByName
+from .create_subscription import CreateSubscription
+from .get_subscription import GetAllSubscriptions, GetSubscriptionByName
+from .update_subscription import AddModelToSubscription
 
 __all__ = [
     "AddModelToSubscription",

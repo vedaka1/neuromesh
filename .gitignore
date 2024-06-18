@@ -5,3 +5,4 @@ __pycache__
 .env
 test.py
 .pytest_cache
+./bgtasks

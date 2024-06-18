@@ -75,6 +75,6 @@ async def get_user_subscriptions(
 async def update_user_subscription(
     user_id: uuid.UUID,
     subscription_name: str,
-    change_user_subscription_interactor: FromDishka[ChangeUserSubscription],
+    change_user_subscription_interactor: FromDishka[UpdateUserSubscription],
 ):
     return await change_user_subscription_interactor(user_id, subscription_name)

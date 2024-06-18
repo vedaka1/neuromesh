@@ -112,7 +112,7 @@ def init_container() -> Container:
     )
     # Users usecases
     container.register(GetAllUsers, scope=Scope.transient)
-    container.register(ChangeUserSubscription, scope=Scope.transient)
+    container.register(UpdateUserSubscription, scope=Scope.transient)
     container.register(CreateUser, scope=Scope.transient)
     container.register(DeleteUser, scope=Scope.transient)
     container.register(GetAllUsers, scope=Scope.transient)

@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from application.contracts.neural_networks.create_neural_network_request import (
     CreateNeuralNetworkRequest,
 )
@@ -8,7 +10,7 @@ from application.usecases.neural_networks import *
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from domain.common.response import ModelResponse
 from domain.neural_networks.model import Model
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
 model_router = APIRouter(
     tags=["Neural Networks"],
@@ -19,7 +21,7 @@ model_router = APIRouter(
 
 @model_router.post("", response_model=Model)
 async def create_model(
-    create_model_request: CreateNeuralNetworkRequest,
+    create_model_request: Annotated[CreateNeuralNetworkRequest, Depends()],
     create_neural_network_interactor: FromDishka[CreateNeuralNetwork],
 ):
     return await create_neural_network_interactor(create_model_request)

@@ -38,7 +38,7 @@ services:
     command: uvicorn presentation.main:create_app --host 0.0.0.0 --port 8000 --reload
 
   rabbitmq:
-    container_name: rabbitmq-service
+    container_name: rabbitmq
     image: rabbitmq:3-management
     hostname: rabbitmq
     env_file:
