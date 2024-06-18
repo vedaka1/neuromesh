@@ -2,6 +2,10 @@
 app:
 	docker compose up -d --build
 
+.PHONY: prod
+prod:
+	docker compose -f docker-compose.production.yml up -d --build
+
 .PHONY: app-down
 app-down:
 	docker compose down

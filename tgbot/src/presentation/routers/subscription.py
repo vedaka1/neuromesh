@@ -36,7 +36,9 @@ async def select_subscription_callback(callback: types.CallbackQuery, client: As
         result = await client.put(f"/users/{user["id"]}/subscription", params={"subscription_name": user_choice})
         result.raise_for_status()
         await callback.message.edit_text("Выбрана подписка: " + user_choice)
+    except HTTPStatusError as e:
+        if e.response.status_code == 400:
+            await callback.message.edit_text("У вас уже есть действующая подписка")
     except:
-        await callback.message.edit_text("Возникла ошибка")
-                
+        await callback.message.edit_text("Возникла ошибка")      
 

@@ -1,10 +1,12 @@
+import uuid
 from dataclasses import dataclass, field
+
+from fastapi import HTTPException
 
 from domain.common.response import Response
 from domain.exeptions.model import GenerationException
 from domain.neural_networks.manager import BaseModelManager
 from domain.neural_networks.model import BaseTextModel
-from fastapi import HTTPException
 from infrastructure.neural_networks.text_models import ChatGPT, FreeChatGPT, Gigachat
 
 
@@ -16,7 +18,9 @@ class ModelManager(BaseModelManager):
             "ChatGPT": ChatGPT(),
         }
 
-    async def generate_response(self, user_id, model_name, message) -> str:
+    async def generate_response(
+        self, user_id: uuid.UUID, model_name: str, message: str
+    ) -> str:
         model: BaseTextModel = self.models.get(model_name, None)
 
         if model is None:

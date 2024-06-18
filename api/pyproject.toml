@@ -19,6 +19,7 @@ sqlalchemy = "^2.0.29"
 alembic = "^1.13.1"
 openai = "^1.30.5"
 dishka = "^1.2.0"
+gunicorn = "^22.0.0"
 
 
 [tool.poetry.group.test.dependencies]

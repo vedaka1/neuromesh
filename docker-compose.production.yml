@@ -17,6 +17,7 @@ services:
       - ./tgbot/.env
     networks:
       - internal
+      - default
 
   api-service:
     container_name: api-service
@@ -31,6 +32,7 @@ services:
       - ./api/.env
     networks:
       - internal
+      - default
     ports:
       - 8000:8000
     command: gunicorn -c gunicorn.conf.py
@@ -93,4 +95,7 @@ volumes:
 
 networks:
   internal:
+    driver: bridge
+    internal: true
+  default:
     driver: bridge
