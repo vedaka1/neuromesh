@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker
 from src.domain.neural_networks.repository import BaseNeuralNetworkRepository
 from src.domain.subscriptions.repository import BaseSubscriptionRepository
 from src.domain.users.repository import BaseUserRepository
+from src.infrastructure.di.container import get_container
 from src.infrastructure.persistence.main import create_engine, create_session_factory
 from src.infrastructure.persistence.models import *
 from src.infrastructure.persistence.repositories import *
@@ -27,27 +28,7 @@ async def setup_db():
 
 @pytest.fixture(scope="session")
 def container():
-    container = Container()
-    engine = create_engine()
-    container.register(AsyncEngine, instance=engine)
-    session_factory = create_session_factory(engine)
-    container.register(async_sessionmaker, instance=session_factory)
-
-    container.register(
-        BaseUserRepository,
-        UserRepository,
-        scope=Scope.transient,
-    )
-    container.register(
-        BaseSubscriptionRepository,
-        SubscriptionRepository,
-        scope=Scope.transient,
-    )
-    container.register(
-        BaseNeuralNetworkRepository,
-        NeuralNetworkRepository,
-        scope=Scope.transient,
-    )
+    container = get_container()
     yield container
 
 

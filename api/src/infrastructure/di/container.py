@@ -1,4 +1,3 @@
-import asyncio
 import logging
 from functools import lru_cache
 from typing import AsyncGenerator
@@ -17,7 +16,6 @@ from application.common.transaction import BaseTransactionManager
 from application.usecases.neural_networks import *
 from application.usecases.subscriptions import *
 from application.usecases.users import *
-from application.usecases.users.get_all_users import GetAllUsers
 from domain.neural_networks.manager import BaseModelManager
 from domain.neural_networks.repository import (
     BaseNeuralNetworkRepository,

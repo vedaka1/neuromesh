@@ -37,37 +37,9 @@ services:
       - ./api/src:/app
     command: uvicorn presentation.main:create_app --host 0.0.0.0 --port 8000 --reload
 
-  rabbitmq:
-    container_name: rabbitmq
-    image: rabbitmq:3-management
-    hostname: rabbitmq
-    env_file:
-      - .env
-    networks:
-      - internal
-    expose:
-      # AMQP protocol port
-      - 5672
-      # HTTP management UI
-      - 15672
-    ports:
-      - 5672:5672
-      - 15672:15672
-    volumes:
-      - user_service.rabbitmq.data:/var/lib/rabbitmq/:rw
-    environment:
-      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER:-admin}
-      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD:-admin}
-    healthcheck:
-      test: ["CMD-SHELL", "rabbitmq-diagnostics check_running -q"]
-      interval: 10s
-      timeout: 60s
-      retries: 5
-      start_period: 10s
-  
   postgres:
     container_name: postgres
-    image: postgres:15.1
+    build: ./postgresql/
     hostname: postgres
     env_file:
       - ./api/.env
@@ -77,6 +49,7 @@ services:
       - internal
     ports:
       - 5432:5432
+    command: postgres -c 'config_file=/etc/postgresql/postgresql.conf'
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
       interval: 10s
@@ -84,6 +57,34 @@ services:
       retries: 5
       start_period: 10s
 
+  # rabbitmq:
+  #   container_name: rabbitmq
+  #   image: rabbitmq:3-management
+  #   hostname: rabbitmq
+  #   env_file:
+  #     - .env
+  #   networks:
+  #     - internal
+  #   expose:
+  #     # AMQP protocol port
+  #     - 5672
+  #     # HTTP management UI
+  #     - 15672
+  #   ports:
+  #     - 5672:5672
+  #     - 15672:15672
+  #   volumes:
+  #     - user_service.rabbitmq.data:/var/lib/rabbitmq/:rw
+  #   environment:
+  #     - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER:-admin}
+  #     - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD:-admin}
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "rabbitmq-diagnostics check_running -q"]
+  #     interval: 10s
+  #     timeout: 60s
+  #     retries: 5
+  #     start_period: 10s
+  
   # text2image-service:
   #   container_name: text2image-service
   #   depends_on:
