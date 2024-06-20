@@ -33,8 +33,6 @@ services:
     networks:
       - internal
       - default
-    ports:
-      - 8000:8000
     command: gunicorn -c gunicorn.conf.py
 
   rabbitmq:
@@ -75,19 +73,14 @@ services:
       retries: 5
       start_period: 10s
 
-  # text2image-service:
-  #   container_name: text2image-service
-  #   depends_on:
-  #     rabbitmq:
-  #       condition: service_healthy
-  #   hostname: text2image
-  #   build: 
-  #     context: ./text2image/
-  #     dockerfile: ./Dockerfile
-  #   env_file:
-  #     - .env
-  #   networks:
-  #     - internal
+  text2image-worker:
+    <<: *api-service
+    ports: []
+    container_name: text2image-worker
+    command: taskiq worker infrastructure.tasks.main:broker infrastructure.tasks.tasks
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
     
 volumes:
   user_service.rabbitmq.data: {}

@@ -3,7 +3,11 @@ from dataclasses import dataclass
 
 from fastapi import HTTPException
 
+from application.contracts.users.get_user_requests import GetUserRequestsResponse
 from application.contracts.users.get_user_response import GetUserResponse
+from application.contracts.users.get_user_subscriptions_response import (
+    GetUserSubscriptionResponse,
+)
 from domain.subscriptions.repository import BaseSubscriptionRepository
 from domain.users.repository import (
     BaseUserRepository,
@@ -26,15 +30,15 @@ class GetAllUsers:
 class GetUserByTelegramId:
     user_repository: BaseUserRepository
     user_requests_repository: BaseUserRequestRepository
-    subscriptions_repository: BaseSubscriptionRepository
+    user_subscriptions_repository: BaseUserSubscriptionRepository
 
     async def __call__(self, user_id: int) -> GetUserResponse:
         user = await self.user_repository.get_by_telegram_id(user_id)
         if user is None:
             raise HTTPException(status_code=404, detail="User not found")
 
-        subscription = await self.subscriptions_repository.get_by_name(
-            user.current_subscription
+        subscription = await self.user_subscriptions_repository.get_active_by_user_id(
+            user.id
         )
         requests = await self.user_requests_repository.get_all_by_user_id(user.id)
 
@@ -42,8 +46,20 @@ class GetUserByTelegramId:
             id=user.id,
             telegram_id=user.telegram_id,
             username=user.username,
-            subscription=subscription,
-            requests=requests,
+            subscription=(
+                GetUserSubscriptionResponse(
+                    subscription_name=subscription.subscription_name,
+                    created_at=subscription.created_at,
+                    expires_in=subscription.expires_in,
+                    is_expired=subscription.is_expired,
+                )
+                if subscription
+                else None
+            ),
+            requests=[
+                GetUserRequestsResponse(request.neural_network_name, request.amount)
+                for request in requests
+            ],
         )
 
 
@@ -58,8 +74,36 @@ class GetUserRequests:
         if user is None:
             raise HTTPException(status_code=404, detail="User not found")
         requests = await self.user_requests_repository.get_all_by_user_id(user_id)
+        return [
+            GetUserRequestsResponse(request.neural_network_name, request.amount)
+            for request in requests
+        ]
 
-        return requests
+
+@dataclass
+class GetUserSubscription:
+    user_repository: BaseUserRepository
+    user_subscriptions_repository: BaseUserSubscriptionRepository
+
+    async def __call__(self, user_id: uuid.UUID) -> UserSubscription | None:
+        user = await self.user_repository.get_by_id(user_id)
+
+        if user is None:
+            raise HTTPException(status_code=404, detail="User not found")
+        subscription = await self.user_subscriptions_repository.get_active_by_user_id(
+            user_id
+        )
+
+        return (
+            GetUserSubscriptionResponse(
+                subscription_name=subscription.subscription_name,
+                created_at=subscription.created_at,
+                expires_in=subscription.expires_in,
+                is_expired=subscription.is_expired,
+            )
+            if subscription
+            else None
+        )
 
 
 @dataclass
@@ -74,4 +118,12 @@ class GetUserSubscriptions:
             raise HTTPException(status_code=404, detail="User not found")
         subscriptions = await self.user_subscriptions_repository.get_by_user_id(user_id)
 
-        return subscriptions
+        return [
+            GetUserSubscriptionResponse(
+                subscription_name=subscription.subscription_name,
+                created_at=subscription.created_at,
+                expires_in=subscription.expires_in,
+                is_expired=subscription.is_expired,
+            )
+            for subscription in subscriptions
+        ]

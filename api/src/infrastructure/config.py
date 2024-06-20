@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     CLIENT_SECRET_SBER: str
 
     API_KEY_CHATGPT: str
-
+    BOT_TOKEN: str
     # SECRET_KEY: str
     # ALGORITHM: str
 
@@ -29,6 +29,14 @@ class Settings(BaseSettings):
     @property
     def DB_URL(self):
         return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
+
+    @property
+    def TG_API(self):
+        return f"https://api.telegram.org/bot{self.BOT_TOKEN}/"
+
+    @property
+    def BROKER_URL(self):
+        return "amqp://guest:guest@rabbitmq:5672"
 
     model_config = SettingsConfigDict(env_file=".env")
 

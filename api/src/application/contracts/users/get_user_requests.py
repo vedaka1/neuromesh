@@ -2,6 +2,6 @@ from dataclasses import dataclass
 
 
 @dataclass
-class GetUserRequests:
+class GetUserRequestsResponse:
     neural_network_name: str
     amount: int

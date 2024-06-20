@@ -22,12 +22,14 @@ class UpdateUserRequests:
 
     transaction_manager: BaseTransactionManager
 
-    async def __call__(self, user_id: uuid.UUID, amount: int) -> None:
+    async def __call__(self, user_id: uuid.UUID, model_name: str, amount: int) -> None:
         user = await self.user_repository.get_by_id(user_id)
 
         if user is None:
             raise HTTPException(status_code=404, detail="User not found")
-        await self.user_requests_repository.update_user_requests(user_id, amount)
+        await self.user_requests_repository.update_user_requests(
+            user_id, model_name, amount
+        )
 
         await self.transaction_manager.commit()
 
@@ -125,5 +127,5 @@ class CheckUserSubscription:
                         )
                         await self.user_requests_repository.create(user_request)
 
-                await self.transaction_manager.commit()
+                    await self.transaction_manager.commit()
                 raise HTTPException(status_code=403, detail="Subscription expired")

@@ -4,10 +4,12 @@ from contextlib import asynccontextmanager
 from dishka.integrations.fastapi import setup_dishka
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.ext.asyncio import AsyncEngine
+
 from infrastructure.di.container import get_container, init_logger
 from infrastructure.persistence.models import Base
+from infrastructure.tasks.main import broker
 from presentation.routers import model_router, subscription_router, user_router
-from sqlalchemy.ext.asyncio import AsyncEngine
 
 
 def init_di(app: FastAPI) -> None:
@@ -25,14 +27,15 @@ def init_routers(app: FastAPI):
 async def lifespan(app: FastAPI):
     container = get_container()
     engine = await container.get(AsyncEngine)
+    await broker.startup()
     async with engine.begin() as conn:
         # await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
     yield
+    await broker.shutdown()
 
 
 def create_app() -> FastAPI:
-
     app = FastAPI(
         title="NeuroMesh",
         docs_url="/api/docs",

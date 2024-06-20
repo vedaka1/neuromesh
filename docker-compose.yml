@@ -19,6 +19,7 @@ services:
       - internal
 
   api-service:
+    &api-service
     container_name: api-service
     hostname: api
     depends_on:
@@ -59,10 +60,10 @@ services:
 
   rabbitmq:
     container_name: rabbitmq-broker
-    image: rabbitmq:3-management
+    image: rabbitmq:3.12-management-alpine
     hostname: rabbitmq
-    env_file:
-      - .env
+    # env_file:
+    #   - .env
     networks:
       - internal
     expose:
@@ -74,33 +75,38 @@ services:
       - 5672:5672
       - 15672:15672
     volumes:
-      - user_service.rabbitmq.data:/var/lib/rabbitmq/:rw
+      - rabbitmq.data:/var/lib/rabbitmq/:rw
     environment:
-      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER:-admin}
-      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD:-admin}
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+      - RABBITMQ_DEFAULT_VHOST=/
     healthcheck:
       test: ["CMD-SHELL", "rabbitmq-diagnostics check_running -q"]
       interval: 10s
       timeout: 60s
       retries: 5
       start_period: 10s
-  
-  # text2image-service:
-  #   container_name: text2image-service
+
+  text2image-worker:
+    <<: *api-service
+    ports: []
+    container_name: text2image-worker
+    command: taskiq worker infrastructure.tasks.main:broker infrastructure.tasks.tasks
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+  # scheduler:
+  #   container_name: scheduler
+  #   build: ./scheduler
+  #   hostname: scheduler
+  #   networks:
+  #     - internal
   #   depends_on:
   #     rabbitmq:
   #       condition: service_healthy
-  #   hostname: text2image
-  #   build: 
-  #     context: ./text2image/
-  #     dockerfile: ./Dockerfile
-  #   env_file:
-  #     - .env
-  #   networks:
-  #     - internal
     
 volumes:
-  user_service.rabbitmq.data: {}
+  rabbitmq.data: {}
   postgres_data:
 
 networks:

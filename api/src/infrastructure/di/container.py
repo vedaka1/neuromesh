@@ -2,6 +2,12 @@ import logging
 from functools import lru_cache
 from typing import AsyncGenerator
 
+from application.common.tg_client import AsyncTGClient
+from application.common.transaction import BaseTransactionManager
+from application.usecases.neural_networks import *
+from application.usecases.neural_networks.generate_image import GenerateImage
+from application.usecases.subscriptions import *
+from application.usecases.users import *
 from dishka import (
     AsyncContainer,
     Provider,
@@ -10,13 +16,8 @@ from dishka import (
     make_async_container,
     provide,
 )
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
-
-from application.common.transaction import BaseTransactionManager
-from application.usecases.neural_networks import *
-from application.usecases.subscriptions import *
-from application.usecases.users import *
 from domain.neural_networks.manager import BaseModelManager
+from domain.neural_networks.model import BaseImageModel
 from domain.neural_networks.repository import (
     BaseNeuralNetworkRepository,
     BaseNeuralNetworkSubscriptionRepository,
@@ -27,6 +28,9 @@ from domain.users.repository import (
     BaseUserRequestRepository,
     BaseUserSubscriptionRepository,
 )
+from httpx import AsyncClient
+from infrastructure.config import settings
+from infrastructure.neural_networks.image_models.kadinsky import Kadinsky
 from infrastructure.neural_networks.main import ModelManager
 from infrastructure.persistence.main import create_engine, create_session_factory
 from infrastructure.persistence.repositories import (
@@ -38,6 +42,9 @@ from infrastructure.persistence.repositories import (
     UserSubscriptionRepository,
 )
 from infrastructure.persistence.transaction import TransactionManager
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
+from taskiq import AsyncBroker
+from taskiq_aio_pika import AioPikaBroker
 
 
 @lru_cache(1)
@@ -58,6 +65,10 @@ class SettingsProvider(Provider):
     @provide(scope=Scope.APP)
     def session_factory(self, engine: AsyncEngine) -> async_sessionmaker:
         return create_session_factory(engine)
+
+    @provide(scope=Scope.APP)
+    def tg_client(self) -> AsyncTGClient:
+        return AsyncClient(base_url=settings.TG_API)
 
 
 class DatabaseConfigurationProvider(Provider):
@@ -94,6 +105,11 @@ class DatabaseAdaptersProvider(Provider):
     )
 
 
+class ImagesProvider(Provider):
+    scope = Scope.APP
+    image_model = provide(Kadinsky, provides=BaseImageModel)
+
+
 class UseCasesProvider(Provider):
     scope = Scope.REQUEST
 
@@ -103,6 +119,7 @@ class UseCasesProvider(Provider):
     get_all_users = provide(GetAllUsers)
     get_user_by_tg_id = provide(GetUserByTelegramId)
     get_user_requests = provide(GetUserRequests)
+    get_user_subscription = provide(GetUserSubscription)
     get_user_subscriptions = provide(GetUserSubscriptions)
     update_user_requests = provide(UpdateUserRequests)
 
@@ -116,6 +133,7 @@ class UseCasesProvider(Provider):
     get_all_neural_networks = provide(GetAllNeuralNetworks)
     get_neural_network_by_name = provide(GetNeuralNetworkByName)
     check_user_subscription = provide(CheckUserSubscription)
+    generate_image = provide(GenerateImage)
 
 
 @lru_cache(1)
@@ -125,4 +143,5 @@ def get_container() -> AsyncContainer:
         DatabaseConfigurationProvider(),
         DatabaseAdaptersProvider(),
         UseCasesProvider(),
+        ImagesProvider(),
     )

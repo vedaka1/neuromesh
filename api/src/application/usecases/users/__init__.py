@@ -4,6 +4,7 @@ from .get_user import (
     GetAllUsers,
     GetUserByTelegramId,
     GetUserRequests,
+    GetUserSubscription,
     GetUserSubscriptions,
 )
 from .update_user import (
@@ -22,4 +23,5 @@ __all__ = [
     "GetUserSubscriptions",
     "UpdateUserRequests",
     "CheckUserSubscription",
+    "GetUserSubscription",
 ]

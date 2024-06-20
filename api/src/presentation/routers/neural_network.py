@@ -12,6 +12,7 @@ from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from domain.common.response import ModelResponse
 from domain.neural_networks.model import Model
 from fastapi import APIRouter, Depends
+from infrastructure.tasks.tasks import generate_image_task
 
 model_router = APIRouter(
     tags=["Neural Networks"],
@@ -51,3 +52,11 @@ async def generate_response(
 ):
     await check_user_subscription_interactor(generate_response_request.user_id)
     return await generate_response_interactor(generate_response_request)
+
+
+@model_router.post("/image")
+async def generate_image(
+    user_id: int,
+    user_prompt: str,
+) -> None:
+    return await generate_image_task.kiq(user_id=user_id, user_prompt=user_prompt)

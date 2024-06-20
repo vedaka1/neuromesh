@@ -16,6 +16,11 @@ class BaseTextModel(ABC):
 
     @abstractmethod
     async def generate_response(self) -> str | None: ...
+@dataclass
+class BaseImageModel(ABC):
+
+    @abstractmethod
+    async def generate_response(self, user_prompt: str) -> str | None: ...
 
 
 @dataclass
