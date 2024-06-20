@@ -20,6 +20,7 @@ class Settings(BaseSettings):
 
     API_KEY_CHATGPT: str
     BOT_TOKEN: str
+    BROKER_URL: str
     # SECRET_KEY: str
     # ALGORITHM: str
 
@@ -36,7 +37,7 @@ class Settings(BaseSettings):
 
     @property
     def BROKER_URL(self):
-        return "amqp://guest:guest@rabbitmq:5672"
+        return self.BROKER_URL
 
     model_config = SettingsConfigDict(env_file=".env")
 
