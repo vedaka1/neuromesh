@@ -20,6 +20,7 @@ services:
       - default
 
   api-service:
+    &api-service
     container_name: api-service
     hostname: api
     depends_on:
@@ -37,17 +38,20 @@ services:
 
   rabbitmq:
     container_name: rabbitmq-service
-    image: rabbitmq:3-management
+    image: rabbitmq:3.8.27-management-alpine
     hostname: rabbitmq
     env_file:
       - .env
     networks:
       - internal
-    volumes:
-      - user_service.rabbitmq.data:/var/lib/rabbitmq/:rw
+    ports:
+      - 5672:5672
+      - 15672:15672
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER:-admin}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD:-admin}
+    # volumes:
+    #   - rabbitmq.data:/var/lib/rabbitmq/:rw
     healthcheck:
       test: ["CMD-SHELL", "rabbitmq-diagnostics check_running -q"]
       interval: 10s
@@ -83,7 +87,7 @@ services:
         condition: service_healthy
     
 volumes:
-  user_service.rabbitmq.data: {}
+  rabbitmq.data: {}
   postgres_data:
 
 networks:

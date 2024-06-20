@@ -60,26 +60,21 @@ services:
 
   rabbitmq:
     container_name: rabbitmq-broker
-    image: rabbitmq:3.12-management-alpine
+    image: rabbitmq:3.8.27-management-alpine
     hostname: rabbitmq
-    # env_file:
-    #   - .env
     networks:
       - internal
+    env_file:
+      - .env
     expose:
-      # AMQP protocol port
       - 5672
-      # HTTP management UI
       - 15672
     ports:
       - 5672:5672
       - 15672:15672
-    volumes:
-      - rabbitmq.data:/var/lib/rabbitmq/:rw
     environment:
-      - RABBITMQ_DEFAULT_USER=guest
-      - RABBITMQ_DEFAULT_PASS=guest
-      - RABBITMQ_DEFAULT_VHOST=/
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER:-admin}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD:-admin}
     healthcheck:
       test: ["CMD-SHELL", "rabbitmq-diagnostics check_running -q"]
       interval: 10s
