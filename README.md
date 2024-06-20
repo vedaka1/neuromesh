@@ -2,12 +2,11 @@
 API + TG Bot to access to AI models
 
 ## Project features
-* User subscriptions
+* Subscription system
 * Clean Architecture
-* RabbitMQ as a message broker for microservices
+* RabbitMQ as a tasks queue
 * Text generation
 * Image generation
-* Periodic verification of expired subscriptions using pg_cron
 
 ## How to run
 1. Set RabbitMQ environment variables `./.env`
@@ -35,6 +34,9 @@ API + TG Bot to access to AI models
     CLIENT_SECRET_SBER=
 
     API_KEY_CHATGPT=
+
+    BOT_TOKEN=
+    BROKER_URL=
     ```
     Set Bot environment variables `./tgbot/.env`
     ```

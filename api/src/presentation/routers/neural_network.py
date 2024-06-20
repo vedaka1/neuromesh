@@ -1,5 +1,8 @@
 from typing import Annotated
 
+from dishka.integrations.fastapi import DishkaRoute, FromDishka
+from fastapi import APIRouter, Depends
+
 from application.contracts.neural_networks.create_neural_network_request import (
     CreateNeuralNetworkRequest,
 )
@@ -8,10 +11,8 @@ from application.contracts.neural_networks.generate_response_request import (
 )
 from application.usecases.neural_networks import *
 from application.usecases.users.update_user import CheckUserSubscription
-from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from domain.common.response import ModelResponse
 from domain.neural_networks.model import Model
-from fastapi import APIRouter, Depends
 from infrastructure.tasks.tasks import generate_image_task
 
 model_router = APIRouter(
