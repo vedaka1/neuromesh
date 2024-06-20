@@ -39,7 +39,7 @@ async def cmd_start(message: types.Message, client: AsyncClient):
     user_data = data.json()
     text = (
         "Подписка: <b>"
-        + user_data['subscription']['name']
+        + user_data['subscription']['subscription_name']
         + "</b>\nКоличество запросов:\n"
     )
     for request in user_data['requests']:
@@ -56,7 +56,7 @@ async def cmd_select_model(message: types.Message, client: AsyncClient):
     user = user.json()
     try:
         data = await client.get(
-            f"/subscriptions/{user["subscription"]["name"]}",
+            f"/subscriptions/{user["subscription"]["subscription_name"]}",
         )
         data.raise_for_status()
     except HTTPStatusError as e:
