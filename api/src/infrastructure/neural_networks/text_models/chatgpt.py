@@ -18,7 +18,7 @@ class ChatGPT(BaseTextModel):
     )
 
     async def generate_response(
-        self, user_id: uuid.UUID, message: str, *, model: str = "gpt-3.5-turbo"
+        self, user_id: uuid.UUID, message: str, *, model: str = "gpt-4o-mini"
     ) -> str | None:
         """Generates responses from different providers"""
         try:

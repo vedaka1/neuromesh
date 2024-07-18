@@ -31,6 +31,8 @@ services:
       dockerfile: ./Dockerfile
     env_file:
       - ./api/.env
+    ports:
+      - 8000:8000
     networks:
       - internal
       - default
@@ -44,9 +46,6 @@ services:
       - .env
     networks:
       - internal
-    ports:
-      - 5672:5672
-      - 15672:15672
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER:-admin}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD:-admin}

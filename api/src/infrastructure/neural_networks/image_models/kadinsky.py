@@ -16,14 +16,15 @@ class Kadinsky(BaseImageModel):
             "X-Secret": f"Secret {settings.API_SECRET_KEY_KADINSKY}",
         }
         self.client: AsyncClient = httpx.AsyncClient(
-            base_url="https://api-key.fusionbrain.ai/", headers=self.__AUTH_HEADERS
+            base_url="https://api-key.fusionbrain.ai/key/api/v1",
+            headers=self.__AUTH_HEADERS,
         )
         self.model_id = self.__get_model()
 
     def __get_model(self) -> int:
         with Client() as client:
             response: Response = client.get(
-                "https://api-key.fusionbrain.ai/key/api/v1/models",
+                "models",
                 headers=self.__AUTH_HEADERS,
             )
             data = response.json()
@@ -51,7 +52,7 @@ class Kadinsky(BaseImageModel):
             "params": (None, json.dumps(params), "application/json"),
         }
         response: Response = await self.client.post(
-            "key/api/v1/text2image/run", params={"model_id": self.model_id}, files=data
+            "/text2image/run", params={"model_id": self.model_id}, files=data
         )
         data = response.json()
         return data["uuid"]
@@ -59,7 +60,7 @@ class Kadinsky(BaseImageModel):
     async def check_generation(self, request_id: int, attempts=10, delay=10) -> bytes:
         while attempts > 0:
             response = await self.client.get(
-                "key/api/v1/text2image/status/" + request_id,
+                "/text2image/status/" + request_id,
                 headers=self.__AUTH_HEADERS,
             )
             data = response.json()

@@ -52,7 +52,9 @@ async def generate_response(
     await state.set_state(Generate.text)
     user_id = message.from_user.id
     if user_id not in users:
+        await state.clear()
         return
+
     msg = await message.answer(text="_Waiting_ \U0001F551", parse_mode="MarkDownV2")
     try:
         data = await client.post(
