@@ -26,6 +26,8 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+      postgres: 
+        condition: service_healthy
     build: 
       context: ./api/
       dockerfile: ./Dockerfile
@@ -34,7 +36,7 @@ services:
     networks:
       - internal
       - default
-    command: gunicorn -c gunicorn.conf.py
+    command: sh -c "alembic upgrade head && gunicorn -c gunicorn.conf.py"
 
   rabbitmq:
     container_name: rabbitmq-service

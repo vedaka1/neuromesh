@@ -22,40 +22,52 @@ model_router = APIRouter(
 )
 
 
-@model_router.post("", response_model=Model)
+@model_router.post("", response_model=Model, summary="Создать модель нейросети")
 async def create_model(
     create_model_request: Annotated[CreateNeuralNetworkRequest, Depends()],
     create_neural_network_interactor: FromDishka[CreateNeuralNetwork],
-):
+) -> Model:
     return await create_neural_network_interactor(create_model_request)
 
 
-@model_router.get("", response_model=list[Model])
+@model_router.get(
+    "",
+    response_model=list[Model],
+    summary="Получить список сдостпуных моделей нейросетей",
+)
 async def get_all_models(
     get_all_neural_networks_interactor: FromDishka[GetAllNeuralNetworks],
-):
+) -> list[Model]:
     return await get_all_neural_networks_interactor()
 
 
-@model_router.get("/{model_name}", response_model=Model)
+@model_router.get(
+    "/{model_name}",
+    response_model=Model,
+    summary="Возвращает информацию о модели нейросети",
+)
 async def get_model(
     model_name: str,
     get_neural_network_by_name_interactor: FromDishka[GetNeuralNetworkByName],
-):
+) -> Model:
     return await get_neural_network_by_name_interactor(model_name)
 
 
-@model_router.post("/response", response_model=ModelResponse)
+@model_router.post(
+    "/response",
+    response_model=ModelResponse,
+    summary="Отправляет запрос на генерацию текстового ответа",
+)
 async def generate_response(
     generate_response_request: GenerateResponseRequest,
     generate_response_interactor: FromDishka[GenerateResponse],
     check_user_subscription_interactor: FromDishka[CheckUserSubscription],
-):
+) -> ModelResponse:
     await check_user_subscription_interactor(generate_response_request.user_id)
     return await generate_response_interactor(generate_response_request)
 
 
-@model_router.post("/image")
+@model_router.post("/image", summary="Отправляет запрос на генерацию изображения")
 async def generate_image(
     user_id: int,
     user_prompt: str,

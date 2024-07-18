@@ -14,7 +14,7 @@ services:
       context: ./tgbot/
       dockerfile: ./Dockerfile
     env_file:
-      - ./tgbot/.env
+      - ./tgbot/.env.production
     networks:
       - internal
 
@@ -29,21 +29,21 @@ services:
       context: ./api/
       dockerfile: ./Dockerfile
     env_file:
-      - ./api/.env
+      - ./api/.env.production
     networks:
       - internal
     ports:
       - 8000:8000
     volumes:
       - ./api/src:/app
-    command: uvicorn presentation.main:create_app --host 0.0.0.0 --port 8000 --reload
+    command: sh -c "alembic upgrade head && uvicorn presentation.main:create_app --host 0.0.0.0 --port 8000 --reload"
 
   postgres:
     container_name: postgres
     build: ./postgresql/
     hostname: postgres
     env_file:
-      - ./api/.env
+      - ./api/.env.production
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     networks:

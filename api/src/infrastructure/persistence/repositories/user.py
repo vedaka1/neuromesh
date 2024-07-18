@@ -47,7 +47,7 @@ class UserRepository(BaseUserRepository):
         )
         return None
 
-    async def get_by_telegram_id(self, telegram_id: int) -> UserDB:
+    async def get_by_telegram_id(self, telegram_id: int) -> UserDB | None:
         query = text("""SELECT * FROM users WHERE telegram_id = :value;""")
         result = await self.session.execute(query, {"value": telegram_id})
         result = result.mappings().one_or_none()
@@ -56,7 +56,7 @@ class UserRepository(BaseUserRepository):
 
         return UserDB(**result)
 
-    async def get_by_id(self, user_id: uuid.UUID) -> UserDB:
+    async def get_by_id(self, user_id: uuid.UUID) -> UserDB | None:
         query = text("""SELECT * FROM users WHERE id = :value;""")
         result = await self.session.execute(query, {"value": user_id})
         result = result.mappings().one_or_none()

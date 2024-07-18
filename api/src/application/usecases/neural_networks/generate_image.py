@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from application.common.tg_client import AsyncTGClient
+from domain.exceptions.model import *
 from domain.neural_networks.model import BaseImageModel
 
 

@@ -18,36 +18,48 @@ subscription_router = APIRouter(
 )
 
 
-@subscription_router.post("", response_model=Subscription)
+@subscription_router.post("", response_model=Subscription, summary="Создает подписку")
 async def create_subscription(
     create_subscription_request: CreateSubscriptionRequest,
     create_subscription_interactor: FromDishka[CreateSubscription],
-):
+) -> Subscription:
     return await create_subscription_interactor(create_subscription_request)
 
 
-@subscription_router.get("", response_model=list[Subscription])
+@subscription_router.get(
+    "",
+    response_model=list[Subscription],
+    summary="Возвращает список доступных подписок",
+)
 async def get_subscriptions(
     get_all_subscriptions_interactor: FromDishka[GetAllSubscriptions],
-):
+) -> list[Subscription]:
     return await get_all_subscriptions_interactor()
 
 
-@subscription_router.get("/{subscription_name}", response_model=GetSubscriptionResponse)
+@subscription_router.get(
+    "/{subscription_name}",
+    response_model=GetSubscriptionResponse,
+    summary="Возвращает подписку по ее названию",
+)
 async def get_subscription(
     subscription_name: str,
     get_subscription_by_name_interactor: FromDishka[GetSubscriptionByName],
-):
+) -> Subscription:
     return await get_subscription_by_name_interactor(subscription_name)
 
 
-@subscription_router.post("/{subscription_name}", response_model=ModelSubscription)
+@subscription_router.post(
+    "/{subscription_name}",
+    response_model=ModelSubscription,
+    summary="Добавляет модель нейросети в подписку",
+)
 async def add_model_to_subscription(
     subscription_name: str,
     model_name: str,
     default_requests: int,
     add_model_to_subscription_interactor: FromDishka[AddModelToSubscription],
-):
+) -> ModelSubscription:
     return await add_model_to_subscription_interactor(
         subscription_name=subscription_name,
         model_name=model_name,

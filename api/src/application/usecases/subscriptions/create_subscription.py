@@ -6,6 +6,7 @@ from application.common.transaction import BaseTransactionManager
 from application.contracts.subscriptions.create_subscription_request import (
     CreateSubscriptionRequest,
 )
+from domain.exceptions.subscription import *
 from domain.subscriptions.repository import BaseSubscriptionRepository
 from domain.subscriptions.subscription import Subscription
 
@@ -22,7 +23,7 @@ class CreateSubscription:
         )
 
         if subscription_exist:
-            raise HTTPException(status_code=400, detail="Subscription already exist")
+            raise SubscriptionAlreadyExistsException
 
         subscription = Subscription.create(name=request.name)
         await self.subscription_repository.create(subscription)

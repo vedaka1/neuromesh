@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from fastapi.exceptions import HTTPException
 
+from domain.exceptions.model import *
 from domain.neural_networks.model import Model
 from domain.neural_networks.repository import BaseNeuralNetworkRepository
 
@@ -23,6 +24,6 @@ class GetNeuralNetworkByName:
         model = await self.neural_network_repository.get_by_name(name)
 
         if model is None:
-            raise HTTPException(status_code=404, detail="Model not found")
+            raise ModelNotFoundException
 
         return model

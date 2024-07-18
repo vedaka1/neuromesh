@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from domain.common.value import ValueObject
-from domain.exeptions.message import EmptyMessageException, MessageTooLongException
+from domain.exceptions.message import EmptyMessageException, MessageTooLongException
 
 
 @dataclass

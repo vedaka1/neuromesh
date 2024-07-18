@@ -2,9 +2,9 @@ import uuid
 from dataclasses import dataclass
 from datetime import datetime
 
-from fastapi import HTTPException
-
 from application.common.transaction import BaseTransactionManager
+from domain.exceptions.subscription import *
+from domain.exceptions.user import *
 from domain.neural_networks.repository import BaseNeuralNetworkSubscriptionRepository
 from domain.subscriptions.repository import BaseSubscriptionRepository
 from domain.users.repository import (
@@ -24,13 +24,11 @@ class UpdateUserRequests:
 
     async def __call__(self, user_id: uuid.UUID, model_name: str, amount: int) -> None:
         user = await self.user_repository.get_by_id(user_id)
-
         if user is None:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise UserNotFoundException
         await self.user_requests_repository.update_user_requests(
             user_id, model_name, amount
         )
-
         await self.transaction_manager.commit()
 
 
@@ -47,15 +45,12 @@ class UpdateUserSubscription:
     async def __call__(self, user_id: uuid.UUID, subscription_name: str) -> None:
         user = await self.user_repository.get_by_id(user_id)
         if user is None:
-            raise HTTPException(status_code=404, detail="User not found")
-
+            raise UserNotFoundException
         subscription = await self.subscriptions_repository.get_by_name(
             subscription_name
         )
-
         if subscription is None:
-            raise HTTPException(status_code=404, detail="Subscription not found")
-
+            raise SubscriptionNotFoundException
         neural_networks = await self.neural_network_subscriptions_repository.get_all_by_subscription_name(
             subscription.name
         )
@@ -63,8 +58,7 @@ class UpdateUserSubscription:
             await self.user_subscriptions_repository.get_active_by_user_id(user.id)
         )
         if current_user_subscription is not None:
-            raise HTTPException(status_code=400, detail="User already subscribed")
-
+            raise UserAlreadySubscribedException
         user_subscription = UserSubscription.create(
             user_id=user.id,
             subscription_name=subscription.name,
@@ -73,7 +67,6 @@ class UpdateUserSubscription:
         if subscription.name != "Free":
             await self.user_subscriptions_repository.create(user_subscription)
         await self.user_repository.update_subscription(user.id, subscription_name)
-
         await self.user_requests_repository.delete_user_requests(user.id)
         if neural_networks:
             for neural_network in neural_networks:
@@ -83,7 +76,6 @@ class UpdateUserSubscription:
                     amount=neural_network.requests,
                 )
                 await self.user_requests_repository.create(user_request)
-
         await self.transaction_manager.commit()
 
 
@@ -100,8 +92,7 @@ class CheckUserSubscription:
     async def __call__(self, user_id: uuid.UUID) -> None:
         user = await self.user_repository.get_by_id(user_id)
         if user is None:
-            raise HTTPException(status_code=404, detail="User not found")
-
+            raise UserNotFoundException
         if user.current_subscription != "Free":
             current_user_subscription = (
                 await self.user_subscriptions_repository.get_active_by_user_id(user.id)
@@ -110,14 +101,11 @@ class CheckUserSubscription:
                 await self.user_subscriptions_repository.update(
                     current_user_subscription.id
                 )
-
                 await self.user_repository.update_subscription(user.id, "Free")
                 await self.user_requests_repository.delete_user_requests(user.id)
-
                 neural_networks = await self.neural_network_subscriptions_repository.get_all_by_subscription_name(
                     "Free"
                 )
-
                 if neural_networks:
                     for neural_network in neural_networks:
                         user_request = UserRequest.create(
@@ -126,6 +114,6 @@ class CheckUserSubscription:
                             amount=neural_network.requests,
                         )
                         await self.user_requests_repository.create(user_request)
-
                     await self.transaction_manager.commit()
-                raise HTTPException(status_code=403, detail="Subscription expired")
+                raise SubscriptionExpiredException
+        return None

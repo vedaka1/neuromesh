@@ -13,7 +13,7 @@ RUN poetry config virtualenvs.create false
 RUN poetry install --no-root --no-interaction --no-ansi
 
 COPY src/ .
-COPY .env .
+COPY .env.production .env
 
 EXPOSE 8000
 

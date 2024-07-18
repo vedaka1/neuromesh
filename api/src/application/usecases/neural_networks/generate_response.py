@@ -7,6 +7,7 @@ from application.contracts.neural_networks.generate_response_request import (
     GenerateResponseRequest,
 )
 from domain.common.response import ModelResponse
+from domain.exceptions.model import *
 from domain.messages.message import Message
 from domain.neural_networks.manager import BaseModelManager
 from domain.neural_networks.repository import BaseNeuralNetworkRepository
@@ -27,16 +28,14 @@ class GenerateResponse:
         message = Message(request.message)
 
         if model is None:
-            raise HTTPException(status_code=404, detail="Model not found")
+            raise ModelNotFoundException
 
         user_requests = await self.user_requests_repository.get_by_user_and_model_name(
             model_name=model.name, user_id=request.user_id
         )
 
         if user_requests is None:
-            raise HTTPException(
-                status_code=403, detail="You don't have access to this model"
-            )
+            raise NoAccessToModelException
 
         if user_requests.amount == 0:
             return ModelResponse(value="Limit of free requests exceeded")

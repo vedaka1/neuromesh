@@ -8,6 +8,7 @@ from application.contracts.users.get_user_response import GetUserResponse
 from application.contracts.users.get_user_subscriptions_response import (
     GetUserSubscriptionResponse,
 )
+from domain.exceptions.user import *
 from domain.subscriptions.repository import BaseSubscriptionRepository
 from domain.users.repository import (
     BaseUserRepository,
@@ -35,7 +36,7 @@ class GetUserByTelegramId:
     async def __call__(self, user_id: int) -> GetUserResponse:
         user = await self.user_repository.get_by_telegram_id(user_id)
         if user is None:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise UserNotFoundException
 
         subscription = await self.user_subscriptions_repository.get_active_by_user_id(
             user.id
@@ -72,7 +73,7 @@ class GetUserRequests:
         user = await self.user_repository.get_by_id(user_id)
 
         if user is None:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise UserNotFoundException
         requests = await self.user_requests_repository.get_all_by_user_id(user_id)
         return [
             GetUserRequestsResponse(request.neural_network_name, request.amount)
@@ -89,7 +90,7 @@ class GetUserSubscription:
         user = await self.user_repository.get_by_id(user_id)
 
         if user is None:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise UserNotFoundException
         subscription = await self.user_subscriptions_repository.get_active_by_user_id(
             user_id
         )
@@ -115,7 +116,7 @@ class GetUserSubscriptions:
         user = await self.user_repository.get_by_id(user_id)
 
         if user is None:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise UserNotFoundException
         subscriptions = await self.user_subscriptions_repository.get_by_user_id(user_id)
 
         return [

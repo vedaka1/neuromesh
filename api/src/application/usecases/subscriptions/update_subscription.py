@@ -3,6 +3,8 @@ from dataclasses import dataclass
 from fastapi.exceptions import HTTPException
 
 from application.common.transaction import BaseTransactionManager
+from domain.exceptions.model import *
+from domain.exceptions.subscription import *
 from domain.neural_networks.model import ModelSubscription
 from domain.neural_networks.repository import (
     BaseNeuralNetworkRepository,
@@ -29,12 +31,12 @@ class AddModelToSubscription:
         subscription = await self.subscription_repository.get_by_name(subscription_name)
 
         if subscription is None:
-            raise HTTPException(status_code=404, detail="Subscription not found")
+            raise SubscriptionNotFoundException
 
         model = await self.neural_network_repository.get_by_name(model_name)
 
         if model is None:
-            raise HTTPException(status_code=404, detail="Model not found")
+            raise ModelNotFoundException
 
         subscription_models = await self.neural_network_subscriptoin_repository.get_all_by_subscription_name(
             subscription.name
@@ -42,9 +44,7 @@ class AddModelToSubscription:
 
         for subscription_model in subscription_models:
             if subscription_model.neural_network_name == model.name:
-                raise HTTPException(
-                    status_code=400, detail="Model already added to subscription"
-                )
+                raise ModelAlreadyInSubscriptionException
 
         model_subscription = ModelSubscription.create(
             model_name=model.name,

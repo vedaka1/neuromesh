@@ -3,6 +3,7 @@
 __pycache__
 *.pyc
 .env
+.env.production
 test.py
 .pytest_cache
 ./bgtasks

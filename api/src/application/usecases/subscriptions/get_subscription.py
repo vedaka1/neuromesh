@@ -5,6 +5,7 @@ from fastapi import HTTPException
 from application.contracts.subscriptions.get_subscription_response import (
     GetSubscriptionResponse,
 )
+from domain.exceptions.subscription import *
 from domain.neural_networks.repository import (
     BaseNeuralNetworkRepository,
     BaseNeuralNetworkSubscriptionRepository,
@@ -32,7 +33,7 @@ class GetSubscriptionByName:
         subscription = await self.subscription_repository.get_by_name(name)
 
         if subscription is None:
-            raise HTTPException(status_code=404, detail="Subscription not found")
+            raise SubscriptionNotFoundException
 
         neural_networks = await self.neural_network_subscriptoin_repository.get_all_by_subscription_name(
             subscription.name
