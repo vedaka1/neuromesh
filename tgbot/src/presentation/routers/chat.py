@@ -55,7 +55,7 @@ async def generate_response(
         await state.clear()
         return
 
-    msg = await message.answer(text="_Waiting_ \U0001F551", parse_mode="MarkDownV2")
+    msg = await message.answer(text="_Waiting_ \U0001F551")
     try:
         data = await client.post(
             "/models/response",
@@ -67,7 +67,7 @@ async def generate_response(
             timeout=10,
         )
         data.raise_for_status()
-        await msg.edit_text(data.json()["value"], parse_mode="MarkDownV2")
+        await msg.edit_text(data.json()["value"])
         await state.clear()
 
     except HTTPStatusError as e:

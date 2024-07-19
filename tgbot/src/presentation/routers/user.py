@@ -38,12 +38,12 @@ async def cmd_start(message: types.Message, client: AsyncClient):
         return
     user_data = data.json()
     text = (
-        "Подписка: <b>"
+        "Подписка: *"
         + user_data['subscription']['subscription_name']
-        + "</b>\nКоличество запросов:\n"
+        + "*\nКоличество запросов:\n"
     )
     for request in user_data['requests']:
-        text += request['neural_network_name'] + ": <b>" + str(request['amount']) + "</b>\n" 
+        text += request['neural_network_name'] + ": *" + str(request['amount']) + "*\n" 
     await message.answer(text=text)
 
 
