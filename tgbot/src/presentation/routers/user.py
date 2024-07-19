@@ -1,6 +1,9 @@
 from aiogram import Bot, F, Router, filters, types
 from httpx import AsyncClient, HTTPStatusError
 
+from domain.common.response import Response
+from presentation.common.keyboards import kb
+
 user_router = Router()
 
 
@@ -9,18 +12,18 @@ async def cmd_start(message: types.Message, client: AsyncClient):
     user_id = message.from_user.id
     username = message.from_user.username
     try:
-        data = await client.post(
+        response = await client.post(
             "/users",
             json={"telegram_id": user_id, "username": username},
         )
-        data.raise_for_status()
+        response.raise_for_status()
+        await message.answer(
+            "Привет!\n" + "Доступные команды:\n" + " /select_model выбирает модель"
+        )
     except HTTPStatusError as e:
-        print(f"HTTP {e.response.status_code} Exception {e.response.text}")
-        await message.answer("Ошибка при создании пользователя")
-
-    await message.answer(
-        "Привет!\n" + "Доступные команды:\n" + " /select_model выбирает модель"
-    )
+        await message.answer(Response(f"Error: {e.response.json()["detail"]}").value)
+    except Exception as e:
+        await message.answer(f"Unknown error")
 
 
 @user_router.message(filters.Command("account"))
@@ -28,23 +31,23 @@ async def cmd_start(message: types.Message, client: AsyncClient):
     user_id = message.from_user.id
     username = message.from_user.username
     try:
-        data = await client.get(
+        response = await client.get(
             f"/users/{user_id}",
         )
-        data.raise_for_status()
+        response.raise_for_status()
+        user_data = response.json()
+        text = (
+            "Подписка: *"
+            + user_data['subscription']['subscription_name']
+            + "*\nКоличество запросов:\n"
+        )
+        for request in user_data['requests']:
+            text += request['neural_network_name'] + ": *" + str(request['amount']) + "*\n" 
+        await message.answer(text=text)
     except HTTPStatusError as e:
-        print(f"HTTP {e.response.status_code} Exception {e.response.text}")
-        await message.answer("Не удалось получить ответ")
-        return
-    user_data = data.json()
-    text = (
-        "Подписка: *"
-        + user_data['subscription']['subscription_name']
-        + "*\nКоличество запросов:\n"
-    )
-    for request in user_data['requests']:
-        text += request['neural_network_name'] + ": *" + str(request['amount']) + "*\n" 
-    await message.answer(text=text)
+        await message.answer(Response(f"Error: {e.response.json()["detail"]}").value)
+    except Exception as e:
+        await message.answer(f"Unknown error")
 
 
 @user_router.message(filters.Command("select_model"))
@@ -55,25 +58,20 @@ async def cmd_select_model(message: types.Message, client: AsyncClient):
     )
     user = user.json()
     try:
-        data = await client.get(
+        response = await client.get(
             f"/subscriptions/{user["subscription"]["subscription_name"]}",
         )
-        data.raise_for_status()
+        response.raise_for_status()
+        await message.answer(
+            text="Выберите модель:",
+            reply_markup=kb.select_model(user_id, response.json()),
+        )
     except HTTPStatusError as e:
-        print(f"HTTP {e.response.status_code} Exception {e.response.text}")
-        await message.answer("Ошибка при получении моделей")
-    buttons = [
-        [
-            types.InlineKeyboardButton(
-                text=model["name"], callback_data=f"selectModel_{user_id}_{model["name"]}"
-            )
-        ]
-        for model in data.json()["models"]
-    ]
-    await message.answer(
-        text="Выберите модель:",
-        reply_markup=types.InlineKeyboardMarkup(inline_keyboard=buttons),
-    )
+        await message.answer(Response(f"Error: {e.response.json()["detail"]}").value)
+    except Exception as e:
+        await message.answer(f"Unknown error")
+    
+    
 
 
 @user_router.callback_query(F.data.startswith("selectModel_"))
@@ -81,14 +79,15 @@ async def callback_select_model(callback: types.CallbackQuery, users: dict, clie
     data = callback.data.split("_")
     user_id, choice = int(data[1]), data[2]
     try:
-        data = await client.get(
+        response = await client.get(
             f"/users/{user_id}",
         )
-        data.raise_for_status()
+        response.raise_for_status()
+        data = response.json()
+        users[user_id] = {"id": data["id"], "model": choice}
+        await callback.message.edit_text(text=f"Текущая модель: {choice}")
     except HTTPStatusError as e:
-        print(f"HTTP {e.response.status_code} Exception {e.response.text}")
-        await callback.message.answer("Не удалось получить данные")
-        return
-    data = data.json()
-    users[user_id] = {"id": data["id"], "model": choice}
-    await callback.message.edit_text(text=f"Текущая модель: {choice}")
+        await callback.message.answer(Response(f"Error: {e.response.json()["detail"]}").value)
+    except Exception as e:
+        await callback.message.answer(f"Unknown error")
+    

@@ -3,6 +3,8 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from httpx import AsyncClient, HTTPStatusError
 
+from domain.common.response import Response
+
 chat_router = Router()
 
 
@@ -37,10 +39,9 @@ async def generate_image(
         data.raise_for_status()
 
     except HTTPStatusError as e:
-        if e.response.status_code == 403:
-            await message.answer("У вас нет доступа к данной модели")
+        await message.answer(Response(f"Error: {e.response.json()["detail"]}").value)
     except Exception as e:
-        await message.answer("Не удалось получить ответ")
+        await message.answer(f"Unknown error")
     finally:
         await state.clear()
 
@@ -71,9 +72,8 @@ async def generate_response(
         await state.clear()
 
     except HTTPStatusError as e:
-        if e.response.status_code == 403:
-            await msg.edit_text("У вас нет доступа к данной модели")
+        await message.answer(Response(f"Error: {e.response.json()["detail"]}").value)
     except Exception as e:
-        await msg.edit_text("Не удалось получить ответ")
+        await message.answer(f"Unknown error")
     finally:
         await state.clear()

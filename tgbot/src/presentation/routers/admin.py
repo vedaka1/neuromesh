@@ -26,7 +26,7 @@ async def cmd_create_model(
         response.raise_for_status()
         await message.answer("Модель создана")
     except HTTPStatusError as e:
-        await message.answer(Response(f"Ошибка: {e}").value)
+        await message.answer(Response(f"Error: {e.response.json()["detail"]}").value)
     except Exception as e:
         print(e)
         await message.answer(f"Неизвестная ошибка")
@@ -44,9 +44,9 @@ async def cmd_create_sub(
         response.raise_for_status()
         await message.answer("Подписка создана")
     except HTTPStatusError as e:
-        await message.answer(Response(f"Ошибка: {e}").value)
+        await message.answer(Response(f"Error: {e.response.json()["detail"]}").value)
     except Exception as e:
-        await message.answer(f"Неизвестная ошибка")
+        await message.answer(f"Unknown error")
 
 
 @admin_router.message(filters.Command("models"))
