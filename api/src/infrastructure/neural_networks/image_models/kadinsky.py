@@ -1,6 +1,8 @@
 import asyncio
 import base64
 import json
+import uuid
+from typing import Any
 
 import httpx
 from httpx import AsyncClient, Client, Response
@@ -19,18 +21,18 @@ class Kadinsky(BaseImageModel):
             base_url="https://api-key.fusionbrain.ai/key/api/v1",
             headers=self.__AUTH_HEADERS,
         )
-        self.model_id = self.__get_model()
+        self.model_id: int = self.__get_model()
 
     def __get_model(self) -> int:
         with Client() as client:
             response: Response = client.get(
-                "models",
+                "https://api-key.fusionbrain.ai/key/api/v1/models",
                 headers=self.__AUTH_HEADERS,
             )
             data = response.json()
             return data[0]["id"]
 
-    async def generate_response(self, prompt: str) -> dict[bytes, str]:
+    async def generate_response(self, prompt: str) -> dict[str, Any] | None:
         try:
             image_id = await self.generate_image(prompt=prompt)
             image = await self.check_generation(request_id=image_id)
@@ -40,7 +42,7 @@ class Kadinsky(BaseImageModel):
 
     async def generate_image(
         self, prompt: str, images=1, width=1024, height=1024
-    ) -> str:
+    ) -> uuid.UUID:
         params = {
             "type": "GENERATE",
             "numImages": images,
@@ -55,12 +57,15 @@ class Kadinsky(BaseImageModel):
             "/text2image/run", params={"model_id": self.model_id}, files=data
         )
         data = response.json()
-        return data["uuid"]
+        id = data["uuid"]
+        return id
 
-    async def check_generation(self, request_id: int, attempts=10, delay=10) -> bytes:
+    async def check_generation(
+        self, request_id: uuid.UUID, attempts=10, delay=10
+    ) -> bytes | None:
         while attempts > 0:
             response = await self.client.get(
-                "/text2image/status/" + request_id,
+                f"/text2image/status/{request_id}",
                 headers=self.__AUTH_HEADERS,
             )
             data = response.json()

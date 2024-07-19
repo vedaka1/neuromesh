@@ -19,7 +19,7 @@ from domain.users.user import UserRequest
 class AddModelToSubscription:
     subscription_repository: BaseSubscriptionRepository
     neural_network_repository: BaseNeuralNetworkRepository
-    neural_network_subscriptoin_repository: BaseNeuralNetworkSubscriptionRepository
+    neural_network_subscription_repository: BaseNeuralNetworkSubscriptionRepository
     users_repository: BaseUserRepository
     user_requests_repository: BaseUserRequestRepository
 
@@ -38,7 +38,7 @@ class AddModelToSubscription:
         if model is None:
             raise ModelNotFoundException
 
-        subscription_models = await self.neural_network_subscriptoin_repository.get_all_by_subscription_name(
+        subscription_models = await self.neural_network_subscription_repository.get_all_by_subscription_name(
             subscription.name
         )
 
@@ -51,7 +51,7 @@ class AddModelToSubscription:
             subscription_name=subscription.name,
             requests=requests,
         )
-        await self.neural_network_subscriptoin_repository.create(model_subscription)
+        await self.neural_network_subscription_repository.create(model_subscription)
 
         users = await self.users_repository.get_all()
         for user in users:

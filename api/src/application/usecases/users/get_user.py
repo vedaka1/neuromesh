@@ -15,14 +15,14 @@ from domain.users.repository import (
     BaseUserRequestRepository,
     BaseUserSubscriptionRepository,
 )
-from domain.users.user import User, UserRequest, UserSubscription
+from domain.users.user import UserDB, UserRequest, UserSubscription
 
 
 @dataclass
 class GetAllUsers:
     user_repository: BaseUserRepository
 
-    async def __call__(self) -> list[User]:
+    async def __call__(self) -> list[UserDB]:
         result = await self.user_repository.get_all()
         return result
 
@@ -69,7 +69,7 @@ class GetUserRequests:
     user_repository: BaseUserRepository
     user_requests_repository: BaseUserRequestRepository
 
-    async def __call__(self, user_id: uuid.UUID) -> list[UserRequest]:
+    async def __call__(self, user_id: uuid.UUID) -> list[GetUserRequestsResponse]:
         user = await self.user_repository.get_by_id(user_id)
 
         if user is None:
@@ -86,7 +86,7 @@ class GetUserSubscription:
     user_repository: BaseUserRepository
     user_subscriptions_repository: BaseUserSubscriptionRepository
 
-    async def __call__(self, user_id: uuid.UUID) -> UserSubscription | None:
+    async def __call__(self, user_id: uuid.UUID) -> GetUserSubscriptionResponse | None:
         user = await self.user_repository.get_by_id(user_id)
 
         if user is None:
@@ -112,7 +112,7 @@ class GetUserSubscriptions:
     user_repository: BaseUserRepository
     user_subscriptions_repository: BaseUserSubscriptionRepository
 
-    async def __call__(self, user_id: uuid.UUID) -> list[UserSubscription]:
+    async def __call__(self, user_id: uuid.UUID) -> list[GetUserSubscriptionResponse]:
         user = await self.user_repository.get_by_id(user_id)
 
         if user is None:

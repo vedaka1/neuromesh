@@ -97,6 +97,8 @@ class CheckUserSubscription:
             current_user_subscription = (
                 await self.user_subscriptions_repository.get_active_by_user_id(user.id)
             )
+            if not current_user_subscription:
+                raise SubscriptionExpiredException
             if datetime.now() >= current_user_subscription.expires_in:
                 await self.user_subscriptions_repository.update(
                     current_user_subscription.id

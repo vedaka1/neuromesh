@@ -40,10 +40,13 @@ class GetSubscriptionByName:
         )
         models = []
         for neural_network in neural_networks:
-            neural_network = await self.neural_network_repository.get_by_name(
+            if not neural_network:
+                raise ApplicationException
+            model = await self.neural_network_repository.get_by_name(
                 neural_network.neural_network_name
             )
-            models.append(neural_network)
+            if model:
+                models.append(model)
 
         return GetSubscriptionResponse(
             name=subscription.name,

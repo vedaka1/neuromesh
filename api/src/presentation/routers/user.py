@@ -50,7 +50,7 @@ async def get_users(
 )
 async def get_user(
     user_id: int, get_user_interactor: FromDishka[GetUserByTelegramId]
-) -> UserDB:
+) -> GetUserResponse:
     return await get_user_interactor(user_id)
 
 
@@ -83,7 +83,7 @@ async def update_user_requests(
 async def get_user_subscription(
     user_id: uuid.UUID,
     get_user_subscriptions_interactor: FromDishka[GetUserSubscription],
-) -> GetUserSubscriptionResponse:
+) -> GetUserSubscriptionResponse | None:
     return await get_user_subscriptions_interactor(user_id)
 
 

@@ -6,5 +6,5 @@ from dataclasses import dataclass
 class GetUserSubscriptionResponse:
     subscription_name: str
     created_at: datetime.datetime
-    expires_in: int
+    expires_in: datetime.datetime
     is_expired: bool

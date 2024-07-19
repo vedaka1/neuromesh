@@ -43,20 +43,20 @@ class SubscriptionRepository(BaseSubscriptionRepository):
         )
         return None
 
-    async def get_by_name(self, name: str) -> Subscription:
+    async def get_by_name(self, name: str) -> Subscription | None:
         query = text("""SELECT * FROM subscriptions WHERE name = :name;""")
         result = await self.session.execute(query, {"name": name})
-        result = result.mappings().one_or_none()
-        if result is None:
+        data = result.mappings().one_or_none()
+        if data is None:
             return None
 
-        return Subscription(**result)
+        return Subscription(**data)
 
     async def get_all(self, limit: int = 10, offset: int = 0) -> list[Subscription]:
         query = text("""SELECT * FROM subscriptions LIMIT :limit OFFSET :offset;""")
         result = await self.session.execute(query, {"limit": limit, "offset": offset})
-        result = result.mappings().all()
-        return [Subscription(**data) for data in result]
+        data = result.mappings().all()
+        return [Subscription(**item) for item in data]
 
     async def update(self, name: str):
         query = text(

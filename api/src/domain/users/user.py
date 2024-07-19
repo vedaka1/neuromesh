@@ -24,7 +24,7 @@ class UserDB:
 @dataclass
 class User(UserDB):
     messages: list[dict] = field(default_factory=list, init=False)
-    model: BaseTextModel = field(default=None, init=False)
+    model: BaseTextModel = field(default_factory=BaseTextModel, init=False)
 
 
 @dataclass
@@ -33,7 +33,7 @@ class UserSubscription:
     user_id: uuid.UUID
     subscription_name: str
     created_at: datetime.datetime
-    expires_in: int
+    expires_in: datetime.datetime
     is_expired: bool
 
     @staticmethod

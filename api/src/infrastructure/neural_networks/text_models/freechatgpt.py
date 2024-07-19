@@ -63,7 +63,7 @@ class FreeChatGPT(BaseTextModel):
                 self.logger.error("Provider: %s, info: %s", provider.__name__, e)
             return None
 
-    async def generate_response(self, user_id: uuid.UUID, message: str) -> str:
+    async def generate_response(self, user_id: uuid.UUID, message: str) -> str | None:
         """Generates responses from different providers"""
         calls = [
             self._run_provider(provider["provider"], message)
@@ -86,10 +86,10 @@ class FreeChatGPT(BaseTextModel):
             self.logger.info('User: %s, chat_response: "%s"', user_id, response)
             return response
         self.logger.error("User: %s, info: %s", user_id, responses)
-        return False
+        return None
 
     @staticmethod
-    def create_message(message) -> dict[str, str]:
+    def create_message(message: str) -> dict[str, str]:
         """Adds the user's message to the message list"""
         return {"role": "user", "content": message}
 

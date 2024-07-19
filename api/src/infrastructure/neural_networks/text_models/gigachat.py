@@ -25,9 +25,9 @@ class Gigachat(BaseTextModel):
         default=AsyncClient(base_url="https://api-key.fusionbrain.ai/", verify=False),
         init=False,
     )
-    auth_time: datetime = field(default=None, init=False)
+    auth_time: datetime | None = field(default=None, init=False)
 
-    async def generate_response(self, user_id: uuid.UUID, message: str) -> str:
+    async def generate_response(self, user_id: uuid.UUID, message: str) -> str | None:
         await self.authenticate()
         try:
             payload = json.dumps(
@@ -47,16 +47,17 @@ class Gigachat(BaseTextModel):
                 "Accept": "application/json",
                 "Authorization": f"Bearer {self._access_token}",
             }
-            response = await self.client.post(self.url, headers=headers, data=payload)
-            message = response.json()["choices"][0]["message"]
-            response = message["content"]
-            return response
+            response = await self.client.post(
+                url=self.url, headers=headers, data=payload
+            )
+            message = response.json()["choices"][0]["message"]["content"]
 
         except Exception as e:
             self.logger.error("User: %s, info: %s", user_id, e)
-            return False
+            return None
+        return message
 
-    async def authenticate(self) -> bool:
+    async def authenticate(self) -> None:
         if self.auth_time == None or datetime.now(
             timezone.utc
         ) >= self.auth_time + timedelta(minutes=25):
@@ -70,13 +71,16 @@ class Gigachat(BaseTextModel):
                     "RqUID": f"{uuid.uuid4()}",
                     "Authorization": f"Basic {settings.AUTH_DATA_SBER}",
                 }
-                response = await self.client.post(url, headers=headers, data=payload)
+                response = await self.client.post(
+                    url=url, headers=headers, data=payload
+                )
                 self.auth_time = datetime.now(timezone.utc)
                 self._access_token = response.json()["access_token"]
 
             except Exception as e:
                 self.logger.error("GigaChat Auth Error %s", e)
                 raise Exception("GigaChat Auth Error")
+            return None
 
     @staticmethod
     def create_message(text: str) -> dict[str, str]:

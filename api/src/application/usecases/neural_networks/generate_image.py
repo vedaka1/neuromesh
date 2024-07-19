@@ -10,7 +10,7 @@ class GenerateImage:
     tg_client: AsyncTGClient
     image_model: BaseImageModel
 
-    async def __call__(self, user_id: int, user_prompt: str) -> str:
+    async def __call__(self, user_id: int, user_prompt: str) -> None:
 
         result = await self.tg_client.post(
             "sendMessage",
@@ -51,3 +51,5 @@ class GenerateImage:
                     "text": "Возникла ошибка",
                 },
             )
+            return None
+        return None

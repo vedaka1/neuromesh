@@ -2,7 +2,7 @@ import uuid
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from logging import Logger
-from typing import TypeVar
+from typing import Any, Generic, TypeVar
 
 LT = TypeVar("LT", bound=Logger)
 
@@ -12,15 +12,17 @@ class BaseTextModel(ABC):
     logger: LT
 
     @abstractmethod
-    def create_message(self) -> dict[str, str]: ...
+    def create_message(self, message: str) -> dict[str, str]: ...
 
     @abstractmethod
-    async def generate_response(self) -> str | None: ...
+    async def generate_response(
+        self, user_id: uuid.UUID, message: str
+    ) -> str | None: ...
 @dataclass
 class BaseImageModel(ABC):
 
     @abstractmethod
-    async def generate_response(self, user_prompt: str) -> str | None: ...
+    async def generate_response(self, user_prompt: str) -> dict[str, Any] | None: ...
 
 
 @dataclass
@@ -38,12 +40,12 @@ class Model:
 class ModelSubscription:
     id: uuid.UUID
     neural_network_name: str
-    subscription_name: uuid.UUID
+    subscription_name: str
     requests: int
 
     @staticmethod
     def create(
-        model_name: uuid.UUID, subscription_name: uuid.UUID, requests: int
+        model_name: str, subscription_name: str, requests: int
     ) -> "ModelSubscription":
         return ModelSubscription(
             id=uuid.uuid4(),

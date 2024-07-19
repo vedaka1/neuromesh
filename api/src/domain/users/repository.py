@@ -31,9 +31,7 @@ class BaseUserRepository(ABC):
 @dataclass
 class BaseUserSubscriptionRepository(ABC):
     @abstractmethod
-    async def create(
-        self, user_subscription: UserSubscription
-    ) -> UserSubscription | None: ...
+    async def create(self, user_subscription: UserSubscription) -> None: ...
 
     @abstractmethod
     async def delete(self, id: uuid.UUID) -> None: ...
@@ -49,12 +47,12 @@ class BaseUserSubscriptionRepository(ABC):
     @abstractmethod
     async def get_all(
         self, limit: int = 10, offset: int = 0
-    ) -> list[UserSubscription] | None: ...
+    ) -> list[UserSubscription]: ...
 
     @abstractmethod
     async def get_by_user_id(
-        self, user_id: uuid.UUID, limit: int = 10, offset: int = 0, active: bool = False
-    ) -> list[UserSubscription] | None: ...
+        self, user_id: uuid.UUID, limit: int = 10, offset: int = 0
+    ) -> list[UserSubscription]: ...
 
     @abstractmethod
     async def update(self, id: uuid.UUID) -> None: ...
@@ -74,7 +72,7 @@ class BaseUserRequestRepository(ABC):
     @abstractmethod
     async def get_all_by_user_id(
         self, user_id: uuid.UUID, limit: int = 10, offset: int = 0
-    ) -> list[UserRequest] | None: ...
+    ) -> list[UserRequest]: ...
 
     @abstractmethod
     async def get_by_user_and_model_name(

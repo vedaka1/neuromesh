@@ -9,7 +9,6 @@ from application.common.transaction import BaseTransactionManager
 from application.usecases.neural_networks import *
 from application.usecases.subscriptions import *
 from application.usecases.users import *
-from application.usecases.users.get_all_users import GetAllUsers
 from domain.neural_networks.manager import BaseModelManager
 from domain.neural_networks.repository import (
     BaseNeuralNetworkRepository,
@@ -24,10 +23,10 @@ from domain.users.repository import (
 from infrastructure.neural_networks.main import ModelManager
 from infrastructure.persistence.main import create_engine, create_session_factory
 from infrastructure.persistence.repositories import (
-    BaseUserRepository,
     NeuralNetworkRepository,
     NeuralNetworkSubscriptionRepository,
     SubscriptionRepository,
+    UserRepository,
     UserRequestRepository,
     UserSubscriptionRepository,
 )
@@ -42,13 +41,14 @@ def get_container() -> Container:
 
 
 @lru_cache(1)
-def init_logger() -> logging.Logger:
+def init_logger() -> None:
     logging.basicConfig(
         # filename="log.log",
         level=logging.INFO,
         encoding="UTF-8",
         format="%(asctime)s %(levelname)s: %(message)s",
     )
+    return None
 
 
 def init_container() -> Container:
@@ -82,7 +82,7 @@ def init_container() -> Container:
     container.register(BaseModelManager, ModelManager, scope=Scope.singleton)
     container.register(
         BaseUserRepository,
-        BaseUserRepository,
+        UserRepository,
         scope=Scope.transient,
     )
     container.register(

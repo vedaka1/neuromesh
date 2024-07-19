@@ -48,22 +48,22 @@ class UserSubscriptionRepository(BaseUserSubscriptionRepository):
         )
         return None
 
-    async def get_by_id(self, id: uuid.UUID) -> UserSubscription:
+    async def get_by_id(self, id: uuid.UUID) -> UserSubscription | None:
         query = text("""SELECT * FROM users_subscriptions WHERE id = :value;""")
         result = await self.session.execute(query, {"value": id})
-        result = result.mappings().one_or_none()
-        if result is None:
+        data = result.mappings().one_or_none()
+        if data is None:
             return None
 
-        return UserSubscription(**result)
+        return UserSubscription(**data)
 
     async def get_all(self, limit: int = 10, offset: int = 0) -> list[UserSubscription]:
         query = text(
             """SELECT * FROM users_subscriptions LIMIT :limit OFFSET :offset;"""
         )
         result = await self.session.execute(query, {"limit": limit, "offset": offset})
-        result = result.mappings().all()
-        return [UserSubscription(**data) for data in result]
+        data = result.mappings().all()
+        return [UserSubscription(**item) for item in data]
 
     async def get_by_user_id(
         self, user_id: uuid.UUID, limit: int = 10, offset: int = 0
@@ -74,21 +74,21 @@ class UserSubscriptionRepository(BaseUserSubscriptionRepository):
         result = await self.session.execute(
             query, {"user_id": user_id, "limit": limit, "offset": offset}
         )
-        result = result.mappings().all()
-        return [UserSubscription(**data) for data in result]
+        data = result.mappings().all()
+        return [UserSubscription(**item) for item in data]
 
     async def get_active_by_user_id(self, user_id: uuid.UUID):
         query = text(
             """SELECT * FROM users_subscriptions WHERE user_id = :user_id AND is_expired = false;"""
         )
         result = await self.session.execute(query, {"user_id": user_id})
-        result = result.mappings().one_or_none()
-        if result is None:
+        data = result.mappings().one_or_none()
+        if data is None:
             return None
 
-        return UserSubscription(**result)
+        return UserSubscription(**data)
 
-    async def update(self, id: uuid.uuid4):
+    async def update(self, id: uuid.UUID) -> None:
         query = text(
             """
                 UPDATE users_subscriptions

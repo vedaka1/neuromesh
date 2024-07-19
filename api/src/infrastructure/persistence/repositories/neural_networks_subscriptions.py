@@ -48,29 +48,29 @@ class NeuralNetworkSubscriptionRepository(BaseNeuralNetworkSubscriptionRepositor
         )
         return None
 
-    async def get_by_id(self, id: uuid.UUID) -> ModelSubscription:
+    async def get_by_id(self, id: uuid.UUID) -> ModelSubscription | None:
         query = text(
             """SELECT * FROM neural_networks_subscriptions WHERE id = :value;"""
         )
         result = await self.session.execute(query, {"value": id})
-        result = result.mappings().one_or_none()
-        if result is None:
+        data = result.mappings().one_or_none()
+        if data is None:
             return None
 
-        return ModelSubscription(**result)
+        return ModelSubscription(**data)
 
     async def get_all_by_subscription_name(
-        self, subscription_name: uuid.UUID
+        self, subscription_name: str
     ) -> list[ModelSubscription]:
         query = text(
             """SELECT * FROM neural_networks_subscriptions WHERE subscription_name = :name;"""
         )
         result = await self.session.execute(query, {"name": subscription_name})
-        result = result.mappings().all()
-        if result is None:
+        data = result.mappings().all()
+        if data is None:
             return None
 
-        return [ModelSubscription(**data) for data in result]
+        return [ModelSubscription(**item) for item in data]
 
     async def get_all(
         self, limit: int = 10, offset: int = 0
@@ -79,8 +79,8 @@ class NeuralNetworkSubscriptionRepository(BaseNeuralNetworkSubscriptionRepositor
             """SELECT * FROM neural_networks_subscriptions LIMIT :limit OFFSET :offset;"""
         )
         result = await self.session.execute(query, {"limit": limit, "offset": offset})
-        result = result.mappings().all()
-        return [ModelSubscription(**data) for data in result]
+        data = result.mappings().all()
+        return [ModelSubscription(**item) for item in data]
 
     # async def get_all_by_subscription_id(
     #     self, subscription_id: uuid.UUID, limit: int = 10, offset: int = 0

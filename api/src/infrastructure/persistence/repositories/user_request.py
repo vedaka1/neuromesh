@@ -47,32 +47,28 @@ class UserRequestRepository(BaseUserRequestRepository):
         )
         return None
 
-    async def get_by_id(
-        self, id: uuid.UUID, limit: int = 10, offset: int = 0
-    ) -> list[UserRequest]:
-        query = text(
-            """SELECT * FROM users_requests WHERE id = :val LIMIT :limit OFFSET :offset;"""
-        )
-        result = await self.session.execute(
-            query, {"val": id, "limit": limit, "offset": offset}
-        )
-        result = result.mappings().all()
-        return [UserRequest(**data) for data in result]
+    async def get_by_id(self, id: uuid.UUID) -> UserRequest | None:
+        query = text("""SELECT * FROM users_requests WHERE id = :val""")
+        result = await self.session.execute(query, {"val": id})
+        data = result.mappings().all()
+        if not data:
+            return None
+        return UserRequest(**data)
 
     async def get_by_user_and_model_name(
-        self, model_name: uuid.UUID, user_id: uuid.UUID
-    ) -> UserRequest:
+        self, model_name: str, user_id: uuid.UUID
+    ) -> UserRequest | None:
         query = text(
             """SELECT * FROM users_requests WHERE user_id = :user_id AND neural_network_name = :model_name;"""
         )
         result = await self.session.execute(
             query, {"user_id": user_id, "model_name": model_name}
         )
-        result = result.mappings().one_or_none()
-        if result is None:
+        data = result.mappings().one_or_none()
+        if data is None:
             return None
 
-        return UserRequest(**result)
+        return UserRequest(**data)
 
     async def get_all_by_user_id(
         self, user_id: uuid.UUID, limit: int = 10, offset: int = 0
@@ -83,8 +79,8 @@ class UserRequestRepository(BaseUserRequestRepository):
         result = await self.session.execute(
             query, {"user_id": user_id, "limit": limit, "offset": offset}
         )
-        result = result.mappings().all()
-        return [UserRequest(**data) for data in result]
+        data = result.mappings().all()
+        return [UserRequest(**item) for item in data]
 
     async def update_user_requests(
         self, user_id: uuid.UUID, model_name: str, amount: int

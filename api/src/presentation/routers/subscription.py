@@ -45,7 +45,7 @@ async def get_subscriptions(
 async def get_subscription(
     subscription_name: str,
     get_subscription_by_name_interactor: FromDishka[GetSubscriptionByName],
-) -> Subscription:
+) -> GetSubscriptionResponse:
     return await get_subscription_by_name_interactor(subscription_name)
 
 

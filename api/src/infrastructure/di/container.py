@@ -2,18 +2,9 @@ import logging
 from functools import lru_cache
 from typing import AsyncGenerator
 
-from dishka import (
-    AsyncContainer,
-    Provider,
-    Scope,
-    from_context,
-    make_async_container,
-    provide,
-)
+from dishka import AsyncContainer, Provider, Scope, make_async_container, provide
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
-from taskiq import AsyncBroker
-from taskiq_aio_pika import AioPikaBroker
 
 from application.common.tg_client import AsyncTGClient
 from application.common.transaction import BaseTransactionManager
@@ -49,13 +40,14 @@ from infrastructure.persistence.transaction import TransactionManager
 
 
 @lru_cache(1)
-def init_logger() -> logging.Logger:
+def init_logger() -> None:
     logging.basicConfig(
         # filename="log.log",
         level=logging.INFO,
         encoding="UTF-8",
         format="%(asctime)s %(levelname)s: %(message)s",
     )
+    return None
 
 
 class SettingsProvider(Provider):
@@ -69,7 +61,7 @@ class SettingsProvider(Provider):
 
     @provide(scope=Scope.APP)
     def tg_client(self) -> AsyncTGClient:
-        return AsyncClient(base_url=settings.TG_API)
+        return AsyncTGClient(base_url=settings.TG_API)
 
 
 class DatabaseConfigurationProvider(Provider):
@@ -77,7 +69,7 @@ class DatabaseConfigurationProvider(Provider):
     async def provide_db_connection(
         self, session_factory: async_sessionmaker
     ) -> AsyncGenerator[AsyncSession, None]:
-        session = session_factory()
+        session: AsyncSession = session_factory()
         yield session
         await session.close()
 

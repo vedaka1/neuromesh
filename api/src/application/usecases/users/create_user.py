@@ -4,6 +4,7 @@ from fastapi import HTTPException
 
 from application.common.transaction import BaseTransactionManager
 from application.contracts.users.register_request import RegisterRequest
+from domain.exceptions.subscription import SubscriptionNotFoundException
 from domain.exceptions.user import *
 from domain.neural_networks.repository import BaseNeuralNetworkSubscriptionRepository
 from domain.subscriptions.repository import BaseSubscriptionRepository
@@ -28,6 +29,8 @@ class CreateUser:
         await self.user_repository.create(user)
 
         subscription = await self.subscriptions_repository.get_by_name("Free")
+        if not subscription:
+            raise SubscriptionNotFoundException
         neural_networks = await self.neural_network_subscriptions_repository.get_all_by_subscription_name(
             subscription.name
         )

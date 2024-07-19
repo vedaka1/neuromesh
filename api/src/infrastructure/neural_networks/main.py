@@ -21,11 +21,9 @@ class ModelManager(BaseModelManager):
     async def generate_response(
         self, user_id: uuid.UUID, model_name: str, message: str
     ) -> str:
-        model: BaseTextModel = self.models.get(model_name, None)
-
-        if model is None:
+        model: BaseTextModel | None = self.models.get(model_name, None)
+        if not model:
             raise ValueError(f"Model {model_name} not found")
-
         result = await model.generate_response(user_id, message)
         if result is None:
             raise ModelUnavailableException(
