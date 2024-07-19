@@ -10,7 +10,7 @@ RUN pip install poetry==1.7.1
 COPY poetry.lock pyproject.toml ./
 
 RUN poetry config virtualenvs.create false
-RUN poetry install --no-root --no-interaction --no-ansi
+RUN poetry install --without test --no-root --no-interaction --no-ansi
 
 COPY src/ .
 COPY .env.production .env

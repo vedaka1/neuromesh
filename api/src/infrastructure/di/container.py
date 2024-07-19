@@ -2,12 +2,6 @@ import logging
 from functools import lru_cache
 from typing import AsyncGenerator
 
-from application.common.tg_client import AsyncTGClient
-from application.common.transaction import BaseTransactionManager
-from application.usecases.neural_networks import *
-from application.usecases.neural_networks.generate_image import GenerateImage
-from application.usecases.subscriptions import *
-from application.usecases.users import *
 from dishka import (
     AsyncContainer,
     Provider,
@@ -16,6 +10,17 @@ from dishka import (
     make_async_container,
     provide,
 )
+from httpx import AsyncClient
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
+from taskiq import AsyncBroker
+from taskiq_aio_pika import AioPikaBroker
+
+from application.common.tg_client import AsyncTGClient
+from application.common.transaction import BaseTransactionManager
+from application.usecases.neural_networks import *
+from application.usecases.neural_networks.generate_image import GenerateImage
+from application.usecases.subscriptions import *
+from application.usecases.users import *
 from domain.neural_networks.manager import BaseModelManager
 from domain.neural_networks.model import BaseImageModel
 from domain.neural_networks.repository import (
@@ -28,7 +33,6 @@ from domain.users.repository import (
     BaseUserRequestRepository,
     BaseUserSubscriptionRepository,
 )
-from httpx import AsyncClient
 from infrastructure.config import settings
 from infrastructure.neural_networks.image_models.kadinsky import Kadinsky
 from infrastructure.neural_networks.main import ModelManager
@@ -42,9 +46,6 @@ from infrastructure.persistence.repositories import (
     UserSubscriptionRepository,
 )
 from infrastructure.persistence.transaction import TransactionManager
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
-from taskiq import AsyncBroker
-from taskiq_aio_pika import AioPikaBroker
 
 
 @lru_cache(1)

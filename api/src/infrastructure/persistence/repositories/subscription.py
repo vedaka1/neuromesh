@@ -62,15 +62,13 @@ class SubscriptionRepository(BaseSubscriptionRepository):
         query = text(
             """
                 UPDATE subscriptions
-                SET name = :val
-                WHERE id = :id;
+                WHERE name = :name;
                 """
         )
         await self.session.execute(
             query,
             {
-                "val": name,
-                "id": name,
+                "name": name,
             },
         )
         return None

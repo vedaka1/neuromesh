@@ -24,10 +24,10 @@ from domain.users.repository import (
 from infrastructure.neural_networks.main import ModelManager
 from infrastructure.persistence.main import create_engine, create_session_factory
 from infrastructure.persistence.repositories import (
+    BaseUserRepository,
     NeuralNetworkRepository,
     NeuralNetworkSubscriptionRepository,
     SubscriptionRepository,
-    UserRepository,
     UserRequestRepository,
     UserSubscriptionRepository,
 )
@@ -82,7 +82,7 @@ def init_container() -> Container:
     container.register(BaseModelManager, ModelManager, scope=Scope.singleton)
     container.register(
         BaseUserRepository,
-        UserRepository,
+        BaseUserRepository,
         scope=Scope.transient,
     )
     container.register(

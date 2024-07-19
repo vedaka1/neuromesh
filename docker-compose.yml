@@ -14,7 +14,7 @@ services:
       context: ./tgbot/
       dockerfile: ./Dockerfile
     env_file:
-      - ./tgbot/.env.production
+      - ./tgbot/.env
     networks:
       - internal
 

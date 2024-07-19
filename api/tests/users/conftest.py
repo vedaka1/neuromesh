@@ -1,9 +1,11 @@
 import pytest
+from dishka import AsyncContainer
 
-from src.domain.users.repository import BaseUserRepository
+from domain.users.repository import BaseUserRepository
 
-
-@pytest.fixture(scope="function")
-def user_repository(container):
-    user_reposutory = container.resolve(BaseUserRepository)
-    yield user_reposutory
+# @pytest.fixture(scope="function")
+# @pytest.mark.asyncio
+# async def user_repository(container: AsyncContainer):
+#     async with container() as di_container:
+#         user_repository = await di_container.get(BaseUserRepository)
+#         yield user_repository
