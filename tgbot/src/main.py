@@ -6,6 +6,7 @@ from aiogram.enums import ParseMode
 
 from infrastructure.config import settings
 from infrastructure.di.container import init_client, init_logger
+from presentation.exc_handlers import init_exc_handlers
 from presentation.routers.admin import admin_router
 from presentation.routers.chat import chat_router
 from presentation.routers.subscription import subscription_router
@@ -29,6 +30,7 @@ async def main():
     init_routers(dp)
     dp["client"] = init_client()
     dp["users"] = {}
+    await init_exc_handlers(dp)
     await dp.start_polling(bot)
 
 

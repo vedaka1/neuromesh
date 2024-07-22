@@ -117,11 +117,13 @@ class UseCasesProvider(Provider):
     update_user_requests = provide(UpdateUserRequests)
 
     create_subscription = provide(CreateSubscription)
+    delete_subscription = provide(DeleteSubscription)
     add_model_to_subscription = provide(AddModelToSubscription)
     get_all_subscriptions = provide(GetAllSubscriptions)
     get_subscription_by_name = provide(GetSubscriptionByName)
 
     create_neural_network = provide(CreateNeuralNetwork)
+    delete_neural_network = provide(DeleteNeuralNetwork)
     generate_response = provide(GenerateResponse)
     get_all_neural_networks = provide(GetAllNeuralNetworks)
     get_neural_network_by_name = provide(GetNeuralNetworkByName)

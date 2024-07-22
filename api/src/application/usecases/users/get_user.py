@@ -55,7 +55,12 @@ class GetUserByTelegramId:
                     is_expired=subscription.is_expired,
                 )
                 if subscription
-                else None
+                else GetUserSubscriptionResponse(
+                    subscription_name="Free",
+                    created_at=None,
+                    expires_in=None,
+                    is_expired=False,
+                )
             ),
             requests=[
                 GetUserRequestsResponse(request.neural_network_name, request.amount)

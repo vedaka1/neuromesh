@@ -73,3 +73,14 @@ async def generate_image(
     user_prompt: str,
 ) -> None:
     return await generate_image_task.kiq(user_id=user_id, user_prompt=user_prompt)
+
+
+@model_router.delete(
+    "/{model_name}",
+    summary="Удаляет модель нейросети по названию",
+)
+async def delete_model(
+    model_name: str,
+    delete_neural_network_interactor: FromDishka[DeleteNeuralNetwork],
+) -> None:
+    return await delete_neural_network_interactor(model_name)

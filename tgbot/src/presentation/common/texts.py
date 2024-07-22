@@ -2,11 +2,11 @@ class Text:
     @property
     def start(self):
         text = str(
-            "Данный бот может отправлять последние новости с сайта dvinanews.ru\n\n"
-            + "/news - для получения последних новостей\n"
-            + "/newsletter - для подписки на рассылку новостей\n"
-            + "/info - информация для администратора\n"
-            + "/request_access - запросить права администратора"
+            "This bot can provide access to neural networks by subscription\n\n"
+            + "/select_model - Select neural network\n"
+            + "/account - Your account\n"
+            + "/subscriptions - Available subscriptions"
+            + "/imagine <prompt> - Generate image from prompt"
         )
         return text
 
@@ -16,15 +16,15 @@ class Text:
             "Администратор может создавать подписки и модели, управлять содержанием подписок\n\n"
             + "/models - Список доступных моделей нейросетей\n"
             + "/subscriptions - Список доступных подписок\n"
-            + "/create_model <name> - Создать модель нейросети\n"
-            + "/create_sub <name> - Создать подписку\n"
-            + "/add_model_to_sub <sub_name> <mdoel_name> <default_requests> - Добавить модель в подписку\n"
+            + "/create_model - Создать модель нейросети\n"
+            + "/create_sub - Создать подписку\n"
+            + "/add_model_to_sub - Добавить модель нейросети в подписку\n"
         )
         return text
 
     @property
     def permission_denied(self):
-        text = str("\U00002757 Недостаточно прав\n\n")
+        text = str("\U00002757 Access denied\n\n")
         return text
 
     def request_access(self, user_id: int, username: str):

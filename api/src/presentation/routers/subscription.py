@@ -65,3 +65,14 @@ async def add_model_to_subscription(
         model_name=model_name,
         requests=default_requests,
     )
+
+
+@subscription_router.delete(
+    "/{subscription_name}",
+    summary="Удаляет подписку по названию",
+)
+async def delete_subscription(
+    subscription_name: str,
+    delete_subscription_interactor: FromDishka[DeleteSubscription],
+) -> None:
+    return await delete_subscription_interactor(subscription_name)

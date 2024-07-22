@@ -27,23 +27,15 @@ async def generate_image(
     await state.set_state(Generate.text)
     user_id = message.from_user.id
     prompt = command.args
-    try:
-        data = await client.post(
-            "/models/image",
-            params={
-                "user_id": user_id,
-                "user_prompt": prompt,
-            },
-            timeout=10,
-        )
-        data.raise_for_status()
-
-    except HTTPStatusError as e:
-        await message.answer(Response(f"Error: {e.response.json()["detail"]}").value)
-    except Exception as e:
-        await message.answer(f"Unknown error")
-    finally:
-        await state.clear()
+    data = await client.post(
+        "/models/image",
+        params={
+            "user_id": user_id,
+            "user_prompt": prompt,
+        },
+        timeout=10,
+    )
+    data.raise_for_status()
 
 
 @chat_router.message(F.text)
@@ -57,23 +49,15 @@ async def generate_response(
         return
 
     msg = await message.answer(text="_Waiting_ \U0001F551")
-    try:
-        data = await client.post(
-            "/models/response",
-            json={
-                "model": users[user_id]["model"],
-                "user_id": users[user_id]["id"],
-                "message": message.text,
-            },
-            timeout=10,
-        )
-        data.raise_for_status()
-        await msg.edit_text(data.json()["value"])
-        await state.clear()
-
-    except HTTPStatusError as e:
-        await message.answer(Response(f"Error: {e.response.json()["detail"]}").value)
-    except Exception as e:
-        await message.answer(f"Unknown error")
-    finally:
-        await state.clear()
+    data = await client.post(
+        "/models/response",
+        json={
+            "model": users[user_id]["model"],
+            "user_id": users[user_id]["id"],
+            "message": message.text,
+        },
+        timeout=10,
+    )
+    data.raise_for_status()
+    await msg.edit_text(data.json()["value"])
+    await state.clear()

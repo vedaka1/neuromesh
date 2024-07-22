@@ -25,7 +25,7 @@ class UserRepository(BaseUserRepository):
             query,
             {
                 "id": user.id,
-                "telegram_id": user.telegram_id,
+                "telegram_id": str(user.telegram_id),
                 "username": user.username,
                 "current_subscription": user.current_subscription,
             },
@@ -42,14 +42,14 @@ class UserRepository(BaseUserRepository):
         await self.session.execute(
             query,
             {
-                "value": telegram_id,
+                "value": str(telegram_id),
             },
         )
         return None
 
     async def get_by_telegram_id(self, telegram_id: int) -> UserDB | None:
         query = text("""SELECT * FROM users WHERE telegram_id = :value;""")
-        result = await self.session.execute(query, {"value": telegram_id})
+        result = await self.session.execute(query, {"value": str(telegram_id)})
         data = result.mappings().one_or_none()
         if data is None:
             return None

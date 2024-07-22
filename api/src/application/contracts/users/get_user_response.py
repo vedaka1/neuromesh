@@ -13,5 +13,5 @@ class GetUserResponse:
     id: uuid.UUID
     telegram_id: int
     username: str
-    subscription: Optional[GetUserSubscriptionResponse]
+    subscription: GetUserSubscriptionResponse
     requests: list[GetUserRequestsResponse]
