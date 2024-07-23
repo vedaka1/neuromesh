@@ -6,16 +6,14 @@ from datetime import datetime, timedelta, timezone
 
 from httpx import AsyncClient
 
-from domain.common.response import Response
 from domain.neural_networks.model import BaseTextModel
-from domain.users.user import User
 from infrastructure.config import settings
 
 
 @dataclass
 class Gigachat(BaseTextModel):
 
-    logger: logging.Logger = field(default=logging.getLogger(), init=False)
+    logger: logging.Logger = field(default=logging.getLogger(__name__), init=False)
     url: str = field(
         default="https://gigachat.devices.sberbank.ru/api/v1/chat/completions",
         init=False,

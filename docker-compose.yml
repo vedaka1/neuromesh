@@ -92,6 +92,37 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+
+  grafana:
+    image: grafana/grafana:9.5.2
+    container_name: grafana
+    hostname: grafana
+    expose:
+      - "3000"
+    ports:
+      - "3000:3000"
+    networks:
+      - internal
+    volumes:
+      - neuromesh.grafana.data:/var/lib/grafana:rw
+      - ./config/grafana/provisioning:/etc/grafana/provisioning:rw
+    environment:
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - VIRTUAL_HOST=neuromesh.grafana
+      - NETWORK_ACCESS=internal
+      - VIRTUAL_PORT=3000
+
+  loki:
+    image: grafana/loki:2.8.2
+    container_name: loki
+    hostname: loki
+    expose:
+      - "3100"
+    volumes:
+      - neuromesh.loki.data:/tmp/:rw
+    networks:
+      - internal
+    
   # scheduler:
   #   container_name: scheduler
   #   build: ./scheduler
@@ -103,6 +134,8 @@ services:
   #       condition: service_healthy
     
 volumes:
+  neuromesh.loki.data: {}
+  neuromesh.grafana.data: {}
   rabbitmq.data: {}
   postgres_data:
 

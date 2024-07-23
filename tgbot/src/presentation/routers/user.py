@@ -1,8 +1,8 @@
-from aiogram import Bot, F, Router, filters, types
-from httpx import AsyncClient, HTTPStatusError
+from aiogram import F, Router, filters, types
+from httpx import AsyncClient
 
-from domain.common.response import Response
 from presentation.common.keyboards import kb
+from presentation.common.texts import text
 
 user_router = Router()
 
@@ -16,24 +16,21 @@ async def cmd_start(message: types.Message, client: AsyncClient):
         json={"telegram_id": user_id, "username": username},
     )
     response.raise_for_status()
-    await message.answer(
-        "Привет!\n" + "Доступные команды:\n" + " /select_model выбирает модель"
-    )
+    await message.answer(text=text.start)
 
 
 @user_router.message(filters.Command("account"))
 async def cmd_start(message: types.Message, client: AsyncClient):
     user_id = message.from_user.id
-    username = message.from_user.username
     response = await client.get(
         f"/users/{user_id}",
     )
     response.raise_for_status()
     user_data = response.json()
     text = (
-        "Подписка: *"
+        "Subscription: *"
         + user_data['subscription']['subscription_name']
-        + "*\nКоличество запросов:\n"
+        + "*\nRequests amount:\n"
     )
     for request in user_data['requests']:
         text += request['neural_network_name'] + ": *" + str(request['amount']) + "*\n" 
@@ -53,7 +50,7 @@ async def cmd_select_model(message: types.Message, client: AsyncClient):
     )
     response.raise_for_status()
     await message.answer(
-        text="Выберите модель:",
+        text="Select model:",
         reply_markup=kb.select_model(user_id, response.json()),
     )
 
@@ -71,6 +68,6 @@ async def callback_select_model(callback: types.CallbackQuery, users: dict, clie
     response.raise_for_status()
     data = response.json()
     users[user_id] = {"id": data["id"], "model": choice}
-    await callback.message.edit_text(text=f"Текущая модель: {choice}")
+    await callback.message.edit_text(text=f"Current model: {choice}")
 
     

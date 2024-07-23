@@ -1,8 +1,11 @@
+import logging
 from dataclasses import dataclass
 
 from application.common.tg_client import AsyncTGClient
 from domain.exceptions.model import *
 from domain.neural_networks.model import BaseImageModel
+
+logger = logging.getLogger()
 
 
 @dataclass
@@ -11,10 +14,14 @@ class GenerateImage:
     image_model: BaseImageModel
 
     async def __call__(self, user_id: int, user_prompt: str) -> None:
-
+        logger.info("Generate image for user %i", user_id)
         result = await self.tg_client.post(
             "sendMessage",
-            params={"chat_id": user_id, "text": "<i>Waiting</i>", "parse_mode": "HTML"},
+            params={
+                "chat_id": user_id,
+                "text": "_Waiting_",
+                "parse_mode": "MarkDownV2",
+            },
         )
         message = result.json()["result"]
         try:
@@ -42,7 +49,13 @@ class GenerateImage:
                     },
                 )
 
-        except Exception as e:
+        except Exception as exc:
+            logger.error(
+                "Image generation for user %i failed",
+                user_id,
+                exc_info=exc,
+                extra={"error": exc},
+            )
             await self.tg_client.post(
                 "editMessageText",
                 params={

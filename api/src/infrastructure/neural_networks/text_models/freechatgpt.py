@@ -44,7 +44,7 @@ _providers = [
 class FreeChatGPT(BaseTextModel):
     """FreeChatGPT class for bot users"""
 
-    logger: logging.Logger = field(default=logging.getLogger(), init=False)
+    logger: logging.Logger = field(default=logging.getLogger(__name__), init=False)
 
     async def _run_provider(
         self, provider: g4f.Provider.BaseProvider, message: str, logs=False

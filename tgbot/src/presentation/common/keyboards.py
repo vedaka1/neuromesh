@@ -14,11 +14,11 @@ class Keyboards:
         ]
         return types.InlineKeyboardMarkup(inline_keyboard=buttons)
     
-    def all_models(self, data: dict):
+    def all_models(self, data: set):
         buttons = [
             [
                 types.InlineKeyboardButton(
-                    text=model["name"], callback_data=f"selectModel_{model["name"]}"
+                    text=model, callback_data=f"selectModel_{model}"
                 )
             ]
             for model in data

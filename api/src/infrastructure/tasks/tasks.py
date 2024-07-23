@@ -1,6 +1,13 @@
+import logging
+
 from application.usecases.neural_networks.generate_image import GenerateImage
-from infrastructure.di.container import get_container
+from infrastructure.di.container import get_container, init_loki_logger
 from infrastructure.tasks.main import broker
+
+logger = logging.getLogger("text2image")
+handler = init_loki_logger(app_name="text2image")
+logger.addHandler(handler)
+logging.getLogger("httpx").setLevel(logging.WARNING)
 
 
 @broker.task

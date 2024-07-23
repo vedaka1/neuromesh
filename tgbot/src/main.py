@@ -1,11 +1,12 @@
 import asyncio
+import logging
 
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 
 from infrastructure.config import settings
-from infrastructure.di.container import init_client, init_logger
+from infrastructure.di.container import init_client, init_logger, init_loki_logger
 from presentation.exc_handlers import init_exc_handlers
 from presentation.routers.admin import admin_router
 from presentation.routers.chat import chat_router
@@ -31,6 +32,8 @@ async def main():
     dp["client"] = init_client()
     dp["users"] = {}
     await init_exc_handlers(dp)
+    handler = init_loki_logger(app_name="tgbot")
+    logging.getLogger("aiogram.event").addHandler(handler)
     await dp.start_polling(bot)
 
 

@@ -2172,6 +2172,21 @@ files = [
 cli = ["click (>=5.0)"]
 
 [[package]]
+name = "python-logging-loki"
+version = "0.3.1"
+description = "Python logging handler for Grafana Loki."
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "python-logging-loki-0.3.1.tar.gz", hash = "sha256:b83610c8a3adc99fbab072493b91dfb25ced69be4874fefe3ab457b391adbf60"},
+    {file = "python_logging_loki-0.3.1-py3-none-any.whl", hash = "sha256:8a9131db037fbea3d390089c4c32dbe7ed233944905079615a9fb6f669b0f4e6"},
+]
+
+[package.dependencies]
+requests = "*"
+rfc3339 = ">=6.1"
+
+[[package]]
 name = "pytz"
 version = "2024.1"
 description = "World timezone definitions, modern and historical"
@@ -2325,6 +2340,17 @@ urllib3 = ">=1.21.1,<3"
 [package.extras]
 socks = ["PySocks (>=1.5.6,!=1.5.7)"]
 use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
+
+[[package]]
+name = "rfc3339"
+version = "6.2"
+description = "Format dates according to the RFC 3339."
+optional = false
+python-versions = "*"
+files = [
+    {file = "rfc3339-6.2-py3-none-any.whl", hash = "sha256:f44316b21b21db90a625cde04ebb0d46268f153e6093021fa5893e92a96f58a3"},
+    {file = "rfc3339-6.2.tar.gz", hash = "sha256:d53c3b5eefaef892b7240ba2a91fef012e86faa4d0a0ca782359c490e00ad4d0"},
+]
 
 [[package]]
 name = "rsa"
@@ -2940,4 +2966,4 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "f47be9f4e1ce2c7a614c56be9e766fcf8df65b223c6ea388cc25b02107d4ca9b"
+content-hash = "bae915de98c62abea68042a15a62fce6e2197bc0911ef71c7bd2c258229d2d3e"

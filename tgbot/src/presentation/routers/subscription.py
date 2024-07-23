@@ -1,7 +1,6 @@
-from aiogram import Bot, F, Router, filters, types
-from httpx import AsyncClient, HTTPStatusError
+from aiogram import F, Router, filters, types
+from httpx import AsyncClient
 
-from domain.common.response import Response
 from presentation.common.keyboards import kb
 from presentation.dependencies.user import get_user
 
@@ -13,7 +12,7 @@ async def get_all_subscriptions(message: types.Message, client: AsyncClient):
     response = await client.get("/subscriptions")
     response.raise_for_status()
     await message.answer(
-        text="Выберите подписку:",
+        text="Select subscription:",
         reply_markup=kb.all_subscriptions(response.json())
     )
 
@@ -24,5 +23,5 @@ async def select_subscription_callback(callback: types.CallbackQuery, client: As
     user = await get_user(user_id, client)
     result = await client.put(f"/users/{user["id"]}/subscription", params={"subscription_name": user_choice})
     result.raise_for_status()
-    await callback.message.edit_text("Выбрана подписка: " + user_choice)
+    await callback.message.edit_text("Selected subscription: " + user_choice)
 

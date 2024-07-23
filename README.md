@@ -3,6 +3,7 @@ API + TG Bot to access to AI models
 
 ## Project features
 * Subscription system
+* Centralized logging with Loki and Grafana
 * Clean Architecture
 * RabbitMQ as a tasks queue
 * Text generation
@@ -73,4 +74,5 @@ API + TG Bot to access to AI models
 * Users ![image](./docs/images/users.png)
 * Subscriptions ![image](./docs/images/subscriptions.png)
 * Neural Networks ![image](./docs/images/neural_networks.png)
-
+## Centralized logs with Grafana Loki
+![image](./docs/images/grafana.png)

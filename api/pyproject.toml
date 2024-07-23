@@ -22,6 +22,7 @@ dishka = "^1.2.0"
 gunicorn = "^22.0.0"
 taskiq = "^0.11.6"
 taskiq-aio-pika = "^0.4.0"
+python-logging-loki = "^0.3.1"
 
 
 [tool.poetry.group.test.dependencies]

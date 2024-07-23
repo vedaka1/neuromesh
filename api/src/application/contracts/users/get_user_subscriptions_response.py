@@ -7,4 +7,3 @@ class GetUserSubscriptionResponse:
     subscription_name: str
     created_at: datetime.datetime | None
     expires_in: datetime.datetime | None
-    is_expired: bool

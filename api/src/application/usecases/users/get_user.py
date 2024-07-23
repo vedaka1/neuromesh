@@ -52,14 +52,12 @@ class GetUserByTelegramId:
                     subscription_name=subscription.subscription_name,
                     created_at=subscription.created_at,
                     expires_in=subscription.expires_in,
-                    is_expired=subscription.is_expired,
                 )
                 if subscription
                 else GetUserSubscriptionResponse(
                     subscription_name="Free",
                     created_at=None,
                     expires_in=None,
-                    is_expired=False,
                 )
             ),
             requests=[

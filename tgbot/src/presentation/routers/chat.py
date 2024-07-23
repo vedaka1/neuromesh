@@ -1,7 +1,7 @@
-from aiogram import Bot, F, Router, filters, types
+from aiogram import F, Router, filters, types
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from httpx import AsyncClient, HTTPStatusError
+from httpx import AsyncClient
 
 from domain.common.response import Response
 
@@ -14,7 +14,7 @@ class Generate(StatesGroup):
 
 @chat_router.message(Generate.text)
 async def generate_error(message: types.Message) -> None:
-    await message.reply("Подождите, ваше сообщение уже генерируется...")
+    await message.reply(Response("Wait, your message is being generated...").value)
 
 
 @chat_router.message(filters.Command("imagine"))
@@ -24,7 +24,6 @@ async def generate_image(
     client: AsyncClient,
     command: filters.command.CommandObject,
 ) -> None:
-    await state.set_state(Generate.text)
     user_id = message.from_user.id
     prompt = command.args
     data = await client.post(

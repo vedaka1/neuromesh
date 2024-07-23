@@ -28,7 +28,7 @@ async def cmd_create_model(
     state: FSMContext,
 ):
     await state.set_state(CreateModel.name)
-    await message.answer("Напишите название модели нейросети")
+    await message.answer("Write the name of model")
 
 @admin_router.message(CreateModel.name)
 async def cmd_create_model(
@@ -38,7 +38,7 @@ async def cmd_create_model(
 ):
     response = await client.post("/models", params={"name": message.text})
     response.raise_for_status()
-    await message.answer(text="Модель создана")
+    await message.answer(text="Model created")
     await state.clear()
 
 
@@ -48,7 +48,7 @@ async def cmd_create_sub(
     state: FSMContext,
 ):
     await state.set_state(CreateSubscription.name)
-    await message.answer("Напишите название подписки")
+    await message.answer("Write the name of subscription")
 
 
 @admin_router.message(CreateSubscription.name)
@@ -60,7 +60,7 @@ async def cmd_create_sub(
     response = await client.post("/subscriptions", json={"name": message.text})
     response.raise_for_status()
     await state.clear()
-    await message.answer("Подписка создана")
+    await message.answer("Subscription created")
 
 
 @admin_router.message(filters.Command("models"))
@@ -70,7 +70,7 @@ async def cmd_models(
 ):
     response = await client.get("/models")
     response.raise_for_status()
-    text = "Доступные модели:\n"
+    text = "Available models:\n"
     for model in response.json():
         text += f"{model["name"]}\n"
     await message.answer(text=Response(text).value)
@@ -92,14 +92,22 @@ async def callback_add_model_to_sub(
     client: AsyncClient,
     state: FSMContext,
 ):
-    subscription = callback.data.split("_")[1]
-    await state.update_data(subscription_name=subscription)
+    subscription_name = callback.data.split("_")[1]
+    await state.update_data(subscription_name=subscription_name)
     await state.set_state(AddModelToSubscription.model_name)
+    subscription_models = await client.get(f"/subscriptions/{subscription_name}")
     response = await client.get("/models")
     response.raise_for_status()
+    sub_models = {item["name"] for item in subscription_models.json()["models"]}
+    all_models = {item["name"] for item in response.json()}
+    models = all_models - sub_models
+    if not models:
+        await callback.message.edit_text("All available models already added to this subscription", reply_markup=None)
+        await state.clear()
+        return
     await callback.message.edit_text(
-        text="Выберите модель:",
-        reply_markup=kb.all_models(response.json())
+        text="Select model:",
+        reply_markup=kb.all_models(models)
     )
 
 
@@ -111,7 +119,7 @@ async def callback_select_model(
     model = callback.data.split("_")[1]
     await state.update_data(model_name=model)
     await state.set_state(AddModelToSubscription.default_requests)
-    await callback.message.edit_text("Напишите доступное количество запросов к модели в неделю" ,reply_markup=None)
+    await callback.message.edit_text("Write an amount of available requests to the model per week" ,reply_markup=None)
 
 @admin_router.message(AddModelToSubscription.default_requests)
 async def cmd_add_model_to_sub(
@@ -130,4 +138,15 @@ async def cmd_add_model_to_sub(
     )
     response.raise_for_status()
     await state.clear()
-    await message.answer("Модель добавлена в подписку")
+    await message.answer("Model added to subscription")
+
+@admin_router.message(filters.Command("cancel"))
+@admin_router.message(F.text.casefold() == "cancel")
+async def cancel_handler(message: types.Message, state: FSMContext) -> None:
+    current_state = await state.get_state()
+    if current_state is None:
+        return
+    await state.clear()
+    await message.answer(
+        "Canceled",
+    )

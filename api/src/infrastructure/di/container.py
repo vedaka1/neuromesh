@@ -1,9 +1,11 @@
 import logging
+import logging.handlers
 from functools import lru_cache
+from multiprocessing import Queue
 from typing import AsyncGenerator
 
+import logging_loki
 from dishka import AsyncContainer, Provider, Scope, make_async_container, provide
-from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 from application.common.tg_client import AsyncTGClient
@@ -48,6 +50,16 @@ def init_logger() -> None:
         format="%(asctime)s %(levelname)s: %(message)s",
     )
     return None
+
+
+@lru_cache(1)
+def init_loki_logger(app_name: str = "app"):
+    return logging_loki.LokiQueueHandler(
+        Queue(-1),
+        url="http://loki:3100/loki/api/v1/push",
+        tags={"application": app_name},
+        version="1",
+    )
 
 
 class SettingsProvider(Provider):
