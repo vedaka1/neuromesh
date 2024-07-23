@@ -34,6 +34,7 @@ async def main():
     await init_exc_handlers(dp)
     handler = init_loki_logger(app_name="tgbot")
     logging.getLogger("aiogram.event").addHandler(handler)
+    logging.getLogger("aiogram.dispatcher").addHandler(handler)
     await dp.start_polling(bot)
 
 

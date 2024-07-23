@@ -131,6 +131,7 @@ class UseCasesProvider(Provider):
     create_subscription = provide(CreateSubscription)
     delete_subscription = provide(DeleteSubscription)
     add_model_to_subscription = provide(AddModelToSubscription)
+    delete_model_from_subscription = provide(DeleteModelFromSubscription)
     get_all_subscriptions = provide(GetAllSubscriptions)
     get_subscription_by_name = provide(GetSubscriptionByName)
 

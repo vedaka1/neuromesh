@@ -22,7 +22,7 @@ model_router = APIRouter(
 )
 
 
-@model_router.post("", response_model=Model, summary="Создать модель нейросети")
+@model_router.post("", response_model=Model, summary="Create a neural network")
 async def create_model(
     create_model_request: Annotated[CreateNeuralNetworkRequest, Depends()],
     create_neural_network_interactor: FromDishka[CreateNeuralNetwork],
@@ -33,7 +33,7 @@ async def create_model(
 @model_router.get(
     "",
     response_model=list[Model],
-    summary="Получить список сдостпуных моделей нейросетей",
+    summary="Get a list of available neural networks",
 )
 async def get_all_models(
     get_all_neural_networks_interactor: FromDishka[GetAllNeuralNetworks],
@@ -44,7 +44,7 @@ async def get_all_models(
 @model_router.get(
     "/{model_name}",
     response_model=Model,
-    summary="Возвращает информацию о модели нейросети",
+    summary="Get information about the neural network",
 )
 async def get_model(
     model_name: str,
@@ -56,7 +56,7 @@ async def get_model(
 @model_router.post(
     "/response",
     response_model=ModelResponse,
-    summary="Отправляет запрос на генерацию текстового ответа",
+    summary="Send a request to generate a text response",
 )
 async def generate_response(
     generate_response_request: GenerateResponseRequest,
@@ -67,7 +67,7 @@ async def generate_response(
     return await generate_response_interactor(generate_response_request)
 
 
-@model_router.post("/image", summary="Отправляет запрос на генерацию изображения")
+@model_router.post("/image", summary="Send a request to generate an image")
 async def generate_image(
     user_id: int,
     user_prompt: str,
@@ -77,7 +77,7 @@ async def generate_image(
 
 @model_router.delete(
     "/{model_name}",
-    summary="Удаляет модель нейросети по названию",
+    summary="Delete a neural network by name",
 )
 async def delete_model(
     model_name: str,

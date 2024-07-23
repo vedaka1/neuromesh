@@ -59,6 +59,21 @@ class NeuralNetworkSubscriptionRepository(BaseNeuralNetworkSubscriptionRepositor
 
         return ModelSubscription(**data)
 
+    async def get_by_subscription_and_model_name(
+        self, subscription_name: str, model_name: str
+    ) -> ModelSubscription | None:
+        query = text(
+            """SELECT * FROM neural_networks_subscriptions WHERE subscription_name = :sub_name AND neural_network_name = :model_name;"""
+        )
+        result = await self.session.execute(
+            query, {"sub_name": subscription_name, "model_name": model_name}
+        )
+        data = result.mappings().one_or_none()
+        if data is None:
+            return None
+
+        return ModelSubscription(**data)
+
     async def get_all_by_subscription_name(
         self, subscription_name: str
     ) -> list[ModelSubscription]:

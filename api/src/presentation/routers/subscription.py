@@ -18,7 +18,9 @@ subscription_router = APIRouter(
 )
 
 
-@subscription_router.post("", response_model=Subscription, summary="Создает подписку")
+@subscription_router.post(
+    "", response_model=Subscription, summary="Create a subscription"
+)
 async def create_subscription(
     create_subscription_request: CreateSubscriptionRequest,
     create_subscription_interactor: FromDishka[CreateSubscription],
@@ -29,7 +31,7 @@ async def create_subscription(
 @subscription_router.get(
     "",
     response_model=list[Subscription],
-    summary="Возвращает список доступных подписок",
+    summary="Get a list of available subscriptions",
 )
 async def get_subscriptions(
     get_all_subscriptions_interactor: FromDishka[GetAllSubscriptions],
@@ -40,7 +42,7 @@ async def get_subscriptions(
 @subscription_router.get(
     "/{subscription_name}",
     response_model=GetSubscriptionResponse,
-    summary="Возвращает подписку по ее названию",
+    summary="Get a subscription by name",
 )
 async def get_subscription(
     subscription_name: str,
@@ -52,7 +54,7 @@ async def get_subscription(
 @subscription_router.post(
     "/{subscription_name}",
     response_model=ModelSubscription,
-    summary="Добавляет модель нейросети в подписку",
+    summary="Add a neural model to the subscription",
 )
 async def add_model_to_subscription(
     subscription_name: str,
@@ -69,10 +71,24 @@ async def add_model_to_subscription(
 
 @subscription_router.delete(
     "/{subscription_name}",
-    summary="Удаляет подписку по названию",
+    summary="Delete a subscription by name",
 )
 async def delete_subscription(
     subscription_name: str,
     delete_subscription_interactor: FromDishka[DeleteSubscription],
 ) -> None:
     return await delete_subscription_interactor(subscription_name)
+
+
+@subscription_router.delete(
+    "/{subscription_name}/{model_name}",
+    summary="Delete a neural network from subscription",
+)
+async def delete_model_from_subscription(
+    subscription_name: str,
+    model_name: str,
+    delete_model_from_subscription_interactor: FromDishka[DeleteModelFromSubscription],
+) -> None:
+    return await delete_model_from_subscription_interactor(
+        subscription_name, model_name
+    )

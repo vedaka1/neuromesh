@@ -19,14 +19,14 @@ user_router = APIRouter(
 )
 
 
-@user_router.post("", summary="Создает нового пользователя", response_model=UserDB)
+@user_router.post("", summary="Creates a new user", response_model=UserDB)
 async def create_user(
     create_user_request: RegisterRequest, create_user_interactor: FromDishka[CreateUser]
 ) -> UserDB:
     return await create_user_interactor(create_user_request)
 
 
-@user_router.delete("/{user_id}", summary="Удаляет пользователя по id")
+@user_router.delete("/{user_id}", summary="Delete user by telegram id")
 async def delete_user(
     user_id: int,
     delete_user_interactor: FromDishka[DeleteUser],
@@ -34,9 +34,7 @@ async def delete_user(
     return await delete_user_interactor(user_id)
 
 
-@user_router.get(
-    "", summary="Возвращает список пользователей", response_model=list[UserDB]
-)
+@user_router.get("", summary="Get a list of users", response_model=list[UserDB])
 async def get_users(
     get_users_interactor: FromDishka[GetAllUsers],
 ) -> list[UserDB]:
@@ -45,7 +43,7 @@ async def get_users(
 
 @user_router.get(
     "/{user_id}",
-    summary="Получает пользователя по telegram_id",
+    summary="Get a user by telegram id",
     response_model=GetUserResponse,
 )
 async def get_user(
@@ -56,7 +54,7 @@ async def get_user(
 
 @user_router.get(
     "/{user_id}/requests",
-    summary="Получить лимиты пользователя",
+    summary="Get user limits",
     response_model=list[GetUserRequestsResponse],
 )
 async def get_user_requests(
@@ -65,7 +63,7 @@ async def get_user_requests(
     return await get_user_requests_interactor(user_id)
 
 
-@user_router.put("/{user_id}/requests", summary="Обновить лимиты пользователя")
+@user_router.put("/{user_id}/requests", summary="Update user limits")
 async def update_user_requests(
     user_id: uuid.UUID,
     model_name: str,
@@ -77,19 +75,19 @@ async def update_user_requests(
 
 @user_router.get(
     "/{user_id}/subscription",
-    summary="Возвращает текущую подписку пользователя, если она есть",
+    summary="Get a user subscription",
     response_model=GetUserSubscriptionResponse | None,
 )
 async def get_user_subscription(
     user_id: uuid.UUID,
     get_user_subscriptions_interactor: FromDishka[GetUserSubscription],
-) -> GetUserSubscriptionResponse | None:
+) -> GetUserSubscriptionResponse:
     return await get_user_subscriptions_interactor(user_id)
 
 
 @user_router.get(
     "/{user_id}/subscriptions",
-    summary="Возвращает все подписки пользователя",
+    summary="Get all user subscriptions",
     response_model=list[GetUserSubscriptionResponse],
 )
 async def get_user_subscriptions(
@@ -99,7 +97,7 @@ async def get_user_subscriptions(
     return await get_user_subscriptions_interactor(user_id)
 
 
-@user_router.put("/{user_id}/subscription", summary="Сменить подписку")
+@user_router.put("/{user_id}/subscription", summary="Change user subscription")
 async def update_user_subscription(
     user_id: uuid.UUID,
     subscription_name: str,

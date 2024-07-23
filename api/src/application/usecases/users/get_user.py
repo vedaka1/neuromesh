@@ -89,7 +89,7 @@ class GetUserSubscription:
     user_repository: BaseUserRepository
     user_subscriptions_repository: BaseUserSubscriptionRepository
 
-    async def __call__(self, user_id: uuid.UUID) -> GetUserSubscriptionResponse | None:
+    async def __call__(self, user_id: uuid.UUID) -> GetUserSubscriptionResponse:
         user = await self.user_repository.get_by_id(user_id)
 
         if user is None:
@@ -103,10 +103,13 @@ class GetUserSubscription:
                 subscription_name=subscription.subscription_name,
                 created_at=subscription.created_at,
                 expires_in=subscription.expires_in,
-                is_expired=subscription.is_expired,
             )
             if subscription
-            else None
+            else GetUserSubscriptionResponse(
+                subscription_name="Free",
+                created_at=None,
+                expires_in=None,
+            )
         )
 
 

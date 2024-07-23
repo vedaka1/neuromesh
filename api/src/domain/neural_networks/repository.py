@@ -32,6 +32,11 @@ class BaseNeuralNetworkSubscriptionRepository(ABC):
     async def get_by_id(self, id: uuid.UUID) -> ModelSubscription | None: ...
 
     @abstractmethod
+    async def get_by_subscription_and_model_name(
+        self, subscription_name: str, model_name: str
+    ) -> ModelSubscription | None: ...
+
+    @abstractmethod
     async def get_all_by_subscription_name(
         self, subscription_name: str
     ) -> list[ModelSubscription]: ...
