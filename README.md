@@ -75,4 +75,7 @@ API + TG Bot to access to AI models
 * Subscriptions ![image](./docs/images/subscriptions.png)
 * Neural Networks ![image](./docs/images/neural_networks.png)
 ## Centralized logs with Grafana Loki
+You can set up logs at http://localhost:3000
+* Add Loki Datasource
+* Add Loki logs to Dashboard
 ![image](./docs/images/grafana.png)
