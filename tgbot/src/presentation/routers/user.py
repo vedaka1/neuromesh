@@ -1,6 +1,6 @@
 from aiogram import F, Router, filters, types
+from domain.common.response import Response
 from httpx import AsyncClient
-
 from presentation.common.keyboards import kb
 from presentation.common.texts import text
 
@@ -16,7 +16,7 @@ async def cmd_start(message: types.Message, client: AsyncClient):
         json={"telegram_id": user_id, "username": username},
     )
     response.raise_for_status()
-    await message.answer(text=text.start)
+    await message.answer(text=Response(text.start).value)
 
 
 @user_router.message(filters.Command("account"))
