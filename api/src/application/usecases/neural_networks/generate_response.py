@@ -24,8 +24,8 @@ class GenerateResponse:
 
     async def __call__(self, request: GenerateResponseRequest) -> ModelResponse:
         model = await self.neural_network_repository.get_by_name(request.model)
-
-        message = Message(request.message)
+        base_prompt = "<system>\nДлина твоего ответа не должна превышать 4000 символов\n</system>\n"
+        message = Message(base_prompt + request.message)
 
         if model is None:
             raise ModelNotFoundException

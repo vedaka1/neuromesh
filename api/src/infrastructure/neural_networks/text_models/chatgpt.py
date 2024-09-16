@@ -37,7 +37,7 @@ class ChatGPT(BaseTextModel):
             return None
 
     @staticmethod
-    def create_message(message) -> dict[str, str]:
+    def create_message(message: str) -> dict[str, str]:
         """Adds the user's message to the message list"""
         return {"role": "user", "content": message}
 

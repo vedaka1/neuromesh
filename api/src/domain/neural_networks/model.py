@@ -4,20 +4,20 @@ from dataclasses import dataclass
 from logging import Logger
 from typing import Any, Generic, TypeVar
 
-LT = TypeVar("LT", bound=Logger)
-
 
 @dataclass
 class BaseTextModel(ABC):
-    logger: LT
-
-    @abstractmethod
-    def create_message(self, message: str) -> dict[str, str]: ...
+    logger: Logger
 
     @abstractmethod
     async def generate_response(
         self, user_id: uuid.UUID, message: str
     ) -> str | None: ...
+    @abstractmethod
+    @staticmethod
+    def create_message(message: str) -> dict[str, str]: ...
+
+
 @dataclass
 class BaseImageModel(ABC):
 
