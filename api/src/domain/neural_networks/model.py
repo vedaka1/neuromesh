@@ -13,7 +13,7 @@ class BaseTextModel(ABC):
     async def generate_response(
         self, user_id: uuid.UUID, message: str
     ) -> str | None: ...
-    @abstractmethod
+
     @staticmethod
     def create_message(message: str) -> dict[str, str]: ...
 
