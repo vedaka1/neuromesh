@@ -24,7 +24,7 @@ def init_routers(dp: Dispatcher):
 async def main():
     init_logger()
     bot = Bot(
-        token=settings.BOT_TOKEN,
+        token=settings.tg.BOT_TOKEN,
         default=DefaultBotProperties(parse_mode=ParseMode.MARKDOWN_V2),
     )
     dp = Dispatcher()

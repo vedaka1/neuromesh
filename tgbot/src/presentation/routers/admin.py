@@ -77,7 +77,7 @@ async def cmd_models(
 
 
 @admin_router.message(filters.Command("add_model_to_sub"))
-async def cmd_add_model_to_sub(
+async def cmd_add_model_to_sub_start(
     message: types.Message,
     client: AsyncClient,
     state: FSMContext,
@@ -150,3 +150,14 @@ async def cancel_handler(message: types.Message, state: FSMContext) -> None:
     await message.answer(
         "Canceled",
     )
+
+
+@admin_router.message(filters.Command("users"))
+async def cmd_users(message: types.Message, client: AsyncClient):
+    response = await client.get("/users")
+    response.raise_for_status()
+    text = "Users:\n"
+    for user in response.json():
+        text += f"{user['username']}\n"
+    await message.answer(text=Response(text).value)
+

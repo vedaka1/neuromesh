@@ -1,6 +1,8 @@
 from aiogram import F, Router, filters, types
-from domain.common.response import Response
+from aiogram.fsm.context import FSMContext
 from httpx import AsyncClient
+
+from domain.common.response import Response
 from presentation.common.keyboards import kb
 from presentation.common.texts import text
 
@@ -20,7 +22,7 @@ async def cmd_start(message: types.Message, client: AsyncClient):
 
 
 @user_router.message(filters.Command("account"))
-async def cmd_start(message: types.Message, client: AsyncClient):
+async def cmd_account(message: types.Message, client: AsyncClient):
     user_id = message.from_user.id
     response = await client.get(
         f"/users/{user_id}",
@@ -39,7 +41,8 @@ async def cmd_start(message: types.Message, client: AsyncClient):
 
 
 @user_router.message(filters.Command("select_model"))
-async def cmd_select_model(message: types.Message, client: AsyncClient):
+async def cmd_select_model(message: types.Message, client: AsyncClient, state: FSMContext):
+    await state.clear()
     user_id = message.from_user.id
     user = await client.get(
         f"/users/{user_id}",

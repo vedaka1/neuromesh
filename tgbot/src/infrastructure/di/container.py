@@ -32,4 +32,5 @@ def init_loki_logger(app_name: str = "app"):
 def init_client() -> AsyncClient:
     return AsyncClient(
         base_url="http://api:8000",
+        timeout=25,
     )

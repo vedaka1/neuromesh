@@ -16,6 +16,6 @@ class AdminMiddleware(BaseMiddleware):
         data: Dict[str, Any],
     ) -> Any:
         user: User = data["event_from_user"]
-        if user.id == settings.HEAD_ADMIN_TG_ID:
+        if user.id == settings.tg.HEAD_ADMIN_TG_ID:
             return await handler(event, data)
         return await event.answer(Response(text.permission_denied).value)
