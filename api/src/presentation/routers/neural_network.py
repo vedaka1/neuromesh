@@ -72,7 +72,8 @@ async def generate_image(
     user_id: int,
     user_prompt: str,
 ) -> None:
-    return await generate_image_task.kiq(user_id=user_id, user_prompt=user_prompt)
+    await generate_image_task.kiq(user_id=user_id, user_prompt=user_prompt)
+    return None
 
 
 @model_router.delete(
@@ -83,4 +84,5 @@ async def delete_model(
     model_name: str,
     delete_neural_network_interactor: FromDishka[DeleteNeuralNetwork],
 ) -> None:
-    return await delete_neural_network_interactor(model_name)
+    await delete_neural_network_interactor(model_name)
+    return None

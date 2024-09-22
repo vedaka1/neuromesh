@@ -2,12 +2,11 @@ import uuid
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from logging import Logger
-from typing import Any, Generic, TypeVar
+from typing import Any
 
 
 @dataclass
 class BaseTextModel(ABC):
-    logger: Logger
 
     @abstractmethod
     async def generate_response(

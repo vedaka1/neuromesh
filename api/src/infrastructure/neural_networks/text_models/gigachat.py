@@ -67,7 +67,7 @@ class Gigachat(BaseTextModel):
                     "Content-Type": "application/x-www-form-urlencoded",
                     "Accept": "application/json",
                     "RqUID": f"{uuid.uuid4()}",
-                    "Authorization": f"Basic {settings.AUTH_DATA_SBER}",
+                    "Authorization": f"Basic {settings.sber.AUTH_DATA_SBER}",
                 }
                 response = await self.client.post(
                     url=url, headers=headers, data=payload

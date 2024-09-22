@@ -14,8 +14,8 @@ from infrastructure.config import settings
 class Kadinsky(BaseImageModel):
     def __init__(self):
         self.__AUTH_HEADERS = {
-            "X-Key": f"Key {settings.API_KEY_KADINSKY}",
-            "X-Secret": f"Secret {settings.API_SECRET_KEY_KADINSKY}",
+            "X-Key": f"Key {settings.sber.API_KEY_KADINSKY}",
+            "X-Secret": f"Secret {settings.sber.API_SECRET_KEY_KADINSKY}",
         }
         self.client: AsyncClient = httpx.AsyncClient(
             base_url="https://api-key.fusionbrain.ai/key/api/v1",

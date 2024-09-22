@@ -67,7 +67,7 @@ def container(postgres_url: str):
 
         @provide(scope=Scope.APP)
         def tg_client(self) -> AsyncTGClient:
-            return AsyncClient(base_url=settings.TG_API)
+            return AsyncTGClient(base_url=settings.tg.TG_API)
 
     @lru_cache(1)
     def get_container() -> AsyncContainer:

@@ -15,7 +15,7 @@ class ChatGPT(BaseTextModel):
 
     logger: logging.Logger = field(default=logging.getLogger(__name__), init=False)
     client: openai.AsyncOpenAI = field(
-        default=openai.AsyncOpenAI(api_key=settings.API_KEY_CHATGPT), init=False
+        default=openai.AsyncOpenAI(api_key=settings.chatgpt.API_KEY_CHATGPT), init=False
     )
 
     async def generate_response(
@@ -31,7 +31,13 @@ class ChatGPT(BaseTextModel):
             response = result.choices[0].message.content
             self.logger.info('User: %s, chat_response: "%s"', user_id, response)
             return response
-
+        except openai.RateLimitError as e:
+            if e.type == "insufficient_quota" and model == "gpt-4o-mini":
+                return await self.generate_response(
+                    user_id, message, model="gpt-3.5-turbo"
+                )
+            else:
+                raise e
         except Exception as e:
             self.logger.error("User: %s, info: %s", user_id, e)
             return None
