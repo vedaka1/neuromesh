@@ -32,9 +32,9 @@ class ChatGPT(BaseTextModel):
             self.logger.info('User: %s, chat_response: "%s"', user_id, response)
             return response
         except openai.RateLimitError as e:
-            if e.type == "insufficient_quota" and model == "gpt-4o-mini":
+            if model == "gpt-4o-mini":
                 return await self.generate_response(
-                    user_id, message, model="gpt-3.5-turbo"
+                    user_id=user_id, message=message, model="gpt-3.5-turbo"
                 )
             else:
                 raise e
