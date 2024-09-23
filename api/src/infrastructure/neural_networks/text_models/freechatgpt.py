@@ -2,6 +2,7 @@ import asyncio
 import logging
 import uuid
 from dataclasses import dataclass, field
+from typing import Any
 
 import g4f
 import g4f.Provider
@@ -13,30 +14,20 @@ from infrastructure.config import settings
 
 g4f.debug.logging = False
 _providers = [
-    # {"provider": g4f.Provider.GeminiProChat, "available": True},
-    # {"provider": g4f.Provider.Koala, "available": True},
-    # {"provider": g4f.Provider.Aichat, "available": True},
-    # {"provider": g4f.Provider.ChatBase, "available": True},
-    # {"provider": g4f.Provider.Bing, "available": True},
-    # {"provider": g4f.Provider.GptGo, "available": True},
-    # {"provider": g4f.Provider.You, "available": True},
-    # {"provider": g4f.Provider.Yqcloud, "available": True},
-    # {"provider": g4f.Provider.GPTalk, "available": True},
-    # {"provider": g4f.Provider.Hashnode, "available": True},
+    {"provider": g4f.Provider.GeminiPro, "available": True},
+    {"provider": g4f.Provider.Koala, "available": True},
+    {"provider": g4f.Provider.DDG, "available": True},
+    {"provider": g4f.Provider.Bing, "available": True},
+    {"provider": g4f.Provider.You, "available": True},
     {"provider": g4f.Provider.FreeGpt, "available": True},
-    {"provider": g4f.Provider.ChatgptAi, "available": True},
+    {"provider": g4f.Provider.GPTalk, "available": True},
+    {"provider": g4f.Provider.Hashnode, "available": True},
+    {"provider": g4f.Provider.FreeGpt, "available": True},
     {"provider": g4f.Provider.Liaobots, "available": True},
     {"provider": g4f.Provider.Chatgpt4Online, "available": True},
-    {"provider": g4f.Provider.ChatgptNext, "available": True},
-    {"provider": g4f.Provider.ChatgptX, "available": True},
-    {"provider": g4f.Provider.GptForLove, "available": True},
     {"provider": g4f.Provider.FlowGpt, "available": True},
     {"provider": g4f.Provider.GptTalkRu, "available": True},
     {"provider": g4f.Provider.Vercel, "available": True},
-    {"provider": g4f.Provider.Aichatos, "available": True},
-    {"provider": g4f.Provider.Cnote, "available": True},
-    {"provider": g4f.Provider.DuckDuckGo, "available": True},
-    {"provider": g4f.Provider.Feedough, "available": True},
 ]
 
 
@@ -47,14 +38,14 @@ class FreeChatGPT(BaseTextModel):
     logger: logging.Logger = field(default=logging.getLogger(__name__), init=False)
 
     async def _run_provider(
-        self, provider: g4f.Provider.BaseProvider, message: str, logs=False
+        self, provider: g4f.Provider.BaseProvider, message: dict[str, Any], logs=False
     ):
         """Runs the chat provider"""
         try:
-            response = await g4f.ChatCompletion.create_async(
+            response = await g4f.ChatCompletion.create_async(  # type: ignore
                 model=g4f.models.default,
-                messages=[{"role": "user", "content": message}],
-                provider=provider,
+                messages=[message],
+                provider=provider,  # type: ignore
             )
             return response
 
@@ -63,7 +54,9 @@ class FreeChatGPT(BaseTextModel):
                 self.logger.error("Provider: %s, info: %s", provider.__name__, e)
             return None
 
-    async def generate_response(self, user_id: uuid.UUID, message: str) -> str | None:
+    async def generate_response(
+        self, user_id: uuid.UUID, message: dict[str, Any]
+    ) -> str | None:
         """Generates responses from different providers"""
         calls = [
             self._run_provider(provider["provider"], message)
@@ -89,7 +82,7 @@ class FreeChatGPT(BaseTextModel):
         return None
 
     @staticmethod
-    def create_message(message: str) -> dict[str, str]:
+    def create_message(message: str) -> dict[str, Any]:
         """Adds the user's message to the message list"""
         return {"role": "user", "content": message}
 

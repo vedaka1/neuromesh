@@ -68,6 +68,7 @@ class Settings:
     chatgpt: ChatGPTSettings = ChatGPTSettings()
 
     BROKER_URL_ENV: str = get_env_var("BROKER_URL", to_cast=str)
+    API_KEY_GEMINI: str = get_env_var("API_KEY_GEMINI", to_cast=str)
 
     @property
     def BROKER_URL(self):

@@ -1,5 +1,6 @@
 import uuid
 from dataclasses import dataclass, field
+from enum import Enum
 
 from fastapi import HTTPException
 
@@ -10,12 +11,19 @@ from domain.neural_networks.model import BaseTextModel
 from infrastructure.neural_networks.text_models import ChatGPT, FreeChatGPT, Gigachat
 
 
+class NeuroModels(Enum):
+    FREECHATGPT = "FreeChatGPT"
+    GIGACHAT = "Gigachat"
+    CHATGPT = "ChatGPT"
+    GEMINI = "Gemini"
+
+
 class ModelManager(BaseModelManager):
     def __init__(self) -> None:
         self.models = {
-            "FreeChatGPT": FreeChatGPT(),
-            "Gigachat": Gigachat(),
-            "ChatGPT": ChatGPT(),
+            NeuroModels.FREECHATGPT.value: FreeChatGPT(),
+            NeuroModels.GIGACHAT.value: Gigachat(),
+            NeuroModels.CHATGPT.value: ChatGPT(),
         }
 
     async def generate_response(
@@ -24,7 +32,8 @@ class ModelManager(BaseModelManager):
         model: BaseTextModel | None = self.models.get(model_name, None)
         if not model:
             raise ValueError(f"Model {model_name} not found")
-        result = await model.generate_response(user_id, message)
+        model_message = model.create_message(message=message)
+        result = await model.generate_response(user_id, model_message)
         if result is None:
             raise ModelUnavailableException(
                 message=f"{model_name} currently unavailable"

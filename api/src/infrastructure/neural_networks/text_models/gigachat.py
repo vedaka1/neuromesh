@@ -3,6 +3,7 @@ import logging
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
+from typing import Any, cast
 
 from httpx import AsyncClient
 
@@ -25,19 +26,17 @@ class Gigachat(BaseTextModel):
     )
     auth_time: datetime | None = field(default=None, init=False)
 
-    async def generate_response(self, user_id: uuid.UUID, message: str) -> str | None:
+    async def generate_response(
+        self, user_id: uuid.UUID, message: dict[str, Any]
+    ) -> str | None:
         await self.authenticate()
         try:
             payload = json.dumps(
                 {
                     "model": "GigaChat",
-                    "messages": [{"role": "user", "content": message}],
+                    "messages": [message],
                     "temperature": 1,
-                    "top_p": 0.1,
-                    "n": 1,
                     "stream": False,
-                    "max_tokens": 1024,
-                    "repetition_penalty": 1,
                 }
             )
             headers = {
@@ -46,14 +45,14 @@ class Gigachat(BaseTextModel):
                 "Authorization": f"Bearer {self._access_token}",
             }
             response = await self.client.post(
-                url=self.url, headers=headers, data=payload
+                url=self.url, headers=headers, data=payload  # type: ignore
             )
+            response.raise_for_status()
             message = response.json()["choices"][0]["message"]["content"]
-
+            return cast(str, message)
         except Exception as e:
             self.logger.error("User: %s, info: %s", user_id, e)
             return None
-        return message
 
     async def authenticate(self) -> None:
         if self.auth_time == None or datetime.now(
@@ -70,7 +69,7 @@ class Gigachat(BaseTextModel):
                     "Authorization": f"Basic {settings.sber.AUTH_DATA_SBER}",
                 }
                 response = await self.client.post(
-                    url=url, headers=headers, data=payload
+                    url=url, headers=headers, data=payload  # type: ignore
                 )
                 self.auth_time = datetime.now(timezone.utc)
                 self._access_token = response.json()["access_token"]
@@ -81,9 +80,9 @@ class Gigachat(BaseTextModel):
             return None
 
     @staticmethod
-    def create_message(text: str) -> dict[str, str]:
+    def create_message(message: str) -> dict[str, str]:
         """Adds the user's message to the message list"""
-        return {"role": "user", "content": text}
+        return {"role": "user", "content": message}
 
     @classmethod
     def _test_access(cls) -> bool:

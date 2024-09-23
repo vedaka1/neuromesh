@@ -10,10 +10,11 @@ class BaseTextModel(ABC):
 
     @abstractmethod
     async def generate_response(
-        self, user_id: uuid.UUID, message: str
+        self, user_id: uuid.UUID, message: dict[str, Any]
     ) -> str | None: ...
 
     @staticmethod
+    @abstractmethod
     def create_message(message: str) -> dict[str, str]: ...
 
 
