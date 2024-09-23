@@ -10,11 +10,12 @@ from httpx import AsyncClient
 from domain.neural_networks.model import BaseTextModel
 from infrastructure.config import settings
 
+logger = logging.getLogger()
+
 
 @dataclass
 class Gigachat(BaseTextModel):
 
-    logger: logging.Logger = field(default=logging.getLogger(__name__), init=False)
     url: str = field(
         default="https://gigachat.devices.sberbank.ru/api/v1/chat/completions",
         init=False,
@@ -51,14 +52,14 @@ class Gigachat(BaseTextModel):
             message = response.json()["choices"][0]["message"]["content"]
             return cast(str, message)
         except Exception as e:
-            self.logger.error("User: %s, info: %s", user_id, e)
+            logger.error("User: %s, info: %s", user_id, e)
             return None
 
     async def authenticate(self) -> None:
         if self.auth_time == None or datetime.now(
             timezone.utc
         ) >= self.auth_time + timedelta(minutes=25):
-            self.logger.info("Authenticating GigaChat")
+            logger.info("Authenticating GigaChat")
             try:
                 url = "https://ngw.devices.sberbank.ru:9443/api/v2/oauth"
                 payload = "scope=GIGACHAT_API_PERS"
@@ -73,11 +74,10 @@ class Gigachat(BaseTextModel):
                 )
                 self.auth_time = datetime.now(timezone.utc)
                 self._access_token = response.json()["access_token"]
-
+                return None
             except Exception as e:
-                self.logger.error("GigaChat Auth Error %s", e)
+                logger.error("GigaChat Auth Error %s", e)
                 raise Exception("GigaChat Auth Error")
-            return None
 
     @staticmethod
     def create_message(message: str) -> dict[str, str]:

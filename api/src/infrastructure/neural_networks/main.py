@@ -35,8 +35,6 @@ class ModelManager(BaseModelManager):
         model_message = model.create_message(message=message)
         result = await model.generate_response(user_id, model_message)
         if result is None:
-            raise ModelUnavailableException(
-                message=f"{model_name} currently unavailable"
-            )
+            raise ModelUnavailableException
         response = Response(result)
         return response.value
