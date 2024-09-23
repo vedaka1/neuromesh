@@ -63,7 +63,7 @@ services:
     build: ./postgresql/
     hostname: postgres
     env_file:
-      - ./api/.env
+      - ./api/.env.production
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     networks:

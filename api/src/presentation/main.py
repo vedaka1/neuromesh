@@ -54,7 +54,7 @@ def create_app() -> FastAPI:
     init_routers(app)
     init_exc_handlers(app)
     init_logger()
-    handler = init_loki_logger(app_name="api")
-    logging.getLogger().addHandler(handler)
-    logging.getLogger("uvicorn.access").addHandler(handler)
+    #handler = init_loki_logger(app_name="api")
+    #logging.getLogger().addHandler(handler)
+    #logging.getLogger("uvicorn.access").addHandler(handler)
     return app
