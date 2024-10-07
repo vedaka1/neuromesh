@@ -1,14 +1,11 @@
 import uuid
-from dataclasses import dataclass, field
 from enum import Enum
-
-from fastapi import HTTPException
 
 from domain.common.response import Response
 from domain.exceptions.model import GenerationException, ModelUnavailableException
 from domain.neural_networks.manager import BaseModelManager
 from domain.neural_networks.model import BaseTextModel
-from infrastructure.neural_networks.text_models import ChatGPT, FreeChatGPT, Gigachat
+from infrastructure.neural_networks.text_models import ChatGPT, Gigachat
 
 
 class NeuroModels(Enum):
@@ -19,15 +16,22 @@ class NeuroModels(Enum):
 
 
 class ModelManager(BaseModelManager):
-    def __init__(self) -> None:
+
+    def __init__(
+        self,
+        gigachat: Gigachat,
+        chatgpt: ChatGPT,
+    ) -> None:
         self.models = {
-            NeuroModels.FREECHATGPT.value: FreeChatGPT(),
-            NeuroModels.GIGACHAT.value: Gigachat(),
-            NeuroModels.CHATGPT.value: ChatGPT(),
+            NeuroModels.GIGACHAT.value: gigachat,
+            NeuroModels.CHATGPT.value: chatgpt,
         }
 
     async def generate_response(
-        self, user_id: uuid.UUID, model_name: str, message: str
+        self,
+        user_id: uuid.UUID,
+        model_name: str,
+        message: str,
     ) -> str:
         model: BaseTextModel | None = self.models.get(model_name, None)
 

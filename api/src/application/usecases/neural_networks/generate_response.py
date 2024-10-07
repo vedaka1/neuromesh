@@ -1,7 +1,5 @@
 from dataclasses import dataclass
 
-from fastapi.exceptions import HTTPException
-
 from application.common.transaction import BaseTransactionManager
 from application.contracts.neural_networks.generate_response_request import (
     GenerateResponseRequest,
@@ -16,15 +14,17 @@ from domain.users.repository import BaseUserRequestRepository
 
 @dataclass
 class GenerateResponse:
+
     user_requests_repository: BaseUserRequestRepository
     neural_network_repository: BaseNeuralNetworkRepository
     model_manager: BaseModelManager
-
     transaction_manager: BaseTransactionManager
 
     async def __call__(self, request: GenerateResponseRequest) -> ModelResponse:
         model = await self.neural_network_repository.get_by_name(request.model)
+
         base_prompt = "<system>\nДлина твоего ответа не должна превышать 4000 символов\n</system>\n"
+
         message = Message(base_prompt + request.message)
 
         if model is None:

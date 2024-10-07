@@ -4,7 +4,9 @@ from functools import lru_cache
 from multiprocessing import Queue
 from typing import AsyncGenerator
 
+import aiohttp
 import logging_loki
+import openai
 from dishka import AsyncContainer, Provider, Scope, make_async_container, provide
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
@@ -29,6 +31,8 @@ from domain.users.repository import (
 from infrastructure.config import settings
 from infrastructure.neural_networks.image_models.kadinsky import Kadinsky
 from infrastructure.neural_networks.main import ModelManager
+from infrastructure.neural_networks.text_models.chatgpt import ChatGPT
+from infrastructure.neural_networks.text_models.gigachat import Gigachat
 from infrastructure.persistence.main import create_engine, create_session_factory
 from infrastructure.persistence.repositories import (
     NeuralNetworkRepository,
@@ -55,7 +59,7 @@ def init_logger() -> None:
 @lru_cache(1)
 def init_loki_logger(app_name: str = "app"):
     return logging_loki.LokiQueueHandler(
-        Queue(-1),
+        Queue(-1),  # type: ignore
         url="http://loki:3100/loki/api/v1/push",
         tags={"application": app_name},
         version="1",
@@ -74,6 +78,16 @@ class SettingsProvider(Provider):
     @provide(scope=Scope.APP)
     def tg_client(self) -> AsyncTGClient:
         return AsyncTGClient(base_url=settings.tg.TG_API)
+
+    @provide(scope=Scope.APP)
+    async def aiohttp_session(self) -> AsyncGenerator[aiohttp.ClientSession, None]:
+        session = aiohttp.ClientSession()
+        yield session
+        await session.close()
+
+    @provide(scope=Scope.APP)
+    def openai_client(self) -> openai.AsyncOpenAI:
+        return openai.AsyncOpenAI(api_key=settings.chatgpt.API_KEY_CHATGPT)
 
 
 class DatabaseConfigurationProvider(Provider):
@@ -110,9 +124,11 @@ class DatabaseAdaptersProvider(Provider):
     )
 
 
-class ImagesProvider(Provider):
+class ModelsProvider(Provider):
     scope = Scope.APP
     image_model = provide(Kadinsky, provides=BaseImageModel)
+    chatgpt_model = provide(ChatGPT)
+    gigachat_model = provide(Gigachat)
 
 
 class UseCasesProvider(Provider):
@@ -151,5 +167,5 @@ def get_container() -> AsyncContainer:
         DatabaseConfigurationProvider(),
         DatabaseAdaptersProvider(),
         UseCasesProvider(),
-        ImagesProvider(),
+        ModelsProvider(),
     )

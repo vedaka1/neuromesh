@@ -1,11 +1,10 @@
 import json
 import logging
 import uuid
-from dataclasses import dataclass, field
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
 from typing import Any, cast
 
-from httpx import AsyncClient
+import aiohttp
 
 from domain.neural_networks.model import BaseTextModel
 from infrastructure.config import settings
@@ -13,32 +12,26 @@ from infrastructure.config import settings
 logger = logging.getLogger()
 
 
-@dataclass
 class Gigachat(BaseTextModel):
 
-    url: str = field(
-        default="https://gigachat.devices.sberbank.ru/api/v1/chat/completions",
-        init=False,
-    )
-    _access_token: str = field(default="", init=False)
-    client: AsyncClient = field(
-        default=AsyncClient(base_url="https://api-key.fusionbrain.ai/", verify=False),
-        init=False,
-    )
-    auth_time: datetime | None = field(default=None, init=False)
+    def __init__(self, session: aiohttp.ClientSession) -> None:
+        self.session = session
+        self.url: str = "https://gigachat.devices.sberbank.ru/api/v1/chat/completions"
+        self._access_token: str | None = None
+        self.token_expired_at: datetime | None = None
 
     async def generate_response(
         self, user_id: uuid.UUID, message: dict[str, Any]
     ) -> str | None:
-        await self._authenticate()
-
         try:
+            await self._authenticate()
+
             payload = json.dumps(
                 {
                     "model": "GigaChat",
                     "messages": [message],
-                    "temperature": 1,
                     "stream": False,
+                    "update_interval": 0,
                 }
             )
 
@@ -47,14 +40,14 @@ class Gigachat(BaseTextModel):
                 "Accept": "application/json",
                 "Authorization": f"Bearer {self._access_token}",
             }
-
-            response = await self.client.post(
-                url=self.url, headers=headers, data=payload  # type: ignore
+            response = await self.session.request(
+                "POST", url=self.url, headers=headers, data=payload, verify_ssl=False  # type: ignore
             )
-
             response.raise_for_status()
 
-            message = response.json()["choices"][0]["message"]["content"]
+            data = await response.json()
+
+            message = data["choices"][0]["message"]["content"]
 
             return cast(str, message)
 
@@ -64,9 +57,8 @@ class Gigachat(BaseTextModel):
             return None
 
     async def _authenticate(self) -> None:
-        if self.auth_time == None or datetime.now() >= self.auth_time + timedelta(
-            minutes=25
-        ):
+        if not self.token_expired_at or datetime.now() > self.token_expired_at:
+
             logger.info("Authenticating GigaChat")
 
             try:
@@ -81,13 +73,19 @@ class Gigachat(BaseTextModel):
                     "Authorization": f"Basic {settings.sber.AUTH_DATA_SBER}",
                 }
 
-                response = await self.client.post(
-                    url=url, headers=headers, data=payload  # type: ignore
+                response = await self.session.request(
+                    "POST", url=url, headers=headers, data=payload, verify_ssl=False  # type: ignore
+                )
+                print(response.text)
+                response.raise_for_status()
+
+                data = await response.json()
+                print(data)
+                self.token_expired_at = datetime.fromtimestamp(
+                    data["expires_at"] / 1000
                 )
 
-                self.auth_time = datetime.now(timezone.utc)
-
-                self._access_token = response.json()["access_token"]
+                self._access_token = data["access_token"]
 
                 return None
 

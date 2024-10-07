@@ -1,23 +1,24 @@
 import logging
 import uuid
 from dataclasses import dataclass, field
+from tkinter import NO
 from typing import Any
 
+import aiohttp
 import openai
 from openai.types.chat.chat_completion import ChatCompletion
 
 from domain.neural_networks.model import BaseTextModel
 from infrastructure.config import settings
 
+logger = logging.getLogger()
 
-@dataclass
+
 class ChatGPT(BaseTextModel):
     """FreeChatGPT class for bot users"""
 
-    logger: logging.Logger = field(default=logging.getLogger(__name__), init=False)
-    client: openai.AsyncOpenAI = field(
-        default=openai.AsyncOpenAI(api_key=settings.chatgpt.API_KEY_CHATGPT), init=False
-    )
+    def __init__(self, client: openai.AsyncOpenAI) -> None:
+        self.client = client
 
     async def generate_response(
         self, user_id: uuid.UUID, message: dict[str, Any], *, model: str = "gpt-4o-mini"
@@ -32,7 +33,7 @@ class ChatGPT(BaseTextModel):
 
             response = result.choices[0].message.content
 
-            self.logger.info('User: %s, chat_response: "%s"', user_id, response)
+            logger.info('User: %s, chat_response: "%s"', user_id, response)
 
             return response
 
@@ -46,7 +47,7 @@ class ChatGPT(BaseTextModel):
                 return None
 
         except Exception as e:
-            self.logger.error("User: %s, info: %s", user_id, e)
+            logger.error("User: %s, info: %s", user_id, e)
 
             return None
 

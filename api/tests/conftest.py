@@ -13,7 +13,7 @@ from src.infrastructure.config import settings
 from src.infrastructure.di.container import (
     DatabaseAdaptersProvider,
     DatabaseConfigurationProvider,
-    ImagesProvider,
+    ModelsProvider,
     UseCasesProvider,
 )
 from src.infrastructure.persistence.main import create_engine, create_session_factory
@@ -76,7 +76,7 @@ def container(postgres_url: str):
             DatabaseConfigurationProvider(),
             DatabaseAdaptersProvider(),
             UseCasesProvider(),
-            ImagesProvider(),
+            ModelsProvider(),
         )
 
     container = get_container()
