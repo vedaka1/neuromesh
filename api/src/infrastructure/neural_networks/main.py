@@ -30,11 +30,17 @@ class ModelManager(BaseModelManager):
         self, user_id: uuid.UUID, model_name: str, message: str
     ) -> str:
         model: BaseTextModel | None = self.models.get(model_name, None)
+
         if not model:
             raise ValueError(f"Model {model_name} not found")
+
         model_message = model.create_message(message=message)
+
         result = await model.generate_response(user_id, model_message)
+
         if result is None:
             raise ModelUnavailableException
+
         response = Response(result)
+
         return response.value

@@ -24,24 +24,30 @@ class ChatGPT(BaseTextModel):
     ) -> str | None:
         """Generates responses from different providers"""
         try:
-            print(model)
             result: ChatCompletion = await self.client.chat.completions.create(  # type: ignore
                 model=model,
                 messages=[message],  # type: ignore
                 stream=False,
             )
+
             response = result.choices[0].message.content
+
             self.logger.info('User: %s, chat_response: "%s"', user_id, response)
+
             return response
+
         except openai.RateLimitError as e:
             if model == "gpt-4o-mini":
                 return await self.generate_response(
                     user_id=user_id, message=message, model="gpt-3.5-turbo"
                 )
+
             else:
                 return None
+
         except Exception as e:
             self.logger.error("User: %s, info: %s", user_id, e)
+
             return None
 
     @staticmethod

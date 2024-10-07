@@ -12,7 +12,7 @@ port = os.getenv("SERVER_PORT", "8000")
 bind = f"{host}:{port}"
 
 # Number of workers
-workers = 4
+workers = 2
 
 # Daemon
 daemon = False

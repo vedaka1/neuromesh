@@ -22,7 +22,7 @@ class BaseTextModel(ABC):
 class BaseImageModel(ABC):
 
     @abstractmethod
-    async def generate_response(self, user_prompt: str) -> dict[str, Any] | None: ...
+    async def generate_response(self, prompt: str) -> dict[str, Any] | None: ...
 
 
 @dataclass

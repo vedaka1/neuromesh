@@ -1,23 +1,17 @@
-.PHONY: app
-app:
-	docker compose up -d --build
+DC = docker compose
+DEV = docker-compose.yml
+PROD = docker-compose.production.yml
 
-.PHONY: app-down
-app-down:
-	docker compose down
+dev:
+	$(DC) -f $(DEV) up -d --build
 	
-.PHONY: prod
 prod:
-	docker compose -f docker-compose.production.yml up -d --build
+	$(DC) -f $(PROD) up -d --build
 
-.PHONY: prod-down
-prod-down:
-	docker-compose -f docker-compose.production.yml down
-
-.PHONY: logs
 logs:
-	docker compose logs
+	$(DC) -f $(DEV) -f $(PROD)  logs
 
-.PHONY: tests
-tests:
-	poetry run 
+down:
+	$(DC) -f $(DEV) -f $(PROD) down
+
+PHONY: tests
