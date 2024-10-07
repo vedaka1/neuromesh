@@ -1,15 +1,11 @@
 import logging
 import uuid
-from dataclasses import dataclass, field
-from tkinter import NO
 from typing import Any
 
-import aiohttp
 import openai
 from openai.types.chat.chat_completion import ChatCompletion
 
 from domain.neural_networks.model import BaseTextModel
-from infrastructure.config import settings
 
 logger = logging.getLogger()
 
