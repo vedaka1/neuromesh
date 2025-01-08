@@ -1,9 +1,3 @@
-import functools
-
-from httpx import HTTPStatusError
-
-from domain.common.response import Response
-
 # def request(func):
 #     @functools.wraps(func)
 #     async def wrapper(*args, **kwargs):

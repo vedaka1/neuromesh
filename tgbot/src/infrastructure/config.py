@@ -17,20 +17,19 @@ def get_env_var(key: str, to_cast: Any, default: Any | None = None) -> Any:
     value = os.getenv(key)
 
     if not value and not default:
-        raise RuntimeError(f"{key} environment variable not set")
+        raise RuntimeError(f'{key} environment variable not set')
     if not value:
         return default
     return to_cast(value)
 
 
-class TelegramSettings:
-    BOT_TOKEN: str = get_env_var(key="BOT_TOKEN", to_cast=str)
-    HEAD_ADMIN_TG_ID: int = get_env_var(key="HEAD_ADMIN_TG_ID", to_cast=int)
+class TelegramConfig:
+    BOT_TOKEN: str = get_env_var(key='BOT_TOKEN', to_cast=str)
+    HEAD_ADMIN_TG_ID: int = get_env_var(key='HEAD_ADMIN_TG_ID', to_cast=int)
 
 
-class Settings:
+class AppConfig:
+    telegram: TelegramConfig = TelegramConfig()
 
-    tg: TelegramSettings = TelegramSettings()
 
-
-settings = Settings()
+config = AppConfig()
