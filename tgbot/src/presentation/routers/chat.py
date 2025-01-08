@@ -1,9 +1,8 @@
 from aiogram import F, Router, filters, types
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
+from application.common.response import Response
 from httpx import AsyncClient
-
-from src.application.common.response import Response
 
 chat_router = Router()
 

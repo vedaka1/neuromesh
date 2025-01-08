@@ -1,13 +1,8 @@
-import logging
-
 from aiogram import Dispatcher, F, types
 from aiogram.filters.exception import ExceptionTypeFilter
 from aiogram.fsm.context import FSMContext
+from application.common.response import Response
 from httpx import HTTPStatusError
-
-from src.application.common.response import Response
-
-logger = logging.getLogger(__name__)
 
 
 async def init_exc_handlers(dp: Dispatcher) -> None:

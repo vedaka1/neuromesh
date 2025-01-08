@@ -2,9 +2,9 @@ from typing import Any, Awaitable, Callable, Dict
 
 from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject, User
+from application.common.response import Response
 from infrastructure.config import config
 from presentation.common.texts import text
-from src.application.common.response import Response
 
 
 class AdminMiddleware(BaseMiddleware):

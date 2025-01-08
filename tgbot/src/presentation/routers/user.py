@@ -1,10 +1,9 @@
 from aiogram import F, Router, filters, types
 from aiogram.fsm.context import FSMContext
+from application.common.response import Response
 from httpx import AsyncClient
 from presentation.common.keyboards import kb
 from presentation.common.texts import text
-
-from src.application.common.response import Response
 
 user_router = Router()
 
