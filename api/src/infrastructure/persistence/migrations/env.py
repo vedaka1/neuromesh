@@ -1,7 +1,7 @@
 from logging.config import fileConfig
 
 from alembic import context
-from infrastructure.config import config
+from infrastructure.config import config as app_config
 from infrastructure.persistence.models import *
 from sqlalchemy import engine_from_config, pool
 
@@ -10,7 +10,7 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-config.set_main_option('sqlalchemy.url', config.db.DB_URL + '?async_fallback=True')
+config.set_main_option('sqlalchemy.url', app_config.db.DB_URL + '?async_fallback=True')
 
 target_metadata = Base.metadata
 
