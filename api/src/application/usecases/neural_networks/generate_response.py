@@ -30,7 +30,8 @@ class GenerateResponse:
         if user_requests.amount == 0:
             return ModelResponse(value='Limit of free requests exceeded')
 
-        message = Message(request.message).value
+        system_prompt = '<system>Длина твоего ответа не должна превышать 3500 символов</system>\n'
+        message = Message(system_prompt + request.message).value
         response = await self.model_manager.generate_response(request.user_id, request.model, message)
 
         await self.user_requests_repository.update_user_requests(request.user_id, model.name, user_requests.amount - 1)
