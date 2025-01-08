@@ -119,7 +119,7 @@ services:
     expose:
       - "3100"
     volumes:
-      - neuromesh.loki.data:/tmp/:rw
+      - logs_data:/var/log
     networks:
       - internal
     
