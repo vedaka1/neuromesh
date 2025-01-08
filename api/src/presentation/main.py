@@ -3,9 +3,9 @@ from contextlib import asynccontextmanager
 from dishka.integrations.fastapi import setup_dishka
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
-from infrastructure.di.container import get_container, init_logger, init_loki_logger
+from infrastructure.di.container import get_container, init_logger
 from infrastructure.tasks.main import broker
+
 from presentation.exc_handlers import init_exc_handlers
 from presentation.routers import model_router, subscription_router, user_router
 
@@ -31,29 +31,26 @@ async def lifespan(app: FastAPI):
 
 def create_app() -> FastAPI:
     app = FastAPI(
-        title="NeuroMesh",
-        docs_url="/api/docs",
-        description="NeuroMesh REST API",
+        title='NeuroMesh',
+        docs_url='/api/docs',
+        description='NeuroMesh REST API',
         debug=True,
         lifespan=lifespan,
     )
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["http://localhost"],
+        allow_origins=['http://localhost'],
         allow_credentials=True,
-        allow_methods=["GET", "POST", "HEAD", "OPTIONS", "DELETE", "PUT", "PATCH"],
+        allow_methods=['GET', 'POST', 'HEAD', 'OPTIONS', 'DELETE', 'PUT', 'PATCH'],
         allow_headers=[
-            "Access-Control-Allow-Headers",
-            "Content-Type",
-            "Authorization",
-            "Access-Control-Allow-Origin",
+            'Access-Control-Allow-Headers',
+            'Content-Type',
+            'Authorization',
+            'Access-Control-Allow-Origin',
         ],
     )
     init_di(app)
     init_routers(app)
     init_exc_handlers(app)
     init_logger()
-    # handler = init_loki_logger(app_name="api")
-    # logging.getLogger().addHandler(handler)
-    # logging.getLogger("uvicorn.access").addHandler(handler)
     return app

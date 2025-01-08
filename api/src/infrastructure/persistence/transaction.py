@@ -1,10 +1,11 @@
 from dataclasses import dataclass
 
+from application.common.transaction import ICommiter
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
 @dataclass
-class TransactionManager:
+class Commiter(ICommiter):
     session: AsyncSession
 
     async def commit(self) -> None:

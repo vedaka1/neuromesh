@@ -1,4 +1,3 @@
-import uuid
 from dataclasses import dataclass
 
 
@@ -7,7 +6,5 @@ class Subscription:
     name: str
 
     @staticmethod
-    def create(name: str) -> "Subscription":
-        return Subscription(
-            name=name,
-        )
+    def create(name: str) -> 'Subscription':
+        return Subscription(name=name)

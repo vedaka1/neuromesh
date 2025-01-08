@@ -2,10 +2,7 @@ import asyncio
 import logging
 from functools import lru_cache
 
-from punq import Container, Scope
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
-
-from application.common.transaction import BaseTransactionManager
+from application.common.transaction import ICommiter
 from application.usecases.neural_networks import *
 from application.usecases.subscriptions import *
 from application.usecases.users import *
@@ -20,6 +17,9 @@ from domain.users.repository import (
     BaseUserRequestRepository,
     BaseUserSubscriptionRepository,
 )
+from punq import Container, Scope
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+
 from infrastructure.neural_networks.main import ModelManager
 from infrastructure.persistence.main import create_engine, create_session_factory
 from infrastructure.persistence.repositories import (
@@ -30,13 +30,13 @@ from infrastructure.persistence.repositories import (
     UserRequestRepository,
     UserSubscriptionRepository,
 )
-from infrastructure.persistence.transaction import TransactionManager
+from infrastructure.persistence.transaction import Commiter
 
 
 @lru_cache(1)
 def get_container() -> Container:
     container = init_container()
-    print("INITIALIZED")
+    print('INITIALIZED')
     return container
 
 
@@ -45,8 +45,8 @@ def init_logger() -> None:
     logging.basicConfig(
         # filename="log.log",
         level=logging.INFO,
-        encoding="UTF-8",
-        format="%(asctime)s %(levelname)s: %(message)s",
+        encoding='UTF-8',
+        format='%(asctime)s %(levelname)s: %(message)s',
     )
     return None
 
@@ -56,7 +56,7 @@ def init_container() -> Container:
     engine = create_engine()
     session_factory = create_session_factory(engine)
 
-    container.register("lifespan_engine", instance=engine)
+    container.register('lifespan_engine', instance=engine)
 
     async def session_generator():
         session = session_factory()
@@ -68,17 +68,12 @@ def init_container() -> Container:
     def get_session():
         loop = asyncio.get_running_loop()
         new_session = asyncio.gather(session.__anext__(), return_exceptions=False)
-        print(new_session)
         return new_session
 
-    container.register(
-        async_sessionmaker, instance=session_factory, scope=Scope.singleton
-    )
+    container.register(async_sessionmaker, instance=session_factory, scope=Scope.singleton)
 
     container.register(AsyncSession, factory=get_session, scope=Scope.transient)
-    container.register(
-        BaseTransactionManager, TransactionManager, scope=Scope.transient
-    )
+    container.register(ICommiter, Commiter, scope=Scope.transient)
     container.register(BaseModelManager, ModelManager, scope=Scope.singleton)
     container.register(
         BaseUserRepository,

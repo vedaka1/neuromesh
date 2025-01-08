@@ -1,10 +1,8 @@
 from dataclasses import dataclass
 
-from fastapi.exceptions import HTTPException
-
-from application.common.transaction import BaseTransactionManager
-from domain.exceptions.model import *
-from domain.exceptions.subscription import *
+from application.common.transaction import ICommiter
+from domain.exceptions.model import ModelAlreadyInSubscriptionException, ModelNotFoundException
+from domain.exceptions.subscription import SubscriptionNotFoundException
 from domain.neural_networks.model import ModelSubscription
 from domain.neural_networks.repository import (
     BaseNeuralNetworkRepository,
@@ -22,31 +20,28 @@ class AddModelToSubscription:
     neural_network_subscription_repository: BaseNeuralNetworkSubscriptionRepository
     users_repository: BaseUserRepository
     user_requests_repository: BaseUserRequestRepository
+    commiter: ICommiter
 
-    transaction_manager: BaseTransactionManager
-
-    async def __call__(
-        self, subscription_name: str, model_name: str, requests: int
-    ) -> ModelSubscription:
+    async def __call__(self, subscription_name: str, model_name: str, requests: int) -> ModelSubscription:
         subscription = await self.subscription_repository.get_by_name(subscription_name)
-        if subscription is None:
+        if not subscription:
             raise SubscriptionNotFoundException
+
         model = await self.neural_network_repository.get_by_name(model_name)
-        if model is None:
+        if not model:
             raise ModelNotFoundException
+
         subscription_models = await self.neural_network_subscription_repository.get_all_by_subscription_name(
             subscription.name
         )
         for subscription_model in subscription_models:
             if subscription_model.neural_network_name == model.name:
                 raise ModelAlreadyInSubscriptionException
-        model_subscription = ModelSubscription.create(
-            model_name=model.name,
-            subscription_name=subscription.name,
-            requests=requests,
-        )
+
+        model_subscription = ModelSubscription.create(model.name, subscription.name, requests)
         await self.neural_network_subscription_repository.create(model_subscription)
-        users = await self.users_repository.get_all()
+
+        users = await self.users_repository.get_all(limit=None)
         for user in users:
             if user.current_subscription == subscription.name:
                 user_request = UserRequest.create(
@@ -55,7 +50,7 @@ class AddModelToSubscription:
                     amount=model_subscription.requests,
                 )
                 await self.user_requests_repository.create(user_request)
-        await self.transaction_manager.commit()
+        await self.commiter.commit()
         return model_subscription
 
 
@@ -64,21 +59,24 @@ class DeleteModelFromSubscription:
     subscription_repository: BaseSubscriptionRepository
     neural_network_repository: BaseNeuralNetworkRepository
     neural_network_subscription_repository: BaseNeuralNetworkSubscriptionRepository
-
-    transaction_manager: BaseTransactionManager
+    commiter: ICommiter
 
     async def __call__(self, subscription_name: str, model_name: str) -> None:
         subscription = await self.subscription_repository.get_by_name(subscription_name)
-        if subscription is None:
+        if not subscription:
             raise SubscriptionNotFoundException
+
         model = await self.neural_network_repository.get_by_name(model_name)
-        if model is None:
+        if not model:
             raise ModelNotFoundException
+
         subscription_model = await self.neural_network_subscription_repository.get_by_subscription_and_model_name(
             subscription_name=subscription_name, model_name=model_name
         )
         if not subscription_model:
             raise ModelNotFoundException
+
         await self.neural_network_subscription_repository.delete(subscription_model.id)
-        await self.transaction_manager.commit()
+        await self.commiter.commit()
+
         return None

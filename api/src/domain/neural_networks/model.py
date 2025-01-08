@@ -1,17 +1,13 @@
 import uuid
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from logging import Logger
 from typing import Any
 
 
 @dataclass
 class BaseTextModel(ABC):
-
     @abstractmethod
-    async def generate_response(
-        self, user_id: uuid.UUID, message: dict[str, Any]
-    ) -> str | None: ...
+    async def generate_response(self, user_id: uuid.UUID, message: dict[str, Any]) -> str | None: ...
 
     @staticmethod
     @abstractmethod
@@ -20,7 +16,6 @@ class BaseTextModel(ABC):
 
 @dataclass
 class BaseImageModel(ABC):
-
     @abstractmethod
     async def generate_response(self, prompt: str) -> dict[str, Any] | None: ...
 
@@ -30,7 +25,7 @@ class Model:
     name: str
 
     @staticmethod
-    def create(name: str) -> "Model":
+    def create(name: str) -> 'Model':
         return Model(
             name=name,
         )
@@ -44,9 +39,7 @@ class ModelSubscription:
     requests: int
 
     @staticmethod
-    def create(
-        model_name: str, subscription_name: str, requests: int
-    ) -> "ModelSubscription":
+    def create(model_name: str, subscription_name: str, requests: int) -> 'ModelSubscription':
         return ModelSubscription(
             id=uuid.uuid4(),
             neural_network_name=model_name,

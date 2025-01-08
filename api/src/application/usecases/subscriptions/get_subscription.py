@@ -4,7 +4,7 @@ from application.contracts.subscriptions.get_subscription_response import (
     GetSubscriptionResponse,
     ModelSubscriptionResponse,
 )
-from domain.exceptions.subscription import *
+from domain.exceptions.subscription import SubscriptionNotFoundException
 from domain.neural_networks.repository import (
     BaseNeuralNetworkRepository,
     BaseNeuralNetworkSubscriptionRepository,
@@ -18,8 +18,7 @@ class GetAllSubscriptions:
     subscription_repository: BaseSubscriptionRepository
 
     async def __call__(self) -> list[Subscription]:
-        subscriptions = await self.subscription_repository.get_all()
-        return subscriptions
+        return await self.subscription_repository.get_all()
 
 
 @dataclass
@@ -30,19 +29,12 @@ class GetSubscriptionByName:
 
     async def __call__(self, name: str) -> GetSubscriptionResponse:
         subscription = await self.subscription_repository.get_by_name(name)
-        if subscription is None:
+        if not subscription:
             raise SubscriptionNotFoundException
+
         neural_networks = await self.neural_network_subscriptoin_repository.get_all_by_subscription_name(
             subscription.name
         )
-        models = []
-        for neural_network in neural_networks:
-            models.append(
-                ModelSubscriptionResponse(
-                    neural_network.neural_network_name, neural_network.requests
-                )
-            )
-        return GetSubscriptionResponse(
-            name=subscription.name,
-            models=models,
-        )
+
+        models = [ModelSubscriptionResponse(item.neural_network_name, item.requests) for item in neural_networks]
+        return GetSubscriptionResponse(name=subscription.name, models=models)

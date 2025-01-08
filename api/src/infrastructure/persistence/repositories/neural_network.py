@@ -1,61 +1,46 @@
 from dataclasses import dataclass
 
-from sqlalchemy import text
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from domain.neural_networks.model import Model
 from domain.neural_networks.repository import BaseNeuralNetworkRepository
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 @dataclass
 class NeuralNetworkRepository(BaseNeuralNetworkRepository):
-
-    __slots__ = ("session",)
+    __slots__ = ('session',)
     session: AsyncSession
 
     async def create(self, model: Model) -> None:
         query = text(
             """
-                INSERT INTO neural_networks (name)
-                VALUES (:name);
-                """
+            INSERT INTO neural_networks (name)
+            VALUES (:name);
+            """
         )
-        await self.session.execute(
-            query,
-            {
-                "name": model.name,
-            },
-        )
-        return None
+        await self.session.execute(query, {'name': model.name})
 
     async def delete(self, name: str) -> None:
         query = text(
             """
-                DELETE FROM neural_networks
-                WHERE name = :value;
-                """
+            DELETE FROM neural_networks
+            WHERE name = :value;
+            """
         )
-        await self.session.execute(
-            query,
-            {
-                "value": name,
-            },
-        )
-
-        return None
+        await self.session.execute(query, {'value': name})
 
     async def get_by_name(self, name: str) -> Model | None:
         query = text("""SELECT * FROM neural_networks WHERE name = :value;""")
-        result = await self.session.execute(query, {"value": name})
+        result = await self.session.execute(query, {'value': name})
         data = result.mappings().one_or_none()
-        if data is None:
+        if not data:
             return None
 
         return Model(**data)
 
     async def get_all(self, limit: int = 10, offset: int = 0) -> list[Model]:
         query = text("""SELECT * FROM neural_networks LIMIT :limit OFFSET :offset;""")
-        result = await self.session.execute(query, {"limit": limit, "offset": offset})
+        result = await self.session.execute(query, {'limit': limit, 'offset': offset})
         data = result.mappings().all()
         return [Model(**item) for item in data]
 

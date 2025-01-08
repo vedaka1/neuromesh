@@ -1,5 +1,4 @@
+from infrastructure.config import config
 from taskiq_aio_pika import AioPikaBroker
 
-from infrastructure.config import settings
-
-broker = AioPikaBroker(settings.BROKER_URL_ENV)
+broker = AioPikaBroker(config.BROKER_URL_ENV)

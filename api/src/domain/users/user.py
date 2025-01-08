@@ -10,10 +10,10 @@ class UserDB:
     id: uuid.UUID
     telegram_id: int
     username: str
-    current_subscription: str = "Free"
+    current_subscription: str = 'Free'
 
     @staticmethod
-    def create(telegram_id: int, username: str) -> "UserDB":
+    def create(telegram_id: int, username: str) -> 'UserDB':
         return UserDB(
             id=uuid.uuid4(),
             telegram_id=telegram_id,
@@ -41,7 +41,7 @@ class UserSubscription:
         user_id: uuid.UUID,
         subscription_name: str,
         expires_in: int = 30,
-    ) -> "UserSubscription":
+    ) -> 'UserSubscription':
         return UserSubscription(
             id=uuid.uuid4(),
             user_id=user_id,
@@ -60,9 +60,7 @@ class UserRequest:
     amount: int
 
     @staticmethod
-    def create(
-        user_id: uuid.UUID, neural_network_name: str, amount: int
-    ) -> "UserRequest":
+    def create(user_id: uuid.UUID, neural_network_name: str, amount: int) -> 'UserRequest':
         return UserRequest(
             id=uuid.uuid4(),
             user_id=user_id,

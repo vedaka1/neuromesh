@@ -1,21 +1,18 @@
 import uuid
 from dataclasses import dataclass
 
-from fastapi import HTTPException
-
 from application.contracts.users.get_user_requests import GetUserRequestsResponse
 from application.contracts.users.get_user_response import GetUserResponse
 from application.contracts.users.get_user_subscriptions_response import (
     GetUserSubscriptionResponse,
 )
-from domain.exceptions.user import *
-from domain.subscriptions.repository import BaseSubscriptionRepository
+from domain.exceptions.user import UserNotFoundException
 from domain.users.repository import (
     BaseUserRepository,
     BaseUserRequestRepository,
     BaseUserSubscriptionRepository,
 )
-from domain.users.user import UserDB, UserRequest, UserSubscription
+from domain.users.user import UserDB
 
 
 @dataclass
@@ -23,8 +20,7 @@ class GetAllUsers:
     user_repository: BaseUserRepository
 
     async def __call__(self) -> list[UserDB]:
-        result = await self.user_repository.get_all()
-        return result
+        return await self.user_repository.get_all()
 
 
 @dataclass
@@ -35,12 +31,10 @@ class GetUserByTelegramId:
 
     async def __call__(self, user_id: int) -> GetUserResponse:
         user = await self.user_repository.get_by_telegram_id(user_id)
-        if user is None:
+        if not user:
             raise UserNotFoundException
 
-        subscription = await self.user_subscriptions_repository.get_active_by_user_id(
-            user.id
-        )
+        subscription = await self.user_subscriptions_repository.get_active_by_user_id(user.id)
         requests = await self.user_requests_repository.get_all_by_user_id(user.id)
 
         return GetUserResponse(
@@ -55,15 +49,12 @@ class GetUserByTelegramId:
                 )
                 if subscription
                 else GetUserSubscriptionResponse(
-                    subscription_name="Free",
+                    subscription_name='Free',
                     created_at=None,
                     expires_in=None,
                 )
             ),
-            requests=[
-                GetUserRequestsResponse(request.neural_network_name, request.amount)
-                for request in requests
-            ],
+            requests=[GetUserRequestsResponse(request.neural_network_name, request.amount) for request in requests],
         )
 
 
@@ -74,14 +65,11 @@ class GetUserRequests:
 
     async def __call__(self, user_id: uuid.UUID) -> list[GetUserRequestsResponse]:
         user = await self.user_repository.get_by_id(user_id)
-
-        if user is None:
+        if not user:
             raise UserNotFoundException
+
         requests = await self.user_requests_repository.get_all_by_user_id(user_id)
-        return [
-            GetUserRequestsResponse(request.neural_network_name, request.amount)
-            for request in requests
-        ]
+        return [GetUserRequestsResponse(request.neural_network_name, request.amount) for request in requests]
 
 
 @dataclass
@@ -91,12 +79,10 @@ class GetUserSubscription:
 
     async def __call__(self, user_id: uuid.UUID) -> GetUserSubscriptionResponse:
         user = await self.user_repository.get_by_id(user_id)
-
-        if user is None:
+        if not user:
             raise UserNotFoundException
-        subscription = await self.user_subscriptions_repository.get_active_by_user_id(
-            user_id
-        )
+
+        subscription = await self.user_subscriptions_repository.get_active_by_user_id(user_id)
 
         return (
             GetUserSubscriptionResponse(
@@ -106,7 +92,7 @@ class GetUserSubscription:
             )
             if subscription
             else GetUserSubscriptionResponse(
-                subscription_name="Free",
+                subscription_name='Free',
                 created_at=None,
                 expires_in=None,
             )
@@ -120,9 +106,9 @@ class GetUserSubscriptions:
 
     async def __call__(self, user_id: uuid.UUID) -> list[GetUserSubscriptionResponse]:
         user = await self.user_repository.get_by_id(user_id)
-
-        if user is None:
+        if not user:
             raise UserNotFoundException
+
         subscriptions = await self.user_subscriptions_repository.get_by_user_id(user_id)
 
         return [
@@ -130,7 +116,6 @@ class GetUserSubscriptions:
                 subscription_name=subscription.subscription_name,
                 created_at=subscription.created_at,
                 expires_in=subscription.expires_in,
-                is_expired=subscription.is_expired,
             )
             for subscription in subscriptions
         ]

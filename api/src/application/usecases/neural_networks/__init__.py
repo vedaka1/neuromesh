@@ -4,9 +4,9 @@ from .generate_response import GenerateResponse
 from .get_neural import GetAllNeuralNetworks, GetNeuralNetworkByName
 
 __all__ = [
-    "CreateNeuralNetwork",
-    "GenerateResponse",
-    "GetAllNeuralNetworks",
-    "GetNeuralNetworkByName",
-    "DeleteNeuralNetwork",
+    'CreateNeuralNetwork',
+    'GenerateResponse',
+    'GetAllNeuralNetworks',
+    'GetNeuralNetworkByName',
+    'DeleteNeuralNetwork',
 ]

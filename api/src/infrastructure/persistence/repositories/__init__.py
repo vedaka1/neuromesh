@@ -12,10 +12,10 @@ from infrastructure.persistence.repositories.user_subscription import (
 )
 
 __all__ = [
-    "NeuralNetworkRepository",
-    "UserRepository",
-    "SubscriptionRepository",
-    "UserRequestRepository",
-    "UserSubscriptionRepository",
-    "NeuralNetworkSubscriptionRepository",
+    'NeuralNetworkRepository',
+    'UserRepository',
+    'SubscriptionRepository',
+    'UserRequestRepository',
+    'UserSubscriptionRepository',
+    'NeuralNetworkSubscriptionRepository',
 ]

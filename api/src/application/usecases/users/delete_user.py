@@ -1,16 +1,14 @@
 from dataclasses import dataclass
 
-from application.common.transaction import BaseTransactionManager
+from application.common.transaction import ICommiter
 from domain.users.repository import BaseUserRepository
 
 
 @dataclass
 class DeleteUser:
     user_repository: BaseUserRepository
-
-    transaction_manager: BaseTransactionManager
+    commiter: ICommiter
 
     async def __call__(self, user_id: int) -> None:
         await self.user_repository.delete(user_id)
-
-        await self.transaction_manager.commit()
+        await self.commiter.commit()

@@ -3,11 +3,8 @@ import uuid
 from typing import Any
 
 import openai
-from openai.types.chat.chat_completion import ChatCompletion
-
 from domain.neural_networks.model import BaseTextModel
-
-logger = logging.getLogger()
+from openai.types.chat.chat_completion import ChatCompletion
 
 
 class ChatGPT(BaseTextModel):
@@ -17,7 +14,7 @@ class ChatGPT(BaseTextModel):
         self.client = client
 
     async def generate_response(
-        self, user_id: uuid.UUID, message: dict[str, Any], *, model: str = "gpt-4o-mini"
+        self, user_id: uuid.UUID, message: dict[str, Any], *, model: str = 'gpt-4o-mini'
     ) -> str | None:
         """Generates responses from different providers"""
         try:
@@ -29,28 +26,20 @@ class ChatGPT(BaseTextModel):
 
             response = result.choices[0].message.content
 
-            logger.info('User: %s, chat_response: "%s"', user_id, response)
+            logging.info('User: %s, chat_response: "%s"', user_id, response)
 
             return response
 
-        except openai.RateLimitError as e:
-            if model == "gpt-4o-mini":
-                return await self.generate_response(
-                    user_id=user_id, message=message, model="gpt-3.5-turbo"
-                )
-
-            else:
-                return None
-
+        except openai.RateLimitError:
+            if model == 'gpt-4o-mini':
+                return await self.generate_response(user_id=user_id, message=message, model='gpt-3.5-turbo')
         except Exception as e:
-            logger.error("User: %s, info: %s", user_id, e)
-
-            return None
+            logging.error('User: %s, info: %s', user_id, e)
 
     @staticmethod
     def create_message(message: str) -> dict[str, Any]:
         """Adds the user's message to the message list"""
-        return {"role": "user", "content": message}
+        return {'role': 'user', 'content': message}
 
     @classmethod
     def _test_access(cls):
