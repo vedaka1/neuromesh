@@ -18,6 +18,6 @@ async def select_subscription_callback(callback: types.CallbackQuery, client: As
     user_choice = callback.data.split('_')[1]
     user_id = callback.from_user.id
     user = await get_user(user_id, client)
-    response = await client.put(f"/users/{user["id"]}/subscription", params={'subscription_name': user_choice})
+    response = await client.put(f'/users/{user["id"]}/subscription', params={'subscription_name': user_choice})
     response.raise_for_status()
     await callback.message.edit_text('Selected subscription: ' + user_choice)

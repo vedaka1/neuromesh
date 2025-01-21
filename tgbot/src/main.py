@@ -3,6 +3,7 @@ import asyncio
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
+
 from infrastructure.config import config
 from infrastructure.dependencies import init_client, init_logger
 from presentation.exc_handlers import init_exc_handlers
@@ -10,12 +11,14 @@ from presentation.routers.admin import admin_router
 from presentation.routers.chat import chat_router
 from presentation.routers.subscription import subscription_router
 from presentation.routers.user import user_router
+from presentation.routers.videos import videos_router
 
 
 def init_routers(dp: Dispatcher):
     dp.include_router(admin_router)
     dp.include_router(subscription_router)
     dp.include_router(user_router)
+    dp.include_router(videos_router)
     dp.include_router(chat_router)
 
 

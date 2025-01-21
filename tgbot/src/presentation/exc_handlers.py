@@ -1,8 +1,9 @@
 from aiogram import Dispatcher, F, types
 from aiogram.filters.exception import ExceptionTypeFilter
 from aiogram.fsm.context import FSMContext
-from application.common.response import Response
 from httpx import HTTPStatusError
+
+from application.common.response import Response
 
 
 async def init_exc_handlers(dp: Dispatcher) -> None:

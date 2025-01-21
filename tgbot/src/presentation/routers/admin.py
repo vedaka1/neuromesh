@@ -72,7 +72,7 @@ async def cmd_models(
     response.raise_for_status()
     text = 'Available models:\n'
     for model in response.json():
-        text += f"{model["name"]}\n"
+        text += f'{model["name"]}\n'
     await message.answer(text=Response(text).value)
 
 
@@ -157,5 +157,5 @@ async def cmd_users(message: types.Message, client: AsyncClient):
     response.raise_for_status()
     text = 'Users:\n'
     for user in response.json():
-        text += f"{user['username']}\n"
+        text += f'{user["username"]}\n'
     await message.answer(text=Response(text).value)

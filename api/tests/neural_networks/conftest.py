@@ -1,9 +1,3 @@
-import pytest
-
-from src.domain.neural_networks.repository import BaseNeuralNetworkRepository
-from src.domain.subscriptions.repository import BaseSubscriptionRepository
-from src.domain.subscriptions.subscription import Subscription
-
 # @pytest.fixture(scope="function")
 # def neural_network_repository(container):
 #     neural_network_repository = container.resolve(BaseNeuralNetworkRepository)

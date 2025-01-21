@@ -6,17 +6,17 @@ from typing import Generator
 import pytest
 from application.common.tg_client import AsyncTGClient
 from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker
-from src.infrastructure.config import config
-from src.infrastructure.di.container import (
+from infrastructure.config import config
+from infrastructure.di.container import (
     DatabaseAdaptersProvider,
     DatabaseConfigurationProvider,
     ModelsProvider,
     UseCasesProvider,
 )
-from src.infrastructure.persistence.main import create_engine, create_session_factory
-from src.infrastructure.persistence.models import *
-from src.infrastructure.persistence.repositories import *
+from infrastructure.persistence.main import create_engine, create_session_factory
+from infrastructure.persistence.models import *
+from infrastructure.persistence.repositories import *
+from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker
 from testcontainers.postgres import PostgresContainer
 
 logger = logging.getLogger(__name__)
