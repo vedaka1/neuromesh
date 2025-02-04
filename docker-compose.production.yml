@@ -4,44 +4,37 @@ name: neuromesh
 
 services:
 
-  tgbot-service:
-    container_name: tgbot-service
-    hostname: tgbot
+  bot:
     depends_on:
       rabbitmq:
         condition: service_healthy
     build: 
-      context: ./tgbot/
-      dockerfile: ./Dockerfile
+      context: ./tgbot
+      dockerfile: ./.ci/Dockerfile
     env_file:
-      - ./tgbot/.env
+      - .env
     networks:
       - internal
       - default
 
-  api-service:
-    &api-service
-    container_name: api-service
-    hostname: api
+  api:
+    &api
     depends_on:
       rabbitmq:
         condition: service_healthy
       postgres: 
         condition: service_healthy
     build: 
-      context: ./api/
-      dockerfile: ./Dockerfile
+      context: ./api
+      dockerfile: ./.ci/Dockerfile
     env_file:
-      - ./api/.env.production
+      - .env
     networks:
       - internal
       - default
-    command: sh -c "alembic upgrade head && uvicorn --factory presentation.main:create_app --host 0.0.0.0 --port 8000"
 
   rabbitmq:
-    container_name: rabbitmq-service
     image: rabbitmq:3.8.27-management-alpine
-    hostname: rabbitmq
     env_file:
       - .env
     networks:
@@ -49,8 +42,6 @@ services:
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER:-admin}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD:-admin}
-    # volumes:
-    #   - rabbitmq.data:/var/lib/rabbitmq/:rw
     healthcheck:
       test: ["CMD-SHELL", "rabbitmq-diagnostics check_running -q"]
       interval: 10s
@@ -59,16 +50,13 @@ services:
       start_period: 10s
   
   postgres:
-    container_name: postgres
-    build: ./postgresql/
-    hostname: postgres
+    image: postgres:16-bookworm
     env_file:
-      - ./api/.env.production
+      - .env
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     networks:
       - internal
-    command: postgres -c 'config_file=/etc/postgresql/postgresql.conf'
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
       interval: 10s
@@ -76,10 +64,9 @@ services:
       retries: 5
       start_period: 10s
 
-  text2image-worker:
-    <<: *api-service
+  taskiq-worker:
+    <<: *api
     ports: []
-    container_name: text2image-worker
     command: taskiq worker infrastructure.tasks.main:broker infrastructure.tasks.tasks
     depends_on:
       rabbitmq:

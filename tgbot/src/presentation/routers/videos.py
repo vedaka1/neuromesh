@@ -1,15 +1,19 @@
 from uuid import uuid4
 
-from aiogram import Router, filters, types
-
+from aiogram import F, Router, types
 from infrastructure.gateways.twitter import TwitterGateway
 
 videos_router = Router()
 
 
-@videos_router.message(filters.Command('load'))
-async def download_video_from_url(message: types.Message, command: filters.command.CommandObject) -> None:
-    video_url = command.args
+@videos_router.message(F.text)
+async def download_video_from_url(message: types.Message) -> None:
+    if not message.text:
+        return
+    elif not message.text.startswith('https://x.com'):
+        return
+
+    video_url = message.text
     if not video_url:
         await message.answer('Provide a valid url after the command')
         return
@@ -20,5 +24,5 @@ async def download_video_from_url(message: types.Message, command: filters.comma
         await message.answer('Could not download video')
         return
 
-    image = types.BufferedInputFile(file=buffer, filename=str(uuid4()))
-    await message.answer_photo(image)
+    video = types.BufferedInputFile(file=buffer, filename=str(uuid4()))
+    await message.answer_video(video)

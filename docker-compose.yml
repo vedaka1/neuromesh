@@ -4,15 +4,13 @@ name: neuromesh
 
 services:
 
-  tgbot-service:
-    container_name: tgbot-service
-    hostname: tgbot
+  bot:
     depends_on:
       rabbitmq:
         condition: service_healthy
     build: 
-      context: ./tgbot/
-      dockerfile: ./Dockerfile
+      context: ./tgbot
+      dockerfile: ./.ci/Dockerfile
     volumes:
       - ./tgbot/src:/app
     env_file:
@@ -20,16 +18,14 @@ services:
     networks:
       - internal
 
-  api-service:
-    &api-service
-    container_name: api-service
-    hostname: api
+  api:
+    &api
     depends_on:
       rabbitmq:
         condition: service_healthy
     build: 
-      context: ./api/
-      dockerfile: ./Dockerfile
+      context: ./api
+      dockerfile: ./.ci/Dockerfile
     env_file:
       - ./api/.env.production
     networks:
@@ -38,12 +34,9 @@ services:
       - 8000:8000
     volumes:
       - ./api/src:/app
-    command: sh -c "alembic upgrade head && uvicorn presentation.main:create_app --host 0.0.0.0 --port 8000 --reload"
 
   postgres:
-    container_name: postgres
-    build: ./postgresql/
-    hostname: postgres
+    image: postgres:16-bookworm
     env_file:
       - ./api/.env.production
     volumes:
@@ -52,7 +45,6 @@ services:
       - internal
     ports:
       - 5432:5432
-    command: postgres -c 'config_file=/etc/postgresql/postgresql.conf'
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
       interval: 10s
@@ -61,16 +53,11 @@ services:
       start_period: 10s
 
   rabbitmq:
-    container_name: rabbitmq-broker
     image: rabbitmq:3.8.27-management-alpine
-    hostname: rabbitmq
     networks:
       - internal
     env_file:
       - .env
-    expose:
-      - 5672
-      - 15672
     ports:
       - 5672:5672
       - 15672:15672
@@ -84,10 +71,9 @@ services:
       retries: 5
       start_period: 10s
 
-  text2image-worker:
-    <<: *api-service
+  taskiq-worker:
+    <<: *api
     ports: []
-    container_name: text2image-worker
     command: taskiq worker infrastructure.tasks.main:broker infrastructure.tasks.tasks
     depends_on:
       rabbitmq:
@@ -95,10 +81,6 @@ services:
 
   grafana:
     image: grafana/grafana:9.5.2
-    container_name: grafana
-    hostname: grafana
-    expose:
-      - "3000"
     ports:
       - "3000:3000"
     networks:
@@ -114,8 +96,6 @@ services:
 
   loki:
     image: grafana/loki:2.8.2
-    container_name: loki
-    hostname: loki
     expose:
       - "3100"
     volumes:
