@@ -14,7 +14,7 @@ services:
     volumes:
       - ./tgbot/src:/app
     env_file:
-      - ./tgbot/.env
+      - .env
     networks:
       - internal
 
@@ -27,7 +27,7 @@ services:
       context: ./api
       dockerfile: ./.ci/Dockerfile
     env_file:
-      - ./api/.env.production
+      - .env
     networks:
       - internal
     ports:
@@ -38,7 +38,7 @@ services:
   postgres:
     image: postgres:16-bookworm
     env_file:
-      - ./api/.env.production
+      - .env
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     networks:
@@ -82,7 +82,7 @@ services:
   grafana:
     image: grafana/grafana:9.5.2
     ports:
-      - "3000:3000"
+      - 3000:3000
     networks:
       - internal
     volumes:
@@ -96,8 +96,6 @@ services:
 
   loki:
     image: grafana/loki:2.8.2
-    expose:
-      - "3100"
     volumes:
       - logs_data:/var/log
     networks:

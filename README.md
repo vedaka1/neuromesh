@@ -10,65 +10,41 @@ API + TG Bot to access to AI models
 * Image generation
 
 ## How to run
-* Set RabbitMQ environment variables `./.env`
+
+* Set variables in `.env` like in `.env.example`:
     ```python
+    POSTGRES_HOST=
+    POSTGRES_PORT=
+    POSTGRES_USER=
+    POSTGRES_PASSWORD=
+    POSTGRES_DB=
+
+    API_KEY_KADINSKY=
+    API_SECRET_KEY_KADINSKY=
+
+    AUTH_DATA_SBER=
+    CLIENT_ID_SBER=
+    CLIENT_SECRET_SBER=
+
+    API_KEY_CHATGPT=
+    API_KEY_GEMINI=
+    BROKER_URL=
+
+
+    BOT_TOKEN=
+    HEAD_ADMIN_TG_ID=
+
+
     RABBITMQ_USER=
     RABBITMQ_PASSWORD=
     RABBITMQ_HOST=
     RABBITMQ_PORT=
     ```
-    Set API environment variables for development `./api/.env`
-    ```python
-    MODE=
+### Production
+* Run `make prod` or `docker compose -f docker-compose.production.yml up -d`
 
-    POSTGRES_HOST=localhost
-    POSTGRES_PORT=
-    POSTGRES_USER=
-    POSTGRES_PASSWORD=
-    POSTGRES_DB=
-
-    API_KEY_KADINSKY=
-    API_SECRET_KEY_KADINSKY=
-
-    AUTH_DATA_SBER=
-    CLIENT_ID_SBER=
-    CLIENT_SECRET_SBER=
-
-    API_KEY_CHATGPT=
-
-    BOT_TOKEN=
-    BROKER_URL=
-    ```
-    Set API environment variables `./api/.env.production`
-    ```python
-    MODE=
-
-    POSTGRES_HOST=postgres
-    POSTGRES_PORT=
-    POSTGRES_USER=
-    POSTGRES_PASSWORD=
-    POSTGRES_DB=
-
-    API_KEY_KADINSKY=
-    API_SECRET_KEY_KADINSKY=
-
-    AUTH_DATA_SBER=
-    CLIENT_ID_SBER=
-    CLIENT_SECRET_SBER=
-
-    API_KEY_CHATGPT=
-
-    BOT_TOKEN=
-    BROKER_URL=
-    ```
-    Set Bot environment variables `./tgbot/.env`
-    ```python
-    BOT_TOKEN=
-    ```
-    ### Development
-    * Run `make app` or `docker compose up -d` in the project directory
-    ### Production
-    * Run `make prod` or `docker compose -f docker-compose.production.yml up -d` in the project directory
+### Development
+* Run `make dev` or `docker compose up -d`
 
 ## API Routes
 * Users ![image](./docs/images/users.png)
